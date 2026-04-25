@@ -64,25 +64,34 @@ class LoginViewModel @Inject constructor(
         viewModelScope.launch {
             _state.value = LoginState.Checking
             try {
-                // 1. Try local Room first (offline support)
+                // 1. Try local Room first (offline support) — uses appPin field
                 var ba = baDao.getByPin(pin.value)
 
-                // 2. If not found locally, fetch from Supabase
+                // 2. If not found locally, fetch from Supabase using app_pin column
                 if (ba == null) {
                     val resp = api.getBaByPin(
-                        pin = "eq.${pin.value}",
+                        appPin = "eq.${pin.value}",
                         apiKey = apiKey,
-                        auth = authHeader
+                        auth   = authHeader
                     )
                     if (resp.isSuccessful) {
                         val remote = resp.body()?.firstOrNull()
                         if (remote != null) {
                             ba = BrandAmbassadorEntity(
-                                id = remote.id, name = remote.name,
-                                email = remote.email, phone = remote.phone,
-                                stationId = remote.stationId, stationName = null,
-                                pin = remote.pin, status = remote.status,
-                                salaryAmount = remote.salaryAmount, city = remote.city
+                                id                   = remote.id,
+                                name                 = remote.name,
+                                mobile               = remote.mobile,
+                                cnic                 = remote.cnic,
+                                stationId            = remote.stationId,
+                                stationName          = null,
+                                appPin               = remote.appPin,
+                                isActive             = remote.isActive,
+                                employmentType       = remote.employmentType,
+                                currentMonthlySalary = remote.currentMonthlySalary,
+                                joinedAt             = remote.joinedAt,
+                                leaveAnnualLimit     = remote.leaveAnnualLimit,
+                                leaveCasualLimit     = remote.leaveCasualLimit,
+                                leaveSickLimit       = remote.leaveSickLimit,
                             )
                             baDao.upsert(ba)
                         }
@@ -95,10 +104,13 @@ class LoginViewModel @Inject constructor(
                     val station = stationsResp.body()?.find { it.id == ba.stationId }
 
                     session.saveSession(
-                        baId = ba.id, baName = ba.name,
-                        stationId = ba.stationId, stationName = station?.name ?: ba.stationName,
-                        lat = station?.latitude, lng = station?.longitude,
-                        radius = station?.geofenceRadius ?: 200
+                        baId        = ba.id,
+                        baName      = ba.name,
+                        stationId   = ba.stationId,
+                        stationName = station?.name ?: ba.stationName,
+                        lat         = station?.latitude,
+                        lng         = station?.longitude,
+                        radius      = station?.geofenceRadius ?: 200
                     )
                     _state.value = LoginState.Success(ba)
                 } else {
@@ -115,7 +127,6 @@ class LoginViewModel @Inject constructor(
     fun sendPinResetRequest() {
         viewModelScope.launch {
             try {
-                // Post a system message to admin
                 val baName = session.baName.first() ?: "Unknown BA"
                 api.postMessage(
                     body = mapOf(
@@ -134,14 +145,30 @@ class LoginViewModel @Inject constructor(
     }
 
     fun saveBiometricForCurrentPin(context: Context) {
-        // Biometric enrollment is handled via BiometricManager in the screen
-        // We store the PIN hash in EncryptedSharedPreferences after biometric auth
-        val prefs = context.getSharedPreferences("bio_prefs", Context.MODE_PRIVATE)
+        val prefs = androidx.security.crypto.EncryptedSharedPreferences.create(
+            "bio_prefs_secure",
+            androidx.security.crypto.MasterKey.Builder(context)
+                .setKeyScheme(androidx.security.crypto.MasterKey.KeyScheme.AES256_GCM)
+                .build(),
+            context,
+            androidx.security.crypto.EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            androidx.security.crypto.EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+        )
         prefs.edit().putString("enrolled_pin", pin.value).apply()
     }
 
     fun getBiometricPin(context: Context): String? {
-        val prefs = context.getSharedPreferences("bio_prefs", Context.MODE_PRIVATE)
-        return prefs.getString("enrolled_pin", null)
+        return try {
+            val prefs = androidx.security.crypto.EncryptedSharedPreferences.create(
+                "bio_prefs_secure",
+                androidx.security.crypto.MasterKey.Builder(context)
+                    .setKeyScheme(androidx.security.crypto.MasterKey.KeyScheme.AES256_GCM)
+                    .build(),
+                context,
+                androidx.security.crypto.EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                androidx.security.crypto.EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            )
+            prefs.getString("enrolled_pin", null)
+        } catch (e: Exception) { null }
     }
 }

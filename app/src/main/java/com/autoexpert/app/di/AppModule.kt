@@ -21,26 +21,27 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object AppModule {
 
-    // ── Database ──────────────────────────────────────────────────────────
     @Provides @Singleton
     fun provideDatabase(@ApplicationContext ctx: Context): AppDatabase =
         Room.databaseBuilder(ctx, AppDatabase::class.java, "autoexpert.db")
-            .fallbackToDestructiveMigration()
+            .fallbackToDestructiveMigration()   // safe during dev — add migrations before prod release
             .build()
 
-    @Provides fun provideBaDao(db: AppDatabase) = db.brandAmbassadorDao()
-    @Provides fun provideSkuDao(db: AppDatabase) = db.skuDao()
-    @Provides fun provideVehicleTypeDao(db: AppDatabase) = db.vehicleTypeDao()
-    @Provides fun provideCompetitorBrandDao(db: AppDatabase) = db.competitorBrandDao()
-    @Provides fun provideSaleEntryQueueDao(db: AppDatabase) = db.saleEntryQueueDao()
-    @Provides fun provideAttendanceQueueDao(db: AppDatabase) = db.attendanceQueueDao()
-    @Provides fun provideNoticeDao(db: AppDatabase) = db.noticeDao()
-    @Provides fun provideMessageDao(db: AppDatabase) = db.messageDao()
-    @Provides fun providePayoutDao(db: AppDatabase) = db.payoutDao()
-    @Provides fun provideLeaveRequestDao(db: AppDatabase) = db.leaveRequestDao()
-    @Provides fun provideTargetDao(db: AppDatabase) = db.targetDao()
+    @Provides fun provideBaDao(db: AppDatabase)                 = db.brandAmbassadorDao()
+    @Provides fun provideSkuDao(db: AppDatabase)                = db.skuDao()
+    @Provides fun provideVehicleTypeDao(db: AppDatabase)        = db.vehicleTypeDao()
+    @Provides fun provideCompetitorBrandDao(db: AppDatabase)    = db.competitorBrandDao()
+    @Provides fun provideCommissionPackageDao(db: AppDatabase)  = db.commissionPackageDao()
+    @Provides fun provideCommissionTierDao(db: AppDatabase)     = db.commissionTierDao()
+    @Provides fun provideBaCommissionOverrideDao(db: AppDatabase) = db.baCommissionOverrideDao()
+    @Provides fun provideSaleEntryQueueDao(db: AppDatabase)     = db.saleEntryQueueDao()
+    @Provides fun provideAttendanceQueueDao(db: AppDatabase)    = db.attendanceQueueDao()
+    @Provides fun provideNoticeDao(db: AppDatabase)             = db.noticeDao()
+    @Provides fun provideMessageDao(db: AppDatabase)            = db.messageDao()
+    @Provides fun providePayoutDao(db: AppDatabase)             = db.payoutDao()
+    @Provides fun provideLeaveRequestDao(db: AppDatabase)       = db.leaveRequestDao()
+    @Provides fun provideTargetDao(db: AppDatabase)             = db.targetDao()
 
-    // ── Network ───────────────────────────────────────────────────────────
     @Provides @Singleton
     fun provideOkHttp(): OkHttpClient = OkHttpClient.Builder()
         .addInterceptor(HttpLoggingInterceptor().apply {

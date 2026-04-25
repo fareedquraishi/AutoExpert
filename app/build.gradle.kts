@@ -96,5 +96,9 @@ dependencies {
     // WorkManager
     implementation(libs.workmanager)
 
+    // Biometric + Encrypted Storage
+    implementation("androidx.biometric:biometric:1.1.0")
+    implementation("androidx.security:security-crypto:1.1.0-alpha06")
+
     debugImplementation(libs.androidx.ui.tooling)
 }
