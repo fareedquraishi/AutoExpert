@@ -131,10 +131,11 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
             localId        = UUID.randomUUID().toString(),
             baId           = baId,
             attendanceDate = today,
-            status         = "P",
-            markedByGps    = true,
-            latitude       = location?.latitude,
-            longitude      = location?.longitude,
+            isPresent        = true,
+            attendanceStatus = "present",
+            method           = "gps",
+            geoLatitude      = location?.latitude,
+            geoLongitude     = location?.longitude,
             syncStatus     = "pending"
         )
         attendanceDao.insert(entity)

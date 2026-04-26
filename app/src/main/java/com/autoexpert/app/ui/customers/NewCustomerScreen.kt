@@ -1,3 +1,4 @@
+@file:OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 package com.autoexpert.app.ui.customers
 
 import androidx.compose.foundation.*
@@ -88,10 +89,10 @@ fun NewCustomerScreen(
                             Modifier.weight(1f).height(3.dp)
                                 .background(
                                     when {
-                                        i < state.step - 1 -> PetronasGreen
+                                        i < state.step - 1 -> Brush.horizontalGradient(listOf(PetronasGreen, PetronasGreen))
                                         i == state.step - 1 -> Brush.horizontalGradient(listOf(PetronasGreen, BorderColor))
-                                        else -> BorderColor
-                                    } as Brush,
+                                        else -> Brush.horizontalGradient(listOf(BorderColor, BorderColor))
+                                    },
                                     RoundedCornerShape(2.dp)
                                 )
                         )
@@ -180,7 +181,7 @@ private fun Step1CustomerInfo(state: CustomerEntryState, vm: NewCustomerViewMode
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
-                            Text(vt.icon, fontSize = 22.sp)
+                            Text(vt.name)
                             Text(vt.name, fontSize = 8.sp, fontWeight = FontWeight.Bold,
                                 color = if (sel) PetronasGreenDark else TextSecondary)
                         }

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">PAEC Field App</string>
+    <string name="splash_tagline">Brand Ambassador</string>
+    <string name="powered_by">Powered by Fintectual Pvt Ltd</string>
+    <string name="pin_hint">Enter your 6-digit PIN</string>
+    <string name="biometric_title">Auto Expert Centre</string>
+    <string name="biometric_subtitle">Confirm your identity to continue</string>
+    <string name="biometric_cancel">Use PIN instead</string>
+    <string name="channel_messages">Messages</string>
+    <string name="channel_finance">Payments &amp; Finance</string>
+    <string name="channel_leaves">Leave Updates</string>
+    <string name="channel_general">General</string>
+    <string name="attendance_marked_title">Attendance Marked ✅</string>
+    <string name="attendance_marked_body">You\'ve arrived at your station. Attendance recorded automatically via GPS.</string>
+    <string name="sync_channel">Background Sync</string>
+</resources>

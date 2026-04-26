@@ -145,30 +145,12 @@ class LoginViewModel @Inject constructor(
     }
 
     fun saveBiometricForCurrentPin(context: Context) {
-        val prefs = androidx.security.crypto.EncryptedSharedPreferences.create(
-            "bio_prefs_secure",
-            androidx.security.crypto.MasterKey.Builder(context)
-                .setKeyScheme(androidx.security.crypto.MasterKey.KeyScheme.AES256_GCM)
-                .build(),
-            context,
-            androidx.security.crypto.EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-            androidx.security.crypto.EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-        )
-        prefs.edit().putString("enrolled_pin", pin.value).apply()
+        context.getSharedPreferences("bio_prefs", android.content.Context.MODE_PRIVATE)
+            .edit().putString("enrolled_pin", pin.value).apply()
     }
 
     fun getBiometricPin(context: Context): String? {
-        return try {
-            val prefs = androidx.security.crypto.EncryptedSharedPreferences.create(
-                "bio_prefs_secure",
-                androidx.security.crypto.MasterKey.Builder(context)
-                    .setKeyScheme(androidx.security.crypto.MasterKey.KeyScheme.AES256_GCM)
-                    .build(),
-                context,
-                androidx.security.crypto.EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-                androidx.security.crypto.EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-            )
-            prefs.getString("enrolled_pin", null)
-        } catch (e: Exception) { null }
+        return context.getSharedPreferences("bio_prefs", android.content.Context.MODE_PRIVATE)
+            .getString("enrolled_pin", null)
     }
 }

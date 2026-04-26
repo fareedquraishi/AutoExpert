@@ -1,0 +1,37 @@
+R_DEF: Internal format may change without notice
+local
+color accent_amber
+color accent_blue
+color accent_red
+color bg_gray
+color dark_bg
+color petronas_green
+color petronas_green_dark
+color white
+drawable euro_logo
+drawable ic_notification
+drawable ic_petronas_splash
+drawable petronas_logo
+mipmap ic_launcher
+mipmap ic_launcher_round
+string app_name
+string attendance_marked_body
+string attendance_marked_title
+string biometric_cancel
+string biometric_subtitle
+string biometric_title
+string channel_finance
+string channel_general
+string channel_leaves
+string channel_messages
+string gcm_defaultSenderId
+string google_api_key
+string google_app_id
+string google_crash_reporting_api_key
+string pin_hint
+string powered_by
+string project_id
+string splash_tagline
+string sync_channel
+style Theme.AutoExpert
+style Theme.AutoExpert.Splash

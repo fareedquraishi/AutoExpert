@@ -107,7 +107,7 @@ class NewCustomerViewModel @Inject constructor(
 
     val selectedItems get() = _state.value.cart.values.filter { it.qty > 0 }
     val totalLitres   get() = selectedItems.sumOf { it.sku.volumeLitres * it.qty }
-    val totalCommission get() = selectedItems.sumOf { it.sku.margin * it.qty }
+    val totalCommission get() = selectedItems.sumOf { it.sku.marginPercent * it.qty }
 
     // Submit
     fun submit() {
@@ -122,10 +122,12 @@ class NewCustomerViewModel @Inject constructor(
             val itemsList = selectedItems.map { cartItem ->
                 mapOf(
                     "skuId"      to cartItem.sku.id,
-                    "qtyPacks"   to cartItem.qty.toDouble(),
                     "qtyLitres"  to (cartItem.sku.volumeLitres * cartItem.qty),
-                    "unitPrice"  to cartItem.sku.sellingPrice,
-                    "commission" to (cartItem.sku.margin * cartItem.qty)
+                    "qtyLitres"  to (cartItem.sku.volumeLitres * cartItem.qty),
+                    "purchasePriceSnapshot" to cartItem.sku.purchasePrice,
+                    "sellingPriceSnapshot" to cartItem.sku.sellingPrice,
+                    "marginSnapshot" to cartItem.sku.marginPercent,
+                    "commissionEarned" to (cartItem.sku.marginPercent / 100.0 * cartItem.sku.sellingPrice * cartItem.sku.volumeLitres * cartItem.qty)
                 )
             }
 
@@ -134,7 +136,7 @@ class NewCustomerViewModel @Inject constructor(
                 baId             = baId,
                 stationId        = stationId,
                 customerName     = s.customerName.trim().split(" ").joinToString(" ") { it.replaceFirstChar(Char::uppercaseChar) },
-                mobile           = s.mobile.trim().ifEmpty { null },
+                customerMobile   = s.mobile.trim().ifEmpty { null },
                 plateNumber      = s.plateNumber.trim().uppercase().ifEmpty { null },
                 vehicleTypeId    = s.vehicleTypeId.ifEmpty { null },
                 vehicleTypeName  = s.vehicleTypeName.ifEmpty { null },
@@ -143,7 +145,7 @@ class NewCustomerViewModel @Inject constructor(
                 isApplicator     = s.isApplicator,
                 totalLitres      = totalLitres,
                 totalCommission  = totalCommission,
-                entryDate        = today,
+                entryTime        = java.time.Instant.now().toString(),
                 itemsJson        = gson.toJson(itemsList),
                 syncStatus       = "pending"
             )

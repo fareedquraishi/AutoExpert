@@ -95,7 +95,7 @@ class HomeViewModel @Inject constructor(
 
         viewModelScope.launch {
             session.baId.filterNotNull().collect { baId ->
-                val unpaid = payoutDao.getTotalUnpaid(baId) ?: 0.0
+                val unpaid = payoutDao.getTotalPaid(baId) ?: 0.0
                 val presentDays = attendanceDao.countPresentDays(baId, monthPrefix)
                 val att = attendanceDao.getByBaAndDate(baId, today)
 
@@ -107,8 +107,8 @@ class HomeViewModel @Inject constructor(
                     unpaidBalance         = unpaid,
                     attendanceThisMonth   = presentDays,
                     todayAttendanceMarked = att != null,
-                    reachTarget  = if (target?.basis == "reach")  target.targetValue else 20.0,
-                    litresTarget = if (target?.basis == "litres") target.targetValue else 100.0,
+                    reachTarget  = if (target?.targetBasis == "reach")  target.targetValue else 20.0,
+                    litresTarget = if (target?.targetBasis == "litres") target.targetValue else 100.0,
                 )}
             }
         }
@@ -122,9 +122,9 @@ class HomeViewModel @Inject constructor(
                 api.getNotices(apiKey = apiKey, auth = auth).body()?.let { notices ->
                     val entities = notices.map { n ->
                         com.autoexpert.app.data.local.entity.NoticeEntity(
-                            id = n.id, title = n.title, body = n.body,
+                            id = n.id, message = n.message, // body removed,
                             targetBaIds = n.targetBaIds, isActive = n.isActive,
-                            createdAt = System.currentTimeMillis()
+                            postedAt = System.currentTimeMillis() //System.currentTimeMillis()
                         )
                     }
                     noticeDao.upsertAll(entities)
@@ -148,10 +148,10 @@ class HomeViewModel @Inject constructor(
                 api.getPayouts(baId = "eq.$baId", apiKey = apiKey, auth = auth).body()?.let { payouts ->
                     val entities = payouts.map { p ->
                         com.autoexpert.app.data.local.entity.PayoutEntity(
-                            id = p.id, baId = p.baId, earnedDate = p.earnedDate,
-                            earnedAmount = p.earnedAmount, allocatedAmount = p.allocatedAmount,
-                            balanceAmount = p.balanceAmount, paymentDate = p.paymentDate,
-                            paidAmount = p.paidAmount
+                            id = p.id, baId = p.baId, payoutDate = p.payoutDate,
+                            amount = p.amount, // amount removed p.amount,
+                            // amount removed p.amount, // payoutDate = p.payoutDate,
+                            // amount = p.amount
                         )
                     }
                     payoutDao.upsertAll(entities)

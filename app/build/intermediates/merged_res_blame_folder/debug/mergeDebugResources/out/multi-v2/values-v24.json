@@ -1,0 +1,19 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.autoexpert.app-mergeDebugResources-77:/values-v24/values-v24.xml",
+            "map": [
+                {
+                    "source": "/home/codespace/.gradle/caches/transforms-4/2a63c10416627131234e7cf9465a118c/transformed/appcompat-1.6.1/res/values-v24/values-v24.xml",
+                    "from": {
+                        "startLines": "2,3",
+                        "startColumns": "4,4",
+                        "startOffsets": "55,212",
+                        "endColumns": "156,134",
+                        "endOffsets": "207,342"
+                    }
+                }
+            ]
+        }
+    ]
+}

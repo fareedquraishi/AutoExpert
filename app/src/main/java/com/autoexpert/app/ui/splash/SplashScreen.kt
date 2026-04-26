@@ -64,14 +64,14 @@ fun SplashScreen(onTimeout: () -> Unit) {
             Modifier.size(360.dp).offset(y = (-60).dp)
                 .background(
                     Brush.radialGradient(listOf(PetronasGreen.copy(glowAlpha), Color.Transparent)),
-                    CircleShape
+                    RoundedCornerShape(50)
                 )
         )
         // Decorative rings
         listOf(340.dp, 250.dp, 170.dp).forEachIndexed { i, size ->
             Box(
                 Modifier.size(size)
-                    .border(1.dp, PetronasGreen.copy(alpha = 0.07f + i * 0.02f), CircleShape)
+                    .border(1.dp, PetronasGreen.copy(alpha = 0.07f + i * 0.02f), RoundedCornerShape(50))
                     .alpha(logoAlpha)
             )
         }

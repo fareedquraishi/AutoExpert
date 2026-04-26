@@ -9,17 +9,17 @@ plugins {
 
 android {
     namespace = "com.autoexpert.app"
-    compileSdk = 35
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.autoexpert.app"
         minSdk = 26
-        targetSdk = 35
+        targetSdk = 34
         versionCode = 1
         versionName = "4.0"
 
         buildConfigField("String", "SUPABASE_URL", "\"https://iageuvrhveeptvyjiavy.supabase.co\"")
-        buildConfigField("String", "SUPABASE_ANON_KEY", "\"YOUR_SUPABASE_ANON_KEY_HERE\"")
+        buildConfigField("String", "SUPABASE_ANON_KEY", "\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlhZ2V1dnJodmVlcHR2eWppYXZ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MDU3MTgsImV4cCI6MjA5MjA4MTcxOH0.35-iowTY8iM1XWTxPr-q6QQ05Dbpn0HZR5kZ2MFL0Ok\"")
     }
 
     buildTypes {
@@ -43,6 +43,7 @@ android {
 }
 
 dependencies {
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.32.0")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.lifecycle.viewmodel.compose)

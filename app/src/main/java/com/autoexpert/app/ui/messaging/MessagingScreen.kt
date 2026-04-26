@@ -208,7 +208,7 @@ fun MessagingScreen(onBack: () -> Unit, vm: MessagingViewModel = hiltViewModel()
                 )
                 Box(
                     Modifier.size(40.dp)
-                        .background(GreenGradient, RoundedCornerShape(12.dp))
+                        .background(androidx.compose.ui.graphics.Brush.linearGradient(listOf(androidx.compose.ui.graphics.Color(0xFF00A86B), androidx.compose.ui.graphics.Color(0xFF007A4D))), RoundedCornerShape(12.dp))
                         .clip(RoundedCornerShape(12.dp))
                         .clickable { vm.sendMessage() },
                     contentAlignment = Alignment.Center
@@ -259,7 +259,7 @@ private fun OutgoingBubble(msg: MessageEntity) {
                 modifier = Modifier
                     .widthIn(max = 260.dp)
                     .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp, bottomStart = 16.dp, bottomEnd = 3.dp))
-                    .background(GreenGradient)
+                    .background(androidx.compose.ui.graphics.Brush.linearGradient(listOf(androidx.compose.ui.graphics.Color(0xFF00A86B), androidx.compose.ui.graphics.Color(0xFF007A4D))))
                     .padding(12.dp, 9.dp)
             ) {
                 Text(msg.body, fontSize = 13.sp, color = Color.White, lineHeight = 18.sp)

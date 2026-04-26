@@ -80,9 +80,8 @@ private fun NoticeCard(notice: NoticeEntity, onClick: () -> Unit) {
                 contentAlignment = Alignment.Center
             ) { Text("📢", fontSize = 20.sp) }
             Column(Modifier.weight(1f)) {
-                Text(notice.title, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
-                Text(notice.body, fontSize = 11.sp, color = TextSecondary, lineHeight = 16.sp,
-                    maxLines = 3, modifier = Modifier.padding(top = 3.dp))
+                Text(notice.message, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
+                
             }
             if (!notice.isRead) {
                 Box(Modifier.size(8.dp).background(PetronasGreen, CircleShape))

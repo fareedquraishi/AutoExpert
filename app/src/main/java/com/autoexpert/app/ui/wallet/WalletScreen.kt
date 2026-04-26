@@ -34,7 +34,7 @@ class WalletViewModel @Inject constructor(
 
     val unpaidBalance: StateFlow<Double> = session.baId
         .filterNotNull()
-        .flatMapLatest { baId -> flow { emit(payoutDao.getTotalUnpaid(baId) ?: 0.0) } }
+        .flatMapLatest { baId -> flow { emit(payoutDao.getTotalPaid(baId) ?: 0.0) } }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
 }
 
@@ -80,28 +80,28 @@ fun WalletScreen(onBack: () -> Unit, vm: WalletViewModel = hiltViewModel()) {
                     Column(Modifier.fillMaxWidth().padding(13.dp)) {
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically) {
-                            Text(p.earnedDate, fontSize = 12.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
+                            Text(p.payoutDate, fontSize = 12.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
                             Surface(
-                                color = if (p.balanceAmount > 0) Color(0xFFFFF9EC) else PetronasGreenLight,
+                                color = if (p.amount > 0) Color(0xFFFFF9EC) else PetronasGreenLight,
                                 shape = RoundedCornerShape(8.dp)
                             ) {
                                 Text(
-                                    if (p.balanceAmount > 0) "Unpaid" else "✓ Paid",
+                                    if (p.amount > 0) "Unpaid" else "✓ Paid",
                                     fontSize = 9.sp, fontWeight = FontWeight.Bold,
-                                    color = if (p.balanceAmount > 0) Color(0xFF92400E) else PetronasGreenDark,
+                                    color = if (p.amount > 0) Color(0xFF92400E) else PetronasGreenDark,
                                     modifier = Modifier.padding(7.dp, 3.dp)
                                 )
                             }
                         }
                         Spacer(Modifier.height(8.dp))
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(7.dp)) {
-                            WalletCell("Earned",    "₨${"%,.0f".format(p.earnedAmount)}",    Modifier.weight(1f))
-                            WalletCell("Allocated", "₨${"%,.0f".format(p.allocatedAmount)}", Modifier.weight(1f))
-                            WalletCell("Balance",   "₨${"%,.0f".format(p.balanceAmount)}",   Modifier.weight(1f),
-                                valueColor = if (p.balanceAmount > 0) AccentRed else PetronasGreen)
+                            WalletCell("Earned",    "₨${"%,.0f".format(p.amount)}",    Modifier.weight(1f))
+                            WalletCell("Allocated", "₨${"%,.0f".format(p.amount)}", Modifier.weight(1f))
+                            WalletCell("Balance",   "₨${"%,.0f".format(p.amount)}",   Modifier.weight(1f),
+                                valueColor = if (p.amount > 0) AccentRed else PetronasGreen)
                         }
-                        p.paymentDate?.let {
-                            Text("Paid on $it", fontSize = 10.sp, color = TextDim, modifier = Modifier.padding(top = 6.dp))
+                        p.payoutDate?.let {
+                            Text("Note: ${p.note ?: ""}", fontSize = 10.sp, color = TextDim, modifier = Modifier.padding(top = 6.dp))
                         }
                     }
                 }
