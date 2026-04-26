@@ -21,17 +21,17 @@ import com.autoexpert.app.data.local.entity.*
 import com.autoexpert.app.ui.components.*
 import com.autoexpert.app.ui.theme.*
 
-fun vehicleIcon(iconKey: String): String = when(iconKey.lowercase()) {
-    "car" -> "\uD83D\uDE97"
-    "motorcycle" -> "\uD83C\uDFCD\uFE0F"
-    "van" -> "\uD83D\uDE90"
-    "truck" -> "\uD83D\uDE9B"
-    "suv" -> "\uD83D\uDE99"
-    "rickshaw" -> "\uD83D\uDEFA"
-    "heavy" -> "\uD83D\uDE8C"
-    "tractor" -> "\uD83D\uDE9C"
-    "pickup" -> "\uD83D\uDEFB"
-    else -> "\uD83D\uDE99"
+fun vehicleIcon(iconKey: String): String = when (iconKey.lowercase()) {
+    "car"        -> "Car"
+    "motorcycle" -> "Bike"
+    "van"        -> "Van"
+    "truck"      -> "Truck"
+    "suv"        -> "SUV"
+    "rickshaw"   -> "3W"
+    "heavy"      -> "HV"
+    "tractor"    -> "Tractor"
+    "pickup"     -> "Pickup"
+    else         -> "Vehicle"
 }
 
 @Composable
@@ -43,26 +43,22 @@ fun NewCustomerScreen(
     val state by vm.state.collectAsState()
     if (state.submitSuccess) {
         SuccessScreen(
-            commission = vm.totalCommission,
+            commission    = vm.totalCommission,
             onNewCustomer = { vm.reset() },
-            onDone = onSuccess
+            onDone        = onSuccess
         )
         return
     }
     Column(Modifier.fillMaxSize().background(BackgroundGray)) {
         TopBar(
-            title = when (state.step) {
-                1 -> "New Customer"
-                2 -> "Products"
-                else -> "Confirm"
-            },
+            title  = when (state.step) { 1 -> "New Customer"; 2 -> "Products"; else -> "Confirm" },
             onBack = if (state.step == 1) onBack else vm::prevStep
         )
         StepIndicator(state.step)
         when (state.step) {
-            1 -> Step1Info(state, vm)
-            2 -> Step2Products(state, vm)
-            3 -> Step3Confirm(state, vm)
+            1    -> Step1Info(state, vm)
+            2    -> Step2Products(state, vm)
+            else -> Step3Confirm(state, vm)
         }
     }
 }
@@ -87,7 +83,7 @@ private fun StepIndicator(step: Int) {
     Row(
         Modifier.fillMaxWidth().background(Color.White).padding(12.dp, 8.dp),
         horizontalArrangement = Arrangement.spacedBy(6.dp),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment     = Alignment.CenterVertically
     ) {
         repeat(3) { i ->
             Box(
@@ -104,66 +100,76 @@ private fun StepIndicator(step: Int) {
 @Composable
 private fun Step1Info(state: CustomerEntryState, vm: NewCustomerViewModel) {
     Column(Modifier.fillMaxSize()) {
-        Column(Modifier.weight(1f).verticalScroll(androidx.compose.foundation.rememberScrollState()).padding(12.dp)) {
+        Column(
+            Modifier.weight(1f)
+                .verticalScroll(androidx.compose.foundation.rememberScrollState())
+                .padding(12.dp)
+        ) {
             FormCard {
-                SectionHeader(title = "CUSTOMER INFO", icon = "\uD83D\uDC64")
+                SectionHeader(title = "CUSTOMER INFO", icon = "i")
                 FormField("Full Name") {
                     OutlinedTextField(
-                        value = state.customerName,
-                        onValueChange = vm::onNameChanged,
-                        modifier = Modifier.fillMaxWidth(),
-                        placeholder = { Text("Enter name") },
+                        value           = state.customerName,
+                        onValueChange   = vm::onNameChanged,
+                        modifier        = Modifier.fillMaxWidth(),
+                        placeholder     = { Text("Enter name") },
                         keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
-                        colors = outlinedTextFieldColors(), singleLine = true
+                        colors          = outlinedTextFieldColors(),
+                        singleLine      = true
                     )
                 }
                 FormField("Mobile Number") {
                     OutlinedTextField(
-                        value = state.mobile,
-                        onValueChange = vm::onMobileChanged,
-                        modifier = Modifier.fillMaxWidth(),
-                        placeholder = { Text("03XX-XXXXXXX") },
+                        value           = state.mobile,
+                        onValueChange   = vm::onMobileChanged,
+                        modifier        = Modifier.fillMaxWidth(),
+                        placeholder     = { Text("03XX-XXXXXXX") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-                        colors = outlinedTextFieldColors(), singleLine = true
+                        colors          = outlinedTextFieldColors(),
+                        singleLine      = true
                     )
                 }
                 FormField("Plate Number (optional)") {
                     OutlinedTextField(
-                        value = state.plateNumber,
-                        onValueChange = vm::onPlateChanged,
-                        modifier = Modifier.fillMaxWidth(),
-                        placeholder = { Text("ABC-123") },
+                        value           = state.plateNumber,
+                        onValueChange   = vm::onPlateChanged,
+                        modifier        = Modifier.fillMaxWidth(),
+                        placeholder     = { Text("ABC-123") },
                         keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Characters),
-                        colors = outlinedTextFieldColors(), singleLine = true
+                        colors          = outlinedTextFieldColors(),
+                        singleLine      = true
                     )
                 }
             }
             Spacer(Modifier.height(10.dp))
             FormCard {
-                SectionHeader(title = "VEHICLE TYPE", icon = "\uD83D\uDE97")
+                SectionHeader(title = "VEHICLE TYPE", icon = "V")
                 LazyVerticalGrid(
-                    columns = GridCells.Fixed(3),
+                    columns               = GridCells.Fixed(3),
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    verticalArrangement = Arrangement.spacedBy(6.dp),
-                    modifier = Modifier.heightIn(max = 400.dp)
+                    verticalArrangement   = Arrangement.spacedBy(6.dp),
+                    modifier              = Modifier.heightIn(max = 400.dp)
                 ) {
                     items(state.vehicleTypes.size) { i ->
-                        val vt = state.vehicleTypes[i]
+                        val vt  = state.vehicleTypes[i]
                         val sel = state.vehicleTypeId == vt.id
                         Surface(
-                            shape = RoundedCornerShape(8.dp),
-                            color = if (sel) PetronasGreenLight else BackgroundGray,
-                            border = BorderStroke(if (sel) 2.dp else 1.5.dp, if (sel) PetronasGreen else BorderColor),
+                            shape    = RoundedCornerShape(8.dp),
+                            color    = if (sel) PetronasGreenLight else BackgroundGray,
+                            border   = BorderStroke(if (sel) 2.dp else 1.5.dp, if (sel) PetronasGreen else BorderColor),
                             modifier = Modifier.clickable { vm.onVehicleSelected(vt.id, vt.name) }
                         ) {
                             Column(
                                 Modifier.fillMaxWidth().padding(6.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-                                Text(vehicleIcon(vt.iconKey), fontSize = 22.sp)
-                                Text(vt.name, fontSize = 10.sp, fontWeight = FontWeight.Bold,
-                                    color = if (sel) PetronasGreenDark else TextSecondary,
-                                    modifier = Modifier.padding(top = 3.dp))
+                                Text(vehicleIcon(vt.iconKey), fontSize = 14.sp, fontWeight = FontWeight.ExtraBold,
+                                    color = if (sel) PetronasGreen else TextPrimary)
+                                Text(
+                                    vt.name, fontSize = 10.sp, fontWeight = FontWeight.Bold,
+                                    color    = if (sel) PetronasGreenDark else TextSecondary,
+                                    modifier = Modifier.padding(top = 3.dp)
+                                )
                             }
                         }
                     }
@@ -171,43 +177,47 @@ private fun Step1Info(state: CustomerEntryState, vm: NewCustomerViewModel) {
             }
             Spacer(Modifier.height(10.dp))
             FormCard {
-                SectionHeader(title = "CUSTOMER STATUS", icon = "\u2705")
+                SectionHeader(title = "CUSTOMER STATUS", icon = "S")
                 Surface(
-                    shape = RoundedCornerShape(10.dp),
-                    color = if (state.isRepeat) PetronasGreenLight else BackgroundGray,
-                    border = BorderStroke(1.5.dp, if (state.isRepeat) PetronasGreen else BorderColor),
+                    shape    = RoundedCornerShape(10.dp),
+                    color    = if (state.isRepeat) PetronasGreenLight else BackgroundGray,
+                    border   = BorderStroke(1.5.dp, if (state.isRepeat) PetronasGreen else BorderColor),
                     modifier = Modifier.fillMaxWidth().clickable { vm.onRepeatToggle(!state.isRepeat) }
                 ) {
                     Row(
                         Modifier.fillMaxWidth().padding(13.dp, 11.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment     = Alignment.CenterVertically
                     ) {
                         Column {
                             Text("Already a Petronas Customer?", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
                             Text("Turn on if they already use Petronas products", fontSize = 11.sp, color = TextSecondary)
                         }
-                        Switch(checked = state.isRepeat, onCheckedChange = vm::onRepeatToggle,
-                            colors = SwitchDefaults.colors(checkedThumbColor = Color.White, checkedTrackColor = PetronasGreen))
+                        Switch(
+                            checked         = state.isRepeat,
+                            onCheckedChange = vm::onRepeatToggle,
+                            colors          = SwitchDefaults.colors(checkedThumbColor = Color.White, checkedTrackColor = PetronasGreen)
+                        )
                     }
                 }
                 if (!state.isRepeat && state.competitorBrands.isNotEmpty()) {
                     Spacer(Modifier.height(10.dp))
-                    Text("PREVIOUS BRAND", fontSize = 9.sp, fontWeight = FontWeight.Bold,
-                        color = TextSecondary, letterSpacing = 0.8.sp)
+                    Text("PREVIOUS BRAND", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = TextSecondary, letterSpacing = 0.8.sp)
                     Spacer(Modifier.height(7.dp))
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                         state.competitorBrands.forEach { brand ->
                             val sel = state.competitorBrandId == brand.id
                             Surface(
-                                shape = RoundedCornerShape(20.dp),
-                                color = if (sel) AccentRed.copy(.07f) else BackgroundGray,
-                                border = BorderStroke(1.5.dp, if (sel) AccentRed else BorderColor),
+                                shape    = RoundedCornerShape(20.dp),
+                                color    = if (sel) AccentRed.copy(.07f) else BackgroundGray,
+                                border   = BorderStroke(1.5.dp, if (sel) AccentRed else BorderColor),
                                 modifier = Modifier.clickable { vm.onBrandSelected(brand.id, brand.name) }
                             ) {
-                                Text(brand.name, fontSize = 11.sp, fontWeight = FontWeight.SemiBold,
-                                    color = if (sel) AccentRed else TextPrimary,
-                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp))
+                                Text(
+                                    brand.name, fontSize = 11.sp, fontWeight = FontWeight.SemiBold,
+                                    color    = if (sel) AccentRed else TextPrimary,
+                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                                )
                             }
                         }
                     }
@@ -217,9 +227,9 @@ private fun Step1Info(state: CustomerEntryState, vm: NewCustomerViewModel) {
         Surface(color = Color.White, shadowElevation = 4.dp) {
             Row(Modifier.fillMaxWidth().navigationBarsPadding().padding(12.dp)) {
                 PrimaryButton(
-                    "Next: Products \u2192", onClick = vm::nextStep,
+                    "Next: Products ->", onClick = vm::nextStep,
                     modifier = Modifier.weight(1f),
-                    enabled = state.customerName.isNotBlank() && state.vehicleTypeId.isNotEmpty()
+                    enabled  = state.customerName.isNotBlank() && state.vehicleTypeId.isNotEmpty()
                 )
             }
         }
@@ -228,60 +238,67 @@ private fun Step1Info(state: CustomerEntryState, vm: NewCustomerViewModel) {
 
 @Composable
 private fun Step2Products(state: CustomerEntryState, vm: NewCustomerViewModel) {
-    val selCount = vm.selectedItems.size
+    val selCount  = vm.selectedItems.size
     val totLitres = vm.totalLitres
-    val totComm = vm.totalCommission
+    val totComm   = vm.totalCommission
     Column(Modifier.fillMaxSize()) {
-        Column(Modifier.weight(1f).verticalScroll(androidx.compose.foundation.rememberScrollState()).padding(12.dp)) {
+        Column(
+            Modifier.weight(1f)
+                .verticalScroll(androidx.compose.foundation.rememberScrollState())
+                .padding(12.dp)
+        ) {
             if (selCount > 0) {
                 Row(
                     Modifier.fillMaxWidth().background(PetronasGreen, RoundedCornerShape(8.dp)).padding(10.dp, 7.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment     = Alignment.CenterVertically
                 ) {
-                    Text("$selCount product${if (selCount > 1) "s" else ""} selected",
-                        fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.White)
-                    Text("${totLitres}L \u00B7 \u20A8${totComm.toLong()} est.",
-                        fontSize = 11.sp, color = Color.White.copy(.85f))
+                    Text(
+                        "$selCount product${if (selCount > 1) "s" else ""} selected",
+                        fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.White
+                    )
+                    Text("${totLitres}L  Rs.${totComm.toLong()} est.", fontSize = 11.sp, color = Color.White.copy(.85f))
                 }
                 Spacer(Modifier.height(8.dp))
             }
             Row(
                 Modifier.fillMaxWidth().background(Color.White, RoundedCornerShape(12.dp))
                     .border(1.dp, BorderColor, RoundedCornerShape(12.dp)).padding(9.dp, 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
+                verticalAlignment     = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(9.dp)
             ) {
                 Box(
                     Modifier.size(32.dp).background(GreenGradient, RoundedCornerShape(9.dp)),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(state.customerName.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
-                        fontSize = 13.sp, fontWeight = FontWeight.ExtraBold, color = Color.White)
+                    Text(
+                        state.customerName.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
+                        fontSize = 13.sp, fontWeight = FontWeight.ExtraBold, color = Color.White
+                    )
                 }
                 Column {
                     Text(state.customerName, fontSize = 12.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
-                    Text("${state.vehicleTypeName} \u00B7 ${state.plateNumber.ifEmpty { "No plate" }}",
-                        fontSize = 10.sp, color = TextSecondary)
+                    Text("${state.vehicleTypeName} - ${state.plateNumber.ifEmpty { "No plate" }}", fontSize = 10.sp, color = TextSecondary)
                 }
             }
             Spacer(Modifier.height(10.dp))
             FormCard {
-                SectionHeader(title = "PRODUCTS", icon = "\uD83D\uDEE2\uFE0F")
+                SectionHeader(title = "PRODUCTS", icon = "P")
                 LazyVerticalGrid(
-                    columns = GridCells.Fixed(3),
+                    columns               = GridCells.Fixed(3),
                     horizontalArrangement = Arrangement.spacedBy(7.dp),
-                    verticalArrangement = Arrangement.spacedBy(7.dp),
-                    modifier = Modifier.heightIn(max = 1000.dp)
+                    verticalArrangement   = Arrangement.spacedBy(7.dp),
+                    modifier              = Modifier.heightIn(max = 1000.dp)
                 ) {
                     items(state.skus.size) { i ->
-                        val sku = state.skus[i]
+                        val sku      = state.skus[i]
                         val cartItem = state.cart[sku.id]!!
                         ProductCard(
-                            sku = sku, qty = cartItem.qty,
+                            sku         = sku,
+                            qty         = cartItem.qty,
                             onIncrement = { vm.incrementQty(sku.id) },
                             onDecrement = { vm.decrementQty(sku.id) },
-                            onRemove = { vm.removeFromCart(sku.id) }
+                            onRemove    = { vm.removeFromCart(sku.id) }
                         )
                     }
                 }
@@ -291,17 +308,18 @@ private fun Step2Products(state: CustomerEntryState, vm: NewCustomerViewModel) {
             Column(Modifier.fillMaxWidth().navigationBarsPadding().padding(12.dp)) {
                 Surface(
                     modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp).clickable { vm.submitWithoutProduct() },
-                    color = Color(0xFFFFFBEB), shape = RoundedCornerShape(10.dp),
-                    border = BorderStroke(1.5.dp, Color(0xFFD97706))
+                    color    = Color(0xFFFFFBEB),
+                    shape    = RoundedCornerShape(10.dp),
+                    border   = BorderStroke(1.5.dp, Color(0xFFD97706))
                 ) {
                     Row(Modifier.fillMaxWidth().padding(12.dp, 10.dp), horizontalArrangement = Arrangement.Center) {
-                        Text("\uD83D\uDCCB Submit Without Product  \u2022  Visit-only entry",
+                        Text("Submit Without Product  -  Visit-only entry",
                             fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color(0xFF92400E))
                     }
                 }
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlineButton("\u2190 Back", onClick = vm::prevStep, modifier = Modifier.width(90.dp))
-                    PrimaryButton("Confirm \u2192", onClick = vm::nextStep, modifier = Modifier.weight(1f))
+                    OutlineButton("<- Back", onClick = vm::prevStep, modifier = Modifier.width(90.dp))
+                    PrimaryButton("Confirm ->", onClick = vm::nextStep, modifier = Modifier.weight(1f))
                 }
             }
         }
@@ -310,31 +328,33 @@ private fun Step2Products(state: CustomerEntryState, vm: NewCustomerViewModel) {
 
 @Composable
 private fun Step3Confirm(state: CustomerEntryState, vm: NewCustomerViewModel) {
-    val selItems = vm.selectedItems
+    val selItems  = vm.selectedItems
     val totLitres = vm.totalLitres
-    val totComm = vm.totalCommission
+    val totComm   = vm.totalCommission
     Column(Modifier.fillMaxSize()) {
         Column(
-            Modifier.weight(1f).verticalScroll(androidx.compose.foundation.rememberScrollState()).padding(13.dp),
+            Modifier.weight(1f)
+                .verticalScroll(androidx.compose.foundation.rememberScrollState())
+                .padding(13.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             FormCard {
-                SectionHeader(title = "CUSTOMER", icon = "\uD83D\uDC64")
-                ConfirmRow("Name", state.customerName)
-                ConfirmRow("Mobile", state.mobile.ifEmpty { "\u2014" })
-                ConfirmRow("Plate", state.plateNumber.ifEmpty { "\u2014" })
+                SectionHeader(title = "CUSTOMER", icon = "C")
+                ConfirmRow("Name",    state.customerName)
+                ConfirmRow("Mobile",  state.mobile.ifEmpty { "-" })
+                ConfirmRow("Plate",   state.plateNumber.ifEmpty { "-" })
                 ConfirmRow("Vehicle", state.vehicleTypeName)
-                ConfirmRow("Status", if (state.isRepeat) "Petronas Customer" else "Non-Petronas")
+                ConfirmRow("Status",  if (state.isRepeat) "Petronas Customer" else "Non-Petronas")
                 state.competitorBrandName?.let { ConfirmRow("Previous Brand", it) }
             }
             FormCard {
-                SectionHeader(title = "PRODUCTS", icon = "\uD83D\uDEE2\uFE0F")
+                SectionHeader(title = "PRODUCTS", icon = "P")
                 if (selItems.isEmpty()) {
-                    Text("No products \u2014 submitting as visit only", fontSize = 12.sp, color = TextSecondary)
+                    Text("No products - submitting as visit only", fontSize = 12.sp, color = TextSecondary)
                 } else {
                     selItems.forEach { cartItem ->
                         Row(Modifier.fillMaxWidth().padding(vertical = 5.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text("${cartItem.sku.name} \u00D7${cartItem.qty}", fontSize = 12.sp, fontWeight = FontWeight.Medium, color = TextPrimary)
+                            Text("${cartItem.sku.name} x${cartItem.qty}", fontSize = 12.sp, fontWeight = FontWeight.Medium, color = TextPrimary)
                             Text("${cartItem.sku.volumeLitres * cartItem.qty}L", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = PetronasGreenDark)
                         }
                     }
@@ -347,18 +367,21 @@ private fun Step3Confirm(state: CustomerEntryState, vm: NewCustomerViewModel) {
             }
             if (selItems.isNotEmpty()) {
                 FormCard {
-                    SectionHeader(title = "APPLICATOR", icon = "\uD83D\uDD27")
+                    SectionHeader(title = "APPLICATOR", icon = "A")
                     Row(
                         Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment     = Alignment.CenterVertically
                     ) {
                         Column {
                             Text("Applicator Used?", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
                             Text("Was lube applied at the station?", fontSize = 11.sp, color = TextSecondary)
                         }
-                        Switch(checked = state.isApplicator, onCheckedChange = vm::onApplicatorToggle,
-                            colors = SwitchDefaults.colors(checkedThumbColor = Color.White, checkedTrackColor = PetronasGreen))
+                        Switch(
+                            checked         = state.isApplicator,
+                            onCheckedChange = vm::onApplicatorToggle,
+                            colors          = SwitchDefaults.colors(checkedThumbColor = Color.White, checkedTrackColor = PetronasGreen)
+                        )
                     }
                     if (state.isApplicator && selItems.size > 1) {
                         Spacer(Modifier.height(8.dp))
@@ -369,9 +392,9 @@ private fun Step3Confirm(state: CustomerEntryState, vm: NewCustomerViewModel) {
                             Surface(
                                 modifier = Modifier.fillMaxWidth().padding(bottom = 5.dp)
                                     .clickable { vm.onApplicatorSkuSelected(cartItem.sku.id) },
-                                color = if (isSel) PetronasGreenLight else BackgroundGray,
-                                shape = RoundedCornerShape(9.dp),
-                                border = BorderStroke(if (isSel) 2.dp else 1.dp, if (isSel) PetronasGreen else BorderColor)
+                                color    = if (isSel) PetronasGreenLight else BackgroundGray,
+                                shape    = RoundedCornerShape(9.dp),
+                                border   = BorderStroke(if (isSel) 2.dp else 1.dp, if (isSel) PetronasGreen else BorderColor)
                             ) {
                                 Row(Modifier.fillMaxWidth().padding(11.dp, 9.dp), horizontalArrangement = Arrangement.SpaceBetween) {
                                     Text(cartItem.sku.name, fontSize = 13.sp, fontWeight = FontWeight.Bold,
@@ -383,33 +406,38 @@ private fun Step3Confirm(state: CustomerEntryState, vm: NewCustomerViewModel) {
                         }
                     } else if (state.isApplicator && selItems.size == 1) {
                         Spacer(Modifier.height(4.dp))
-                        Text("\u2713 ${selItems[0].sku.name} \u2014 auto-selected", fontSize = 11.sp, color = PetronasGreen)
+                        Text("Applied: ${selItems[0].sku.name}", fontSize = 11.sp, color = PetronasGreen)
                     }
                 }
             }
             Surface(color = PetronasGreenLight, shape = RoundedCornerShape(14.dp), border = BorderStroke(1.dp, PetronasGreen.copy(.2f))) {
                 Row(Modifier.fillMaxWidth().padding(14.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                     Text("Commission Earned", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = PetronasGreenDark)
-                    Text("\u20A8 ${totComm.toLong()}", fontSize = 18.sp, fontWeight = FontWeight.ExtraBold, color = PetronasGreen)
+                    Text("Rs. ${totComm.toLong()}", fontSize = 18.sp, fontWeight = FontWeight.ExtraBold, color = PetronasGreen)
                 }
             }
             state.submitError?.let { Text(it, color = AccentRed, fontSize = 12.sp) }
         }
         Surface(color = Color.White, shadowElevation = 4.dp) {
             Row(Modifier.fillMaxWidth().navigationBarsPadding().padding(12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlineButton("\u2190 Back", onClick = vm::prevStep, modifier = Modifier.width(90.dp))
+                OutlineButton("<- Back", onClick = vm::prevStep, modifier = Modifier.width(90.dp))
                 PrimaryButton(
-                    if (state.isSubmitting) "Submitting\u2026" else "\u2705 Submit",
-                    onClick = vm::submit, modifier = Modifier.weight(1f), enabled = !state.isSubmitting
+                    if (state.isSubmitting) "Submitting..." else "Submit",
+                    onClick  = vm::submit,
+                    modifier = Modifier.weight(1f),
+                    enabled  = !state.isSubmitting
                 )
             }
         }
-        if (state.isSubmitting) LoadingOverlay("Saving entry\u2026")
+        if (state.isSubmitting) LoadingOverlay("Saving entry...")
     }
 }
 
 @Composable
-private fun ProductCard(sku: SkuEntity, qty: Int, onIncrement: () -> Unit, onDecrement: () -> Unit, onRemove: () -> Unit = {}) {
+private fun ProductCard(
+    sku: SkuEntity, qty: Int,
+    onIncrement: () -> Unit, onDecrement: () -> Unit, onRemove: () -> Unit = {}
+) {
     val selected = qty > 0
     Box(
         modifier = Modifier
@@ -425,17 +453,17 @@ private fun ProductCard(sku: SkuEntity, qty: Int, onIncrement: () -> Unit, onDec
                     Box(
                         Modifier.size(16.dp).background(AccentRed.copy(.12f), RoundedCornerShape(4.dp)).clickable { onRemove() },
                         contentAlignment = Alignment.Center
-                    ) { Text("\u00D7", fontSize = 11.sp, fontWeight = FontWeight.ExtraBold, color = AccentRed) }
+                    ) { Text("x", fontSize = 11.sp, fontWeight = FontWeight.ExtraBold, color = AccentRed) }
                 }
             }
             Row(Modifier.fillMaxWidth().padding(top = 3.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                 Text("${sku.volumeLitres}L", fontSize = 9.sp, color = TextSecondary, fontWeight = FontWeight.Medium)
-                Text("\u20A8${sku.sellingPrice.toLong()}", fontSize = 10.sp, fontWeight = FontWeight.ExtraBold, color = PetronasGreen)
+                Text("Rs.${sku.sellingPrice.toLong()}", fontSize = 10.sp, fontWeight = FontWeight.ExtraBold, color = PetronasGreen)
             }
             HorizontalDivider(Modifier.padding(vertical = 5.dp), color = BorderColor.copy(.5f))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                 Box(Modifier.size(20.dp).background(Color.White, RoundedCornerShape(5.dp)).border(1.dp, BorderColor, RoundedCornerShape(5.dp)).clickable { onDecrement() }, contentAlignment = Alignment.Center) {
-                    Text("\u2212", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
+                    Text("-", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
                 }
                 Text(qty.toString(), fontSize = 12.sp, fontWeight = FontWeight.ExtraBold, color = if (selected) PetronasGreenDark else TextSecondary)
                 Box(Modifier.size(20.dp).background(if (selected) PetronasGreen else Color.White, RoundedCornerShape(5.dp)).border(1.dp, if (selected) PetronasGreen else BorderColor, RoundedCornerShape(5.dp)).clickable { onIncrement() }, contentAlignment = Alignment.Center) {
@@ -449,7 +477,7 @@ private fun ProductCard(sku: SkuEntity, qty: Int, onIncrement: () -> Unit, onDec
 @Composable
 private fun SuccessScreen(commission: Double, onNewCustomer: () -> Unit, onDone: () -> Unit) {
     Column(Modifier.fillMaxSize().background(BackgroundGray).padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-        Text("\u2705", fontSize = 56.sp)
+        Text("OK", fontSize = 56.sp)
         Spacer(Modifier.height(16.dp))
         Text("Entry Submitted!", fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, color = TextPrimary)
         Text("Saved locally and syncing to server", fontSize = 13.sp, color = TextSecondary, modifier = Modifier.padding(top = 6.dp))
@@ -457,11 +485,11 @@ private fun SuccessScreen(commission: Double, onNewCustomer: () -> Unit, onDone:
         Surface(color = PetronasGreenLight, shape = RoundedCornerShape(16.dp), border = BorderStroke(1.dp, PetronasGreen.copy(.2f))) {
             Column(Modifier.padding(24.dp, 18.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                 Text("Commission This Entry", fontSize = 11.sp, color = PetronasGreenDark, fontWeight = FontWeight.Bold)
-                Text("\u20A8 ${commission.toLong()}", fontSize = 28.sp, fontWeight = FontWeight.ExtraBold, color = PetronasGreen)
+                Text("Rs. ${commission.toLong()}", fontSize = 28.sp, fontWeight = FontWeight.ExtraBold, color = PetronasGreen)
             }
         }
         Spacer(Modifier.height(24.dp))
-        PrimaryButton("\uFF0B New Customer", onClick = onNewCustomer, modifier = Modifier.fillMaxWidth())
+        PrimaryButton("+ New Customer", onClick = onNewCustomer, modifier = Modifier.fillMaxWidth())
         Spacer(Modifier.height(10.dp))
         OutlineButton("Back to Home", onClick = onDone, modifier = Modifier.fillMaxWidth())
     }
@@ -492,6 +520,8 @@ private fun ConfirmRow(label: String, value: String) {
 
 @Composable
 private fun outlinedTextFieldColors() = OutlinedTextFieldDefaults.colors(
-    focusedBorderColor = PetronasGreen, unfocusedBorderColor = BorderColor,
-    focusedContainerColor = Color.White, unfocusedContainerColor = BackgroundGray,
+    focusedBorderColor      = PetronasGreen,
+    unfocusedBorderColor    = BorderColor,
+    focusedContainerColor   = Color.White,
+    unfocusedContainerColor = BackgroundGray,
 )
