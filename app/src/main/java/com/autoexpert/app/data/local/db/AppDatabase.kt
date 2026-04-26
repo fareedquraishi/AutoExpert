@@ -22,7 +22,7 @@ import com.autoexpert.app.data.local.entity.*
         LeaveRequestEntity::class,
         TargetEntity::class,
     ],
-    version = 2,
+    version = 5,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

@@ -36,6 +36,13 @@ fun HomeScreen(
     vm: HomeViewModel = hiltViewModel()
 ) {
     val ui by vm.uiState.collectAsState()
+    val ctx = androidx.compose.ui.platform.LocalContext.current
+    androidx.compose.runtime.LaunchedEffect(ui.syncError) {
+        if (ui.syncError.isNotEmpty()) {
+            android.util.Log.e("AutoExpert", "SyncError: " + ui.syncError)
+            android.widget.Toast.makeText(ctx, ui.syncError, android.widget.Toast.LENGTH_LONG).show()
+        }
+    }
     var selectedNav by remember { mutableIntStateOf(0) }
 
     Scaffold(

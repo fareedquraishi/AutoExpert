@@ -15,6 +15,7 @@ import java.util.*
 import javax.inject.Inject
 
 data class HomeUiState(
+    val syncError: String = "",
     val baName: String = "",
     val stationName: String = "",
     val todayReach: Int = 0,
@@ -118,7 +119,7 @@ class HomeViewModel @Inject constructor(
 
     fun syncRemoteData() {
         viewModelScope.launch {
-            val baId = session.baId.first() ?: return@launch
+            val baId = session.baId.first() ?: run { _uiState.update { it.copy(syncError = "baId is null - not logged in") }; return@launch }
             try {
                 // Reference data ? SKUs, vehicle types, competitor brands
                 api.getSkus(apiKey = apiKey, auth = authHeader).body()?.let { list ->

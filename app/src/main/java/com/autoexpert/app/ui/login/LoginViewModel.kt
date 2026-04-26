@@ -64,6 +64,7 @@ class LoginViewModel @Inject constructor(
         viewModelScope.launch {
             _state.value = LoginState.Checking
             try {
+                android.util.Log.d("AutoExpert", "PIN attempt: " + pin.value)
                 // 1. Always try network first to get fresh station name
                 var ba: com.autoexpert.app.data.local.entity.BrandAmbassadorEntity? = null
                 if (true) {
@@ -72,7 +73,8 @@ class LoginViewModel @Inject constructor(
                         apiKey = apiKey,
                         auth   = authHeader
                     )
-                    if (resp.isSuccessful) {
+                    android.util.Log.d("AutoExpert", "API response code: " + resp.code() + " body: " + resp.body()?.size)
+                if (resp.isSuccessful) {
                         val remote = resp.body()?.firstOrNull()
                         if (remote != null) {
                             ba = BrandAmbassadorEntity(
@@ -115,7 +117,8 @@ class LoginViewModel @Inject constructor(
                     _state.value = LoginState.Error("Incorrect PIN. Please try again.")
                 }
             } catch (e: Exception) {
-                _state.value = LoginState.Error("Connection error. Check your internet.")
+                android.util.Log.e("AutoExpert", "Login error: " + e.javaClass.simpleName + ": " + e.message)
+                _state.value = LoginState.Error("Error: " + e.javaClass.simpleName + ": " + e.message)
                 pin.value = ""
             }
         }

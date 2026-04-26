@@ -24,7 +24,7 @@ object AppModule {
     @Provides @Singleton
     fun provideDatabase(@ApplicationContext ctx: Context): AppDatabase =
         Room.databaseBuilder(ctx, AppDatabase::class.java, "autoexpert.db")
-            .fallbackToDestructiveMigration()   // safe during dev — add migrations before prod release
+            .fallbackToDestructiveMigration()   // safe during dev
             .build()
 
     @Provides fun provideBaDao(db: AppDatabase)                 = db.brandAmbassadorDao()

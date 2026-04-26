@@ -85,7 +85,7 @@ public final class AppDatabase_Impl extends AppDatabase {
   @Override
   @NonNull
   protected SupportSQLiteOpenHelper createOpenHelper(@NonNull final DatabaseConfiguration config) {
-    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(2) {
+    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(5) {
       @Override
       public void createAllTables(@NonNull final SupportSQLiteDatabase db) {
         db.execSQL("CREATE TABLE IF NOT EXISTS `brand_ambassadors` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `cnic` TEXT, `stationId` TEXT, `stationName` TEXT, `appPin` TEXT NOT NULL, `isActive` INTEGER NOT NULL, `employmentType` TEXT, `currentMonthlySalary` REAL NOT NULL, `joinedAt` TEXT, `leaveAnnualLimit` INTEGER NOT NULL, `leaveCasualLimit` INTEGER NOT NULL, `leaveSickLimit` INTEGER NOT NULL, `updatedAt` INTEGER NOT NULL, PRIMARY KEY(`id`))");
