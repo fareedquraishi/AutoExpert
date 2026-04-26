@@ -1,6 +1,8 @@
 package com.autoexpert.app.ui.customers;
 
 import android.content.Context;
+import com.autoexpert.app.data.local.dao.BaCommissionOverrideDao;
+import com.autoexpert.app.data.local.dao.CommissionPackageDao;
 import com.autoexpert.app.data.local.dao.CompetitorBrandDao;
 import com.autoexpert.app.data.local.dao.SaleEntryQueueDao;
 import com.autoexpert.app.data.local.dao.SkuDao;
@@ -46,11 +48,16 @@ public final class NewCustomerViewModel_Factory implements Factory<NewCustomerVi
 
   private final Provider<Gson> gsonProvider;
 
+  private final Provider<CommissionPackageDao> commissionPackageDaoProvider;
+
+  private final Provider<BaCommissionOverrideDao> baCommissionOverrideDaoProvider;
+
   public NewCustomerViewModel_Factory(Provider<Context> contextProvider,
       Provider<SessionManager> sessionProvider, Provider<SaleEntryQueueDao> saleQueueDaoProvider,
       Provider<SkuDao> skuDaoProvider, Provider<VehicleTypeDao> vehicleTypeDaoProvider,
       Provider<CompetitorBrandDao> competitorBrandDaoProvider, Provider<SupabaseApi> apiProvider,
-      Provider<Gson> gsonProvider) {
+      Provider<Gson> gsonProvider, Provider<CommissionPackageDao> commissionPackageDaoProvider,
+      Provider<BaCommissionOverrideDao> baCommissionOverrideDaoProvider) {
     this.contextProvider = contextProvider;
     this.sessionProvider = sessionProvider;
     this.saleQueueDaoProvider = saleQueueDaoProvider;
@@ -59,24 +66,28 @@ public final class NewCustomerViewModel_Factory implements Factory<NewCustomerVi
     this.competitorBrandDaoProvider = competitorBrandDaoProvider;
     this.apiProvider = apiProvider;
     this.gsonProvider = gsonProvider;
+    this.commissionPackageDaoProvider = commissionPackageDaoProvider;
+    this.baCommissionOverrideDaoProvider = baCommissionOverrideDaoProvider;
   }
 
   @Override
   public NewCustomerViewModel get() {
-    return newInstance(contextProvider.get(), sessionProvider.get(), saleQueueDaoProvider.get(), skuDaoProvider.get(), vehicleTypeDaoProvider.get(), competitorBrandDaoProvider.get(), apiProvider.get(), gsonProvider.get());
+    return newInstance(contextProvider.get(), sessionProvider.get(), saleQueueDaoProvider.get(), skuDaoProvider.get(), vehicleTypeDaoProvider.get(), competitorBrandDaoProvider.get(), apiProvider.get(), gsonProvider.get(), commissionPackageDaoProvider.get(), baCommissionOverrideDaoProvider.get());
   }
 
   public static NewCustomerViewModel_Factory create(Provider<Context> contextProvider,
       Provider<SessionManager> sessionProvider, Provider<SaleEntryQueueDao> saleQueueDaoProvider,
       Provider<SkuDao> skuDaoProvider, Provider<VehicleTypeDao> vehicleTypeDaoProvider,
       Provider<CompetitorBrandDao> competitorBrandDaoProvider, Provider<SupabaseApi> apiProvider,
-      Provider<Gson> gsonProvider) {
-    return new NewCustomerViewModel_Factory(contextProvider, sessionProvider, saleQueueDaoProvider, skuDaoProvider, vehicleTypeDaoProvider, competitorBrandDaoProvider, apiProvider, gsonProvider);
+      Provider<Gson> gsonProvider, Provider<CommissionPackageDao> commissionPackageDaoProvider,
+      Provider<BaCommissionOverrideDao> baCommissionOverrideDaoProvider) {
+    return new NewCustomerViewModel_Factory(contextProvider, sessionProvider, saleQueueDaoProvider, skuDaoProvider, vehicleTypeDaoProvider, competitorBrandDaoProvider, apiProvider, gsonProvider, commissionPackageDaoProvider, baCommissionOverrideDaoProvider);
   }
 
   public static NewCustomerViewModel newInstance(Context context, SessionManager session,
       SaleEntryQueueDao saleQueueDao, SkuDao skuDao, VehicleTypeDao vehicleTypeDao,
-      CompetitorBrandDao competitorBrandDao, SupabaseApi api, Gson gson) {
-    return new NewCustomerViewModel(context, session, saleQueueDao, skuDao, vehicleTypeDao, competitorBrandDao, api, gson);
+      CompetitorBrandDao competitorBrandDao, SupabaseApi api, Gson gson,
+      CommissionPackageDao commissionPackageDao, BaCommissionOverrideDao baCommissionOverrideDao) {
+    return new NewCustomerViewModel(context, session, saleQueueDao, skuDao, vehicleTypeDao, competitorBrandDao, api, gson, commissionPackageDao, baCommissionOverrideDao);
   }
 }

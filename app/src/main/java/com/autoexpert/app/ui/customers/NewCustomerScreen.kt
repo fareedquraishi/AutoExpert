@@ -21,6 +21,21 @@ import com.autoexpert.app.data.local.entity.*
 import com.autoexpert.app.ui.components.*
 import com.autoexpert.app.ui.theme.*
 
+// Vehicle icon mapping from iconKey
+fun vehicleIcon(iconKey: String): String = when(iconKey.lowercase()) {
+    "car"        -> "🚗"
+    "motorcycle" -> "🏍️"
+    "van"        -> "🚐"
+    "truck"      -> "🚛"
+    "suv"        -> "🚙"
+    "rickshaw"   -> "🛺"
+    "heavy"      -> "🚌"
+    "tractor"    -> "🚜"
+    "pickup"     -> "🛻"
+    else         -> "🚙"
+}
+
+
 @Composable
 fun NewCustomerScreen(
     onBack: () -> Unit,
@@ -181,7 +196,8 @@ private fun Step1CustomerInfo(state: CustomerEntryState, vm: NewCustomerViewMode
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
-                            Text(vt.name)
+                            Text(vehicleIcon(vt.iconKey))
+                        Text(vt.name, fontSize = 9.sp)
                             Text(vt.name, fontSize = 8.sp, fontWeight = FontWeight.Bold,
                                 color = if (sel) PetronasGreenDark else TextSecondary)
                         }

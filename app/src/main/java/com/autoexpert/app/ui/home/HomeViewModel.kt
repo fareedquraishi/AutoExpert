@@ -131,7 +131,7 @@ class HomeViewModel @Inject constructor(
                 }
                 // Sync messages
                 api.getMessages(
-                    filter = "(sender_id.eq.$baId,receiver_id.eq.$baId)",
+                    filter = "sender_id.eq.$baId,receiver_id.eq.$baId",
                     apiKey = apiKey, auth = auth
                 ).body()?.let { msgs ->
                     val entities = msgs.map { m ->

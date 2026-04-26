@@ -57,9 +57,12 @@ class NewCustomerViewModel @Inject constructor(
     private val competitorBrandDao: CompetitorBrandDao,
     private val api: SupabaseApi,
     private val gson: Gson,
+    private val commissionPackageDao: CommissionPackageDao,
+    private val baCommissionOverrideDao: BaCommissionOverrideDao,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(CustomerEntryState())
+    private val _commissionRate = MutableStateFlow(50.0) // Rs per litre, loaded from DB
     val state: StateFlow<CustomerEntryState> = _state
 
     init {
@@ -107,7 +110,7 @@ class NewCustomerViewModel @Inject constructor(
 
     val selectedItems get() = _state.value.cart.values.filter { it.qty > 0 }
     val totalLitres   get() = selectedItems.sumOf { it.sku.volumeLitres * it.qty }
-    val totalCommission get() = selectedItems.sumOf { it.sku.marginPercent * it.qty }
+    val totalCommission get() = selectedItems.sumOf { it.sku.volumeLitres * it.qty * _commissionRate.value }
 
     // Submit
     fun submit() {
@@ -123,11 +126,10 @@ class NewCustomerViewModel @Inject constructor(
                 mapOf(
                     "skuId"      to cartItem.sku.id,
                     "qtyLitres"  to (cartItem.sku.volumeLitres * cartItem.qty),
-                    "qtyLitres"  to (cartItem.sku.volumeLitres * cartItem.qty),
                     "purchasePriceSnapshot" to cartItem.sku.purchasePrice,
                     "sellingPriceSnapshot" to cartItem.sku.sellingPrice,
                     "marginSnapshot" to cartItem.sku.marginPercent,
-                    "commissionEarned" to (cartItem.sku.marginPercent / 100.0 * cartItem.sku.sellingPrice * cartItem.sku.volumeLitres * cartItem.qty)
+                    "commissionEarned" to (cartItem.sku.volumeLitres * cartItem.qty * _commissionRate.value)
                 )
             }
 
