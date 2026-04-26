@@ -3,6 +3,7 @@ package com.autoexpert.app.data.local.dao;
 import android.database.Cursor;
 import android.os.CancellationSignal;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.room.CoroutinesRoom;
 import androidx.room.EntityInsertionAdapter;
 import androidx.room.RoomDatabase;
@@ -71,6 +72,111 @@ public final class CommissionPackageDao_Impl implements CommissionPackageDao {
           return Unit.INSTANCE;
         } finally {
           __db.endTransaction();
+        }
+      }
+    }, $completion);
+  }
+
+  @Override
+  public Object getGlobalActive(final Continuation<? super CommissionPackageEntity> $completion) {
+    final String _sql = "SELECT * FROM commission_packages WHERE isGlobal = 1 AND isActive = 1 LIMIT 1";
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
+    final CancellationSignal _cancellationSignal = DBUtil.createCancellationSignal();
+    return CoroutinesRoom.execute(__db, false, _cancellationSignal, new Callable<CommissionPackageEntity>() {
+      @Override
+      @Nullable
+      public CommissionPackageEntity call() throws Exception {
+        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+        try {
+          final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
+          final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
+          final int _cursorIndexOfBasis = CursorUtil.getColumnIndexOrThrow(_cursor, "basis");
+          final int _cursorIndexOfMinThresholdLitres = CursorUtil.getColumnIndexOrThrow(_cursor, "minThresholdLitres");
+          final int _cursorIndexOfFlatRate = CursorUtil.getColumnIndexOrThrow(_cursor, "flatRate");
+          final int _cursorIndexOfIsGlobal = CursorUtil.getColumnIndexOrThrow(_cursor, "isGlobal");
+          final int _cursorIndexOfIsActive = CursorUtil.getColumnIndexOrThrow(_cursor, "isActive");
+          final CommissionPackageEntity _result;
+          if (_cursor.moveToFirst()) {
+            final String _tmpId;
+            _tmpId = _cursor.getString(_cursorIndexOfId);
+            final String _tmpName;
+            _tmpName = _cursor.getString(_cursorIndexOfName);
+            final String _tmpBasis;
+            _tmpBasis = _cursor.getString(_cursorIndexOfBasis);
+            final double _tmpMinThresholdLitres;
+            _tmpMinThresholdLitres = _cursor.getDouble(_cursorIndexOfMinThresholdLitres);
+            final double _tmpFlatRate;
+            _tmpFlatRate = _cursor.getDouble(_cursorIndexOfFlatRate);
+            final boolean _tmpIsGlobal;
+            final int _tmp;
+            _tmp = _cursor.getInt(_cursorIndexOfIsGlobal);
+            _tmpIsGlobal = _tmp != 0;
+            final boolean _tmpIsActive;
+            final int _tmp_1;
+            _tmp_1 = _cursor.getInt(_cursorIndexOfIsActive);
+            _tmpIsActive = _tmp_1 != 0;
+            _result = new CommissionPackageEntity(_tmpId,_tmpName,_tmpBasis,_tmpMinThresholdLitres,_tmpFlatRate,_tmpIsGlobal,_tmpIsActive);
+          } else {
+            _result = null;
+          }
+          return _result;
+        } finally {
+          _cursor.close();
+          _statement.release();
+        }
+      }
+    }, $completion);
+  }
+
+  @Override
+  public Object getById(final String id,
+      final Continuation<? super CommissionPackageEntity> $completion) {
+    final String _sql = "SELECT * FROM commission_packages WHERE id = ? LIMIT 1";
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
+    int _argIndex = 1;
+    _statement.bindString(_argIndex, id);
+    final CancellationSignal _cancellationSignal = DBUtil.createCancellationSignal();
+    return CoroutinesRoom.execute(__db, false, _cancellationSignal, new Callable<CommissionPackageEntity>() {
+      @Override
+      @Nullable
+      public CommissionPackageEntity call() throws Exception {
+        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+        try {
+          final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
+          final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
+          final int _cursorIndexOfBasis = CursorUtil.getColumnIndexOrThrow(_cursor, "basis");
+          final int _cursorIndexOfMinThresholdLitres = CursorUtil.getColumnIndexOrThrow(_cursor, "minThresholdLitres");
+          final int _cursorIndexOfFlatRate = CursorUtil.getColumnIndexOrThrow(_cursor, "flatRate");
+          final int _cursorIndexOfIsGlobal = CursorUtil.getColumnIndexOrThrow(_cursor, "isGlobal");
+          final int _cursorIndexOfIsActive = CursorUtil.getColumnIndexOrThrow(_cursor, "isActive");
+          final CommissionPackageEntity _result;
+          if (_cursor.moveToFirst()) {
+            final String _tmpId;
+            _tmpId = _cursor.getString(_cursorIndexOfId);
+            final String _tmpName;
+            _tmpName = _cursor.getString(_cursorIndexOfName);
+            final String _tmpBasis;
+            _tmpBasis = _cursor.getString(_cursorIndexOfBasis);
+            final double _tmpMinThresholdLitres;
+            _tmpMinThresholdLitres = _cursor.getDouble(_cursorIndexOfMinThresholdLitres);
+            final double _tmpFlatRate;
+            _tmpFlatRate = _cursor.getDouble(_cursorIndexOfFlatRate);
+            final boolean _tmpIsGlobal;
+            final int _tmp;
+            _tmp = _cursor.getInt(_cursorIndexOfIsGlobal);
+            _tmpIsGlobal = _tmp != 0;
+            final boolean _tmpIsActive;
+            final int _tmp_1;
+            _tmp_1 = _cursor.getInt(_cursorIndexOfIsActive);
+            _tmpIsActive = _tmp_1 != 0;
+            _result = new CommissionPackageEntity(_tmpId,_tmpName,_tmpBasis,_tmpMinThresholdLitres,_tmpFlatRate,_tmpIsGlobal,_tmpIsActive);
+          } else {
+            _result = null;
+          }
+          return _result;
+        } finally {
+          _cursor.close();
+          _statement.release();
         }
       }
     }, $completion);

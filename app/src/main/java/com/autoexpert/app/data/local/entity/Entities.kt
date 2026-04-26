@@ -103,7 +103,8 @@ data class SaleEntryQueueEntity(
     val vehicleTypeName: String?,
     val isRepeat: Boolean = false,
     val competitorBrandId: String? = null,
-    val isApplicator: Boolean = false,          // true if any item has applicator
+    val isApplicator: Boolean = false,
+    val applicatorSkuId: String? = null,          // true if any item has applicator
     val notes: String? = null,
     val totalLitres: Double = 0.0,
     val totalCommission: Double = 0.0,

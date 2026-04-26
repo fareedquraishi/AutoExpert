@@ -79,6 +79,57 @@ public final class CommissionTierDao_Impl implements CommissionTierDao {
   }
 
   @Override
+  public Object getForPackage(final String pkgId,
+      final Continuation<? super List<CommissionTierEntity>> $completion) {
+    final String _sql = "SELECT * FROM commission_tiers WHERE packageId = ? ORDER BY sortOrder ASC";
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
+    int _argIndex = 1;
+    _statement.bindString(_argIndex, pkgId);
+    final CancellationSignal _cancellationSignal = DBUtil.createCancellationSignal();
+    return CoroutinesRoom.execute(__db, false, _cancellationSignal, new Callable<List<CommissionTierEntity>>() {
+      @Override
+      @NonNull
+      public List<CommissionTierEntity> call() throws Exception {
+        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+        try {
+          final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
+          final int _cursorIndexOfPackageId = CursorUtil.getColumnIndexOrThrow(_cursor, "packageId");
+          final int _cursorIndexOfMinQty = CursorUtil.getColumnIndexOrThrow(_cursor, "minQty");
+          final int _cursorIndexOfMaxQty = CursorUtil.getColumnIndexOrThrow(_cursor, "maxQty");
+          final int _cursorIndexOfRate = CursorUtil.getColumnIndexOrThrow(_cursor, "rate");
+          final int _cursorIndexOfSortOrder = CursorUtil.getColumnIndexOrThrow(_cursor, "sortOrder");
+          final List<CommissionTierEntity> _result = new ArrayList<CommissionTierEntity>(_cursor.getCount());
+          while (_cursor.moveToNext()) {
+            final CommissionTierEntity _item;
+            final String _tmpId;
+            _tmpId = _cursor.getString(_cursorIndexOfId);
+            final String _tmpPackageId;
+            _tmpPackageId = _cursor.getString(_cursorIndexOfPackageId);
+            final double _tmpMinQty;
+            _tmpMinQty = _cursor.getDouble(_cursorIndexOfMinQty);
+            final Double _tmpMaxQty;
+            if (_cursor.isNull(_cursorIndexOfMaxQty)) {
+              _tmpMaxQty = null;
+            } else {
+              _tmpMaxQty = _cursor.getDouble(_cursorIndexOfMaxQty);
+            }
+            final double _tmpRate;
+            _tmpRate = _cursor.getDouble(_cursorIndexOfRate);
+            final int _tmpSortOrder;
+            _tmpSortOrder = _cursor.getInt(_cursorIndexOfSortOrder);
+            _item = new CommissionTierEntity(_tmpId,_tmpPackageId,_tmpMinQty,_tmpMaxQty,_tmpRate,_tmpSortOrder);
+            _result.add(_item);
+          }
+          return _result;
+        } finally {
+          _cursor.close();
+          _statement.release();
+        }
+      }
+    }, $completion);
+  }
+
+  @Override
   public Object getByPackage(final String packageId,
       final Continuation<? super List<CommissionTierEntity>> $completion) {
     final String _sql = "SELECT * FROM commission_tiers WHERE packageId = ? ORDER BY sortOrder";

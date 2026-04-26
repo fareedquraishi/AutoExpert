@@ -77,6 +77,56 @@ public final class BaCommissionOverrideDao_Impl implements BaCommissionOverrideD
   }
 
   @Override
+  public Object getActiveForBa(final String baId, final String today,
+      final Continuation<? super BaCommissionOverrideEntity> $completion) {
+    final String _sql = "SELECT * FROM ba_commission_overrides WHERE baId = ? AND (effectiveTo IS NULL OR effectiveTo >= ?) LIMIT 1";
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 2);
+    int _argIndex = 1;
+    _statement.bindString(_argIndex, baId);
+    _argIndex = 2;
+    _statement.bindString(_argIndex, today);
+    final CancellationSignal _cancellationSignal = DBUtil.createCancellationSignal();
+    return CoroutinesRoom.execute(__db, false, _cancellationSignal, new Callable<BaCommissionOverrideEntity>() {
+      @Override
+      @Nullable
+      public BaCommissionOverrideEntity call() throws Exception {
+        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+        try {
+          final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
+          final int _cursorIndexOfBaId = CursorUtil.getColumnIndexOrThrow(_cursor, "baId");
+          final int _cursorIndexOfPackageId = CursorUtil.getColumnIndexOrThrow(_cursor, "packageId");
+          final int _cursorIndexOfEffectiveFrom = CursorUtil.getColumnIndexOrThrow(_cursor, "effectiveFrom");
+          final int _cursorIndexOfEffectiveTo = CursorUtil.getColumnIndexOrThrow(_cursor, "effectiveTo");
+          final BaCommissionOverrideEntity _result;
+          if (_cursor.moveToFirst()) {
+            final String _tmpId;
+            _tmpId = _cursor.getString(_cursorIndexOfId);
+            final String _tmpBaId;
+            _tmpBaId = _cursor.getString(_cursorIndexOfBaId);
+            final String _tmpPackageId;
+            _tmpPackageId = _cursor.getString(_cursorIndexOfPackageId);
+            final String _tmpEffectiveFrom;
+            _tmpEffectiveFrom = _cursor.getString(_cursorIndexOfEffectiveFrom);
+            final String _tmpEffectiveTo;
+            if (_cursor.isNull(_cursorIndexOfEffectiveTo)) {
+              _tmpEffectiveTo = null;
+            } else {
+              _tmpEffectiveTo = _cursor.getString(_cursorIndexOfEffectiveTo);
+            }
+            _result = new BaCommissionOverrideEntity(_tmpId,_tmpBaId,_tmpPackageId,_tmpEffectiveFrom,_tmpEffectiveTo);
+          } else {
+            _result = null;
+          }
+          return _result;
+        } finally {
+          _cursor.close();
+          _statement.release();
+        }
+      }
+    }, $completion);
+  }
+
+  @Override
   public Object getActiveOverride(final String baId, final String today,
       final Continuation<? super BaCommissionOverrideEntity> $completion) {
     final String _sql = "\n"

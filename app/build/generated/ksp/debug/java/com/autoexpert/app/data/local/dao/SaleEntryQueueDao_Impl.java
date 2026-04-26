@@ -39,13 +39,15 @@ public final class SaleEntryQueueDao_Impl implements SaleEntryQueueDao {
 
   private final SharedSQLiteStatement __preparedStmtOfUpdateSyncStatus;
 
+  private final SharedSQLiteStatement __preparedStmtOfDeleteSyncedByDate;
+
   public SaleEntryQueueDao_Impl(@NonNull final RoomDatabase __db) {
     this.__db = __db;
     this.__insertionAdapterOfSaleEntryQueueEntity = new EntityInsertionAdapter<SaleEntryQueueEntity>(__db) {
       @Override
       @NonNull
       protected String createQuery() {
-        return "INSERT OR REPLACE INTO `sale_entries_queue` (`localId`,`remoteId`,`serialNumber`,`baId`,`stationId`,`customerName`,`customerMobile`,`plateNumber`,`vehicleTypeId`,`vehicleTypeName`,`isRepeat`,`competitorBrandId`,`isApplicator`,`notes`,`totalLitres`,`totalCommission`,`entryTime`,`createdAt`,`syncStatus`,`itemsJson`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        return "INSERT OR REPLACE INTO `sale_entries_queue` (`localId`,`remoteId`,`serialNumber`,`baId`,`stationId`,`customerName`,`customerMobile`,`plateNumber`,`vehicleTypeId`,`vehicleTypeName`,`isRepeat`,`competitorBrandId`,`isApplicator`,`applicatorSkuId`,`notes`,`totalLitres`,`totalCommission`,`entryTime`,`createdAt`,`syncStatus`,`itemsJson`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
       }
 
       @Override
@@ -94,17 +96,22 @@ public final class SaleEntryQueueDao_Impl implements SaleEntryQueueDao {
         }
         final int _tmp_1 = entity.isApplicator() ? 1 : 0;
         statement.bindLong(13, _tmp_1);
-        if (entity.getNotes() == null) {
+        if (entity.getApplicatorSkuId() == null) {
           statement.bindNull(14);
         } else {
-          statement.bindString(14, entity.getNotes());
+          statement.bindString(14, entity.getApplicatorSkuId());
         }
-        statement.bindDouble(15, entity.getTotalLitres());
-        statement.bindDouble(16, entity.getTotalCommission());
-        statement.bindString(17, entity.getEntryTime());
-        statement.bindLong(18, entity.getCreatedAt());
-        statement.bindString(19, entity.getSyncStatus());
-        statement.bindString(20, entity.getItemsJson());
+        if (entity.getNotes() == null) {
+          statement.bindNull(15);
+        } else {
+          statement.bindString(15, entity.getNotes());
+        }
+        statement.bindDouble(16, entity.getTotalLitres());
+        statement.bindDouble(17, entity.getTotalCommission());
+        statement.bindString(18, entity.getEntryTime());
+        statement.bindLong(19, entity.getCreatedAt());
+        statement.bindString(20, entity.getSyncStatus());
+        statement.bindString(21, entity.getItemsJson());
       }
     };
     this.__preparedStmtOfUpdateSyncStatus = new SharedSQLiteStatement(__db) {
@@ -112,6 +119,14 @@ public final class SaleEntryQueueDao_Impl implements SaleEntryQueueDao {
       @NonNull
       public String createQuery() {
         final String _query = "UPDATE sale_entries_queue SET syncStatus = ?, remoteId = ? WHERE localId = ?";
+        return _query;
+      }
+    };
+    this.__preparedStmtOfDeleteSyncedByDate = new SharedSQLiteStatement(__db) {
+      @Override
+      @NonNull
+      public String createQuery() {
+        final String _query = "DELETE FROM sale_entries_queue WHERE baId = ? AND entryTime LIKE ? || '%' AND syncStatus = 'synced'";
         return _query;
       }
     };
@@ -171,6 +186,34 @@ public final class SaleEntryQueueDao_Impl implements SaleEntryQueueDao {
   }
 
   @Override
+  public Object deleteSyncedByDate(final String baId, final String datePrefix,
+      final Continuation<? super Unit> $completion) {
+    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
+      @Override
+      @NonNull
+      public Unit call() throws Exception {
+        final SupportSQLiteStatement _stmt = __preparedStmtOfDeleteSyncedByDate.acquire();
+        int _argIndex = 1;
+        _stmt.bindString(_argIndex, baId);
+        _argIndex = 2;
+        _stmt.bindString(_argIndex, datePrefix);
+        try {
+          __db.beginTransaction();
+          try {
+            _stmt.executeUpdateDelete();
+            __db.setTransactionSuccessful();
+            return Unit.INSTANCE;
+          } finally {
+            __db.endTransaction();
+          }
+        } finally {
+          __preparedStmtOfDeleteSyncedByDate.release(_stmt);
+        }
+      }
+    }, $completion);
+  }
+
+  @Override
   public Object getPending(final Continuation<? super List<SaleEntryQueueEntity>> $completion) {
     final String _sql = "SELECT * FROM sale_entries_queue WHERE syncStatus = 'pending' ORDER BY createdAt ASC";
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
@@ -194,6 +237,7 @@ public final class SaleEntryQueueDao_Impl implements SaleEntryQueueDao {
           final int _cursorIndexOfIsRepeat = CursorUtil.getColumnIndexOrThrow(_cursor, "isRepeat");
           final int _cursorIndexOfCompetitorBrandId = CursorUtil.getColumnIndexOrThrow(_cursor, "competitorBrandId");
           final int _cursorIndexOfIsApplicator = CursorUtil.getColumnIndexOrThrow(_cursor, "isApplicator");
+          final int _cursorIndexOfApplicatorSkuId = CursorUtil.getColumnIndexOrThrow(_cursor, "applicatorSkuId");
           final int _cursorIndexOfNotes = CursorUtil.getColumnIndexOrThrow(_cursor, "notes");
           final int _cursorIndexOfTotalLitres = CursorUtil.getColumnIndexOrThrow(_cursor, "totalLitres");
           final int _cursorIndexOfTotalCommission = CursorUtil.getColumnIndexOrThrow(_cursor, "totalCommission");
@@ -262,6 +306,12 @@ public final class SaleEntryQueueDao_Impl implements SaleEntryQueueDao {
             final int _tmp_1;
             _tmp_1 = _cursor.getInt(_cursorIndexOfIsApplicator);
             _tmpIsApplicator = _tmp_1 != 0;
+            final String _tmpApplicatorSkuId;
+            if (_cursor.isNull(_cursorIndexOfApplicatorSkuId)) {
+              _tmpApplicatorSkuId = null;
+            } else {
+              _tmpApplicatorSkuId = _cursor.getString(_cursorIndexOfApplicatorSkuId);
+            }
             final String _tmpNotes;
             if (_cursor.isNull(_cursorIndexOfNotes)) {
               _tmpNotes = null;
@@ -280,7 +330,7 @@ public final class SaleEntryQueueDao_Impl implements SaleEntryQueueDao {
             _tmpSyncStatus = _cursor.getString(_cursorIndexOfSyncStatus);
             final String _tmpItemsJson;
             _tmpItemsJson = _cursor.getString(_cursorIndexOfItemsJson);
-            _item = new SaleEntryQueueEntity(_tmpLocalId,_tmpRemoteId,_tmpSerialNumber,_tmpBaId,_tmpStationId,_tmpCustomerName,_tmpCustomerMobile,_tmpPlateNumber,_tmpVehicleTypeId,_tmpVehicleTypeName,_tmpIsRepeat,_tmpCompetitorBrandId,_tmpIsApplicator,_tmpNotes,_tmpTotalLitres,_tmpTotalCommission,_tmpEntryTime,_tmpCreatedAt,_tmpSyncStatus,_tmpItemsJson);
+            _item = new SaleEntryQueueEntity(_tmpLocalId,_tmpRemoteId,_tmpSerialNumber,_tmpBaId,_tmpStationId,_tmpCustomerName,_tmpCustomerMobile,_tmpPlateNumber,_tmpVehicleTypeId,_tmpVehicleTypeName,_tmpIsRepeat,_tmpCompetitorBrandId,_tmpIsApplicator,_tmpApplicatorSkuId,_tmpNotes,_tmpTotalLitres,_tmpTotalCommission,_tmpEntryTime,_tmpCreatedAt,_tmpSyncStatus,_tmpItemsJson);
             _result.add(_item);
           }
           return _result;
@@ -317,6 +367,7 @@ public final class SaleEntryQueueDao_Impl implements SaleEntryQueueDao {
           final int _cursorIndexOfIsRepeat = CursorUtil.getColumnIndexOrThrow(_cursor, "isRepeat");
           final int _cursorIndexOfCompetitorBrandId = CursorUtil.getColumnIndexOrThrow(_cursor, "competitorBrandId");
           final int _cursorIndexOfIsApplicator = CursorUtil.getColumnIndexOrThrow(_cursor, "isApplicator");
+          final int _cursorIndexOfApplicatorSkuId = CursorUtil.getColumnIndexOrThrow(_cursor, "applicatorSkuId");
           final int _cursorIndexOfNotes = CursorUtil.getColumnIndexOrThrow(_cursor, "notes");
           final int _cursorIndexOfTotalLitres = CursorUtil.getColumnIndexOrThrow(_cursor, "totalLitres");
           final int _cursorIndexOfTotalCommission = CursorUtil.getColumnIndexOrThrow(_cursor, "totalCommission");
@@ -385,6 +436,12 @@ public final class SaleEntryQueueDao_Impl implements SaleEntryQueueDao {
             final int _tmp_1;
             _tmp_1 = _cursor.getInt(_cursorIndexOfIsApplicator);
             _tmpIsApplicator = _tmp_1 != 0;
+            final String _tmpApplicatorSkuId;
+            if (_cursor.isNull(_cursorIndexOfApplicatorSkuId)) {
+              _tmpApplicatorSkuId = null;
+            } else {
+              _tmpApplicatorSkuId = _cursor.getString(_cursorIndexOfApplicatorSkuId);
+            }
             final String _tmpNotes;
             if (_cursor.isNull(_cursorIndexOfNotes)) {
               _tmpNotes = null;
@@ -403,7 +460,7 @@ public final class SaleEntryQueueDao_Impl implements SaleEntryQueueDao {
             _tmpSyncStatus = _cursor.getString(_cursorIndexOfSyncStatus);
             final String _tmpItemsJson;
             _tmpItemsJson = _cursor.getString(_cursorIndexOfItemsJson);
-            _item = new SaleEntryQueueEntity(_tmpLocalId,_tmpRemoteId,_tmpSerialNumber,_tmpBaId,_tmpStationId,_tmpCustomerName,_tmpCustomerMobile,_tmpPlateNumber,_tmpVehicleTypeId,_tmpVehicleTypeName,_tmpIsRepeat,_tmpCompetitorBrandId,_tmpIsApplicator,_tmpNotes,_tmpTotalLitres,_tmpTotalCommission,_tmpEntryTime,_tmpCreatedAt,_tmpSyncStatus,_tmpItemsJson);
+            _item = new SaleEntryQueueEntity(_tmpLocalId,_tmpRemoteId,_tmpSerialNumber,_tmpBaId,_tmpStationId,_tmpCustomerName,_tmpCustomerMobile,_tmpPlateNumber,_tmpVehicleTypeId,_tmpVehicleTypeName,_tmpIsRepeat,_tmpCompetitorBrandId,_tmpIsApplicator,_tmpApplicatorSkuId,_tmpNotes,_tmpTotalLitres,_tmpTotalCommission,_tmpEntryTime,_tmpCreatedAt,_tmpSyncStatus,_tmpItemsJson);
             _result.add(_item);
           }
           return _result;
@@ -447,6 +504,7 @@ public final class SaleEntryQueueDao_Impl implements SaleEntryQueueDao {
           final int _cursorIndexOfIsRepeat = CursorUtil.getColumnIndexOrThrow(_cursor, "isRepeat");
           final int _cursorIndexOfCompetitorBrandId = CursorUtil.getColumnIndexOrThrow(_cursor, "competitorBrandId");
           final int _cursorIndexOfIsApplicator = CursorUtil.getColumnIndexOrThrow(_cursor, "isApplicator");
+          final int _cursorIndexOfApplicatorSkuId = CursorUtil.getColumnIndexOrThrow(_cursor, "applicatorSkuId");
           final int _cursorIndexOfNotes = CursorUtil.getColumnIndexOrThrow(_cursor, "notes");
           final int _cursorIndexOfTotalLitres = CursorUtil.getColumnIndexOrThrow(_cursor, "totalLitres");
           final int _cursorIndexOfTotalCommission = CursorUtil.getColumnIndexOrThrow(_cursor, "totalCommission");
@@ -515,6 +573,12 @@ public final class SaleEntryQueueDao_Impl implements SaleEntryQueueDao {
             final int _tmp_1;
             _tmp_1 = _cursor.getInt(_cursorIndexOfIsApplicator);
             _tmpIsApplicator = _tmp_1 != 0;
+            final String _tmpApplicatorSkuId;
+            if (_cursor.isNull(_cursorIndexOfApplicatorSkuId)) {
+              _tmpApplicatorSkuId = null;
+            } else {
+              _tmpApplicatorSkuId = _cursor.getString(_cursorIndexOfApplicatorSkuId);
+            }
             final String _tmpNotes;
             if (_cursor.isNull(_cursorIndexOfNotes)) {
               _tmpNotes = null;
@@ -533,7 +597,7 @@ public final class SaleEntryQueueDao_Impl implements SaleEntryQueueDao {
             _tmpSyncStatus = _cursor.getString(_cursorIndexOfSyncStatus);
             final String _tmpItemsJson;
             _tmpItemsJson = _cursor.getString(_cursorIndexOfItemsJson);
-            _item = new SaleEntryQueueEntity(_tmpLocalId,_tmpRemoteId,_tmpSerialNumber,_tmpBaId,_tmpStationId,_tmpCustomerName,_tmpCustomerMobile,_tmpPlateNumber,_tmpVehicleTypeId,_tmpVehicleTypeName,_tmpIsRepeat,_tmpCompetitorBrandId,_tmpIsApplicator,_tmpNotes,_tmpTotalLitres,_tmpTotalCommission,_tmpEntryTime,_tmpCreatedAt,_tmpSyncStatus,_tmpItemsJson);
+            _item = new SaleEntryQueueEntity(_tmpLocalId,_tmpRemoteId,_tmpSerialNumber,_tmpBaId,_tmpStationId,_tmpCustomerName,_tmpCustomerMobile,_tmpPlateNumber,_tmpVehicleTypeId,_tmpVehicleTypeName,_tmpIsRepeat,_tmpCompetitorBrandId,_tmpIsApplicator,_tmpApplicatorSkuId,_tmpNotes,_tmpTotalLitres,_tmpTotalCommission,_tmpEntryTime,_tmpCreatedAt,_tmpSyncStatus,_tmpItemsJson);
             _result.add(_item);
           }
           return _result;

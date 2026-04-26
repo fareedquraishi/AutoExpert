@@ -95,7 +95,7 @@ public final class AppDatabase_Impl extends AppDatabase {
         db.execSQL("CREATE TABLE IF NOT EXISTS `commission_packages` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `basis` TEXT NOT NULL, `minThresholdLitres` REAL NOT NULL, `flatRate` REAL NOT NULL, `isGlobal` INTEGER NOT NULL, `isActive` INTEGER NOT NULL, PRIMARY KEY(`id`))");
         db.execSQL("CREATE TABLE IF NOT EXISTS `commission_tiers` (`id` TEXT NOT NULL, `packageId` TEXT NOT NULL, `minQty` REAL NOT NULL, `maxQty` REAL, `rate` REAL NOT NULL, `sortOrder` INTEGER NOT NULL, PRIMARY KEY(`id`))");
         db.execSQL("CREATE TABLE IF NOT EXISTS `ba_commission_overrides` (`id` TEXT NOT NULL, `baId` TEXT NOT NULL, `packageId` TEXT NOT NULL, `effectiveFrom` TEXT NOT NULL, `effectiveTo` TEXT, PRIMARY KEY(`id`))");
-        db.execSQL("CREATE TABLE IF NOT EXISTS `sale_entries_queue` (`localId` TEXT NOT NULL, `remoteId` TEXT, `serialNumber` TEXT, `baId` TEXT NOT NULL, `stationId` TEXT NOT NULL, `customerName` TEXT NOT NULL, `customerMobile` TEXT, `plateNumber` TEXT, `vehicleTypeId` TEXT, `vehicleTypeName` TEXT, `isRepeat` INTEGER NOT NULL, `competitorBrandId` TEXT, `isApplicator` INTEGER NOT NULL, `notes` TEXT, `totalLitres` REAL NOT NULL, `totalCommission` REAL NOT NULL, `entryTime` TEXT NOT NULL, `createdAt` INTEGER NOT NULL, `syncStatus` TEXT NOT NULL, `itemsJson` TEXT NOT NULL, PRIMARY KEY(`localId`))");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `sale_entries_queue` (`localId` TEXT NOT NULL, `remoteId` TEXT, `serialNumber` TEXT, `baId` TEXT NOT NULL, `stationId` TEXT NOT NULL, `customerName` TEXT NOT NULL, `customerMobile` TEXT, `plateNumber` TEXT, `vehicleTypeId` TEXT, `vehicleTypeName` TEXT, `isRepeat` INTEGER NOT NULL, `competitorBrandId` TEXT, `isApplicator` INTEGER NOT NULL, `applicatorSkuId` TEXT, `notes` TEXT, `totalLitres` REAL NOT NULL, `totalCommission` REAL NOT NULL, `entryTime` TEXT NOT NULL, `createdAt` INTEGER NOT NULL, `syncStatus` TEXT NOT NULL, `itemsJson` TEXT NOT NULL, PRIMARY KEY(`localId`))");
         db.execSQL("CREATE TABLE IF NOT EXISTS `attendance_queue` (`localId` TEXT NOT NULL, `remoteId` TEXT, `baId` TEXT NOT NULL, `attendanceDate` TEXT NOT NULL, `isPresent` INTEGER NOT NULL, `attendanceStatus` TEXT, `method` TEXT NOT NULL, `checkInTime` TEXT, `geoLatitude` REAL, `geoLongitude` REAL, `note` TEXT, `syncStatus` TEXT NOT NULL, PRIMARY KEY(`localId`))");
         db.execSQL("CREATE TABLE IF NOT EXISTS `notices` (`id` TEXT NOT NULL, `message` TEXT NOT NULL, `targetBaIds` TEXT, `isActive` INTEGER NOT NULL, `postedAt` INTEGER NOT NULL, `isRead` INTEGER NOT NULL, PRIMARY KEY(`id`))");
         db.execSQL("CREATE TABLE IF NOT EXISTS `messages` (`id` TEXT NOT NULL, `senderId` TEXT NOT NULL, `senderName` TEXT NOT NULL, `receiverId` TEXT NOT NULL, `body` TEXT NOT NULL, `createdAt` INTEGER NOT NULL, `isRead` INTEGER NOT NULL, `isOutgoing` INTEGER NOT NULL, PRIMARY KEY(`id`))");
@@ -103,7 +103,7 @@ public final class AppDatabase_Impl extends AppDatabase {
         db.execSQL("CREATE TABLE IF NOT EXISTS `leave_requests` (`id` TEXT NOT NULL, `baId` TEXT NOT NULL, `leaveType` TEXT NOT NULL, `fromDate` TEXT NOT NULL, `toDate` TEXT NOT NULL, `totalDays` INTEGER NOT NULL, `reason` TEXT, `status` TEXT NOT NULL, `createdAt` INTEGER NOT NULL, PRIMARY KEY(`id`))");
         db.execSQL("CREATE TABLE IF NOT EXISTS `targets` (`id` TEXT NOT NULL, `baId` TEXT, `stationId` TEXT, `period` TEXT NOT NULL, `targetValue` REAL NOT NULL, `targetBasis` TEXT NOT NULL, `effectiveFrom` TEXT NOT NULL, `effectiveTo` TEXT, PRIMARY KEY(`id`))");
         db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
-        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b1d2772cd1393674448e4029088755d2')");
+        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '15bf20c4e2a337c11f7cf58c3449010b')");
       }
 
       @Override
@@ -282,7 +282,7 @@ public final class AppDatabase_Impl extends AppDatabase {
                   + " Expected:\n" + _infoBaCommissionOverrides + "\n"
                   + " Found:\n" + _existingBaCommissionOverrides);
         }
-        final HashMap<String, TableInfo.Column> _columnsSaleEntriesQueue = new HashMap<String, TableInfo.Column>(20);
+        final HashMap<String, TableInfo.Column> _columnsSaleEntriesQueue = new HashMap<String, TableInfo.Column>(21);
         _columnsSaleEntriesQueue.put("localId", new TableInfo.Column("localId", "TEXT", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsSaleEntriesQueue.put("remoteId", new TableInfo.Column("remoteId", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsSaleEntriesQueue.put("serialNumber", new TableInfo.Column("serialNumber", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
@@ -296,6 +296,7 @@ public final class AppDatabase_Impl extends AppDatabase {
         _columnsSaleEntriesQueue.put("isRepeat", new TableInfo.Column("isRepeat", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsSaleEntriesQueue.put("competitorBrandId", new TableInfo.Column("competitorBrandId", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsSaleEntriesQueue.put("isApplicator", new TableInfo.Column("isApplicator", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsSaleEntriesQueue.put("applicatorSkuId", new TableInfo.Column("applicatorSkuId", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsSaleEntriesQueue.put("notes", new TableInfo.Column("notes", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsSaleEntriesQueue.put("totalLitres", new TableInfo.Column("totalLitres", "REAL", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsSaleEntriesQueue.put("totalCommission", new TableInfo.Column("totalCommission", "REAL", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
@@ -423,7 +424,7 @@ public final class AppDatabase_Impl extends AppDatabase {
         }
         return new RoomOpenHelper.ValidationResult(true, null);
       }
-    }, "b1d2772cd1393674448e4029088755d2", "1ade90793169c9ae67cdbe63d0c5c322");
+    }, "15bf20c4e2a337c11f7cf58c3449010b", "49e809cb027723f2878c2e0e0a07fd99");
     final SupportSQLiteOpenHelper.Configuration _sqliteConfig = SupportSQLiteOpenHelper.Configuration.builder(config.context).name(config.name).callback(_openCallback).build();
     final SupportSQLiteOpenHelper _helper = config.sqliteOpenHelperFactory.create(_sqliteConfig);
     return _helper;

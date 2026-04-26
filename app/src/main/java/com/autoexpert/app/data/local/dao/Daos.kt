@@ -59,6 +59,12 @@ interface CompetitorBrandDao {
 // ── Commission ────────────────────────────────────────────────────────────
 @Dao
 interface CommissionPackageDao {
+    @Query("SELECT * FROM commission_packages WHERE isGlobal = 1 AND isActive = 1 LIMIT 1")
+    suspend fun getGlobalActive(): CommissionPackageEntity?
+
+    @Query("SELECT * FROM commission_packages WHERE id = :id LIMIT 1")
+    suspend fun getById(id: String): CommissionPackageEntity?
+
     @Query("SELECT * FROM commission_packages WHERE isActive = 1")
     suspend fun getAllActive(): List<CommissionPackageEntity>
 
@@ -68,6 +74,9 @@ interface CommissionPackageDao {
 
 @Dao
 interface CommissionTierDao {
+    @Query("SELECT * FROM commission_tiers WHERE packageId = :pkgId ORDER BY sortOrder ASC")
+    suspend fun getForPackage(pkgId: String): List<CommissionTierEntity>
+
     @Query("SELECT * FROM commission_tiers WHERE packageId = :packageId ORDER BY sortOrder")
     suspend fun getByPackage(packageId: String): List<CommissionTierEntity>
 
@@ -80,6 +89,9 @@ interface CommissionTierDao {
 
 @Dao
 interface BaCommissionOverrideDao {
+    @Query("SELECT * FROM ba_commission_overrides WHERE baId = :baId AND (effectiveTo IS NULL OR effectiveTo >= :today) LIMIT 1")
+    suspend fun getActiveForBa(baId: String, today: String): BaCommissionOverrideEntity?
+
     @Query("""
         SELECT * FROM ba_commission_overrides
         WHERE baId = :baId
@@ -117,6 +129,9 @@ interface SaleEntryQueueDao {
 
     @Query("SELECT SUM(totalLitres) FROM sale_entries_queue WHERE baId = :baId AND entryTime LIKE :datePrefix || '%' AND syncStatus != 'failed'")
     suspend fun sumTodayLitres(baId: String, datePrefix: String): Double?
+
+    @Query("DELETE FROM sale_entries_queue WHERE baId = :baId AND entryTime LIKE :datePrefix || '%' AND syncStatus = 'synced'")
+    suspend fun deleteSyncedByDate(baId: String, datePrefix: String)
 
     @Query("SELECT SUM(totalCommission) FROM sale_entries_queue WHERE baId = :baId AND entryTime LIKE :datePrefix || '%' AND syncStatus != 'failed'")
     suspend fun sumTodayCommission(baId: String, datePrefix: String): Double?

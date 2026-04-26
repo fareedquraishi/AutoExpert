@@ -21,37 +21,45 @@ import kotlinx.coroutines.delay
 @Composable
 fun SplashScreen(onTimeout: () -> Unit) {
 
-    // Entry animations
     var visible by remember { mutableStateOf(false) }
 
     val logoScale by animateFloatAsState(
-        targetValue = if (visible) 1f else 0.6f,
-        animationSpec = spring(dampingRatio = .55f, stiffness = 250f), label = "logo"
+        targetValue = if (visible) 1f else 0.5f,
+        animationSpec = spring(dampingRatio = .5f, stiffness = 200f), label = "logo"
     )
     val logoAlpha by animateFloatAsState(
         targetValue = if (visible) 1f else 0f,
-        animationSpec = tween(700), label = "logoAlpha"
+        animationSpec = tween(800), label = "logoAlpha"
     )
     val textAlpha by animateFloatAsState(
         targetValue = if (visible) 1f else 0f,
-        animationSpec = tween(700, delayMillis = 350), label = "textAlpha"
+        animationSpec = tween(700, delayMillis = 400), label = "textAlpha"
     )
     val poweredAlpha by animateFloatAsState(
         targetValue = if (visible) 1f else 0f,
-        animationSpec = tween(600, delayMillis = 700), label = "poweredAlpha"
+        animationSpec = tween(600, delayMillis = 800), label = "poweredAlpha"
+    )
+    val euroAlpha by animateFloatAsState(
+        targetValue = if (visible) 1f else 0f,
+        animationSpec = tween(600, delayMillis = 600), label = "euroAlpha"
     )
 
-    // Pulsing glow
+    // Pulsing glow ring
     val pulse = rememberInfiniteTransition(label = "pulse")
     val glowAlpha by pulse.animateFloat(
-        initialValue = 0.12f, targetValue = 0.22f,
-        animationSpec = infiniteRepeatable(tween(1800, easing = EaseInOut), RepeatMode.Reverse),
+        initialValue = 0.10f, targetValue = 0.25f,
+        animationSpec = infiniteRepeatable(tween(2000, easing = EaseInOut), RepeatMode.Reverse),
         label = "glow"
+    )
+    val ringScale by pulse.animateFloat(
+        initialValue = 0.95f, targetValue = 1.05f,
+        animationSpec = infiniteRepeatable(tween(2000, easing = EaseInOut), RepeatMode.Reverse),
+        label = "ring"
     )
 
     LaunchedEffect(Unit) {
         visible = true
-        delay(2800)
+        delay(3000)
         onTimeout()
     }
 
@@ -59,39 +67,47 @@ fun SplashScreen(onTimeout: () -> Unit) {
         modifier = Modifier.fillMaxSize().background(DarkGradient),
         contentAlignment = Alignment.Center
     ) {
-        // Glow blob
+        // Background glow blob
         Box(
-            Modifier.size(360.dp).offset(y = (-60).dp)
+            Modifier
+                .size(400.dp)
+                .offset(y = (-40).dp)
+                .scale(ringScale)
                 .background(
-                    Brush.radialGradient(listOf(PetronasGreen.copy(glowAlpha), Color.Transparent)),
+                    Brush.radialGradient(
+                        listOf(PetronasGreen.copy(glowAlpha), Color.Transparent)
+                    ),
                     RoundedCornerShape(50)
                 )
         )
+
         // Decorative rings
-        listOf(340.dp, 250.dp, 170.dp).forEachIndexed { i, size ->
+        listOf(360.dp, 270.dp, 190.dp).forEachIndexed { i, size ->
             Box(
-                Modifier.size(size)
-                    .border(1.dp, PetronasGreen.copy(alpha = 0.07f + i * 0.02f), RoundedCornerShape(50))
+                Modifier
+                    .size(size)
+                    .scale(if (i == 0) ringScale else 1f)
+                    .border(1.dp, PetronasGreen.copy(alpha = 0.06f + i * 0.03f), RoundedCornerShape(50))
                     .alpha(logoAlpha)
             )
         }
 
-        // Euro logo — top left
+        // Euro logo — top left, larger and more visible
         Box(
             modifier = Modifier
                 .align(Alignment.TopStart)
                 .statusBarsPadding()
-                .padding(20.dp)
-                .size(38.dp)
-                .background(Color.White.copy(.06f), RoundedCornerShape(11.dp))
-                .border(1.dp, Color.White.copy(.1f), RoundedCornerShape(11.dp))
-                .alpha(logoAlpha),
+                .padding(16.dp)
+                .size(52.dp)
+                .background(Color.White.copy(.08f), RoundedCornerShape(14.dp))
+                .border(1.dp, Color.White.copy(.15f), RoundedCornerShape(14.dp))
+                .alpha(euroAlpha),
             contentAlignment = Alignment.Center
         ) {
             Image(
                 painter = painterResource(R.drawable.euro_logo),
                 contentDescription = "Euro",
-                modifier = Modifier.size(26.dp)
+                modifier = Modifier.size(38.dp)
             )
         }
 
@@ -99,61 +115,68 @@ fun SplashScreen(onTimeout: () -> Unit) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(0.dp),
-            modifier = Modifier.alpha(logoAlpha)
+            modifier = Modifier
+                .alpha(logoAlpha)
+                .scale(logoScale)
         ) {
-            // Large Petronas logo box
+            // Petronas logo box — large prominent
             Box(
                 modifier = Modifier
-                    .size(160.dp)
-                    .scale(logoScale)
-                    .background(Color.White.copy(.04f), RoundedCornerShape(36.dp))
+                    .size(170.dp)
+                    .background(Color.White.copy(.05f), RoundedCornerShape(38.dp))
                     .border(
                         1.dp,
-                        Brush.linearGradient(listOf(PetronasGreen.copy(.3f), PetronasGreen.copy(.1f))),
-                        RoundedCornerShape(36.dp)
+                        Brush.linearGradient(
+                            listOf(PetronasGreen.copy(.4f), PetronasGreen.copy(.1f))
+                        ),
+                        RoundedCornerShape(38.dp)
                     ),
                 contentAlignment = Alignment.Center
             ) {
                 Image(
                     painter = painterResource(R.drawable.petronas_logo),
                     contentDescription = "Petronas",
-                    modifier = Modifier.size(128.dp, 104.dp)
+                    modifier = Modifier.size(140.dp, 110.dp)
                 )
             }
 
-            Spacer(Modifier.height(20.dp))
+            Spacer(Modifier.height(24.dp))
 
-            // PETRONAS large
             Text(
                 "PETRONAS",
-                fontSize = 26.sp, fontWeight = FontWeight.Black,
-                color = Color.White, letterSpacing = 4.sp,
+                fontSize = 28.sp, fontWeight = FontWeight.Black,
+                color = Color.White, letterSpacing = 5.sp,
                 modifier = Modifier.alpha(textAlpha)
             )
-            // Auto Expert Centre tight below
             Text(
                 "Auto Expert Centre",
-                fontSize = 12.sp, fontWeight = FontWeight.SemiBold,
-                color = Color.White.copy(.48f), letterSpacing = 2.5.sp,
-                modifier = Modifier.alpha(textAlpha).padding(top = 4.dp)
+                fontSize = 13.sp, fontWeight = FontWeight.SemiBold,
+                color = Color.White.copy(.5f), letterSpacing = 2.5.sp,
+                modifier = Modifier.alpha(textAlpha).padding(top = 5.dp)
             )
 
-            // Divider
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(18.dp))
+
+            // Divider line with glow
             Box(
-                Modifier.width(36.dp).height(2.dp).alpha(textAlpha)
+                Modifier
+                    .width(48.dp)
+                    .height(2.dp)
+                    .alpha(textAlpha)
                     .background(
-                        Brush.horizontalGradient(listOf(Color.Transparent, PetronasGreen, Color.Transparent)),
+                        Brush.horizontalGradient(
+                            listOf(Color.Transparent, PetronasGreen, Color.Transparent)
+                        ),
                         RoundedCornerShape(1.dp)
                     )
             )
-            Spacer(Modifier.height(12.dp))
 
-            // Brand Ambassador
+            Spacer(Modifier.height(14.dp))
+
             Text(
                 "Brand Ambassador",
                 fontSize = 11.sp, fontWeight = FontWeight.Bold,
-                color = Color.White.copy(.35f), letterSpacing = 3.sp,
+                color = Color.White.copy(.38f), letterSpacing = 3.sp,
                 modifier = Modifier.alpha(textAlpha)
             )
         }
@@ -163,19 +186,19 @@ fun SplashScreen(onTimeout: () -> Unit) {
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .navigationBarsPadding()
-                .padding(bottom = 28.dp)
+                .padding(bottom = 32.dp)
                 .alpha(poweredAlpha),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(2.dp)
+            verticalArrangement = Arrangement.spacedBy(3.dp)
         ) {
             Text(
                 "POWERED BY", fontSize = 8.sp,
-                color = Color.White.copy(.2f), letterSpacing = 1.sp,
+                color = Color.White.copy(.22f), letterSpacing = 1.5.sp,
                 fontWeight = FontWeight.Medium
             )
             Text(
-                "Fintectual Pvt Ltd", fontSize = 10.sp,
-                color = PetronasGreen.copy(.55f), letterSpacing = .3.sp,
+                "Fintectual Pvt Ltd", fontSize = 11.sp,
+                color = PetronasGreen.copy(.65f), letterSpacing = .5.sp,
                 fontWeight = FontWeight.Bold
             )
         }

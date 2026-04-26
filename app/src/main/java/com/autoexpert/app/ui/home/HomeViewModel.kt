@@ -70,6 +70,8 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             session.baId.filterNotNull().collect { baId ->
                 // Today's entries
+                // Clear synced entries so deleted remote records disappear
+                try { saleDao.deleteSyncedByDate(baId, today) } catch(e:Exception){}
                 saleDao.getByBaAndDate(baId, today).collect { entries ->
                     _uiState.update { s -> s.copy(
                         todayReach      = entries.size,
