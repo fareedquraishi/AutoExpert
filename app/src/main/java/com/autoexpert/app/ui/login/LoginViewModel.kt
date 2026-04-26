@@ -64,11 +64,9 @@ class LoginViewModel @Inject constructor(
         viewModelScope.launch {
             _state.value = LoginState.Checking
             try {
-                // 1. Try local Room first (offline support) — uses appPin field
-                var ba = baDao.getByPin(pin.value)
-
-                // 2. If not found locally, fetch from Supabase using app_pin column
-                if (ba == null) {
+                // 1. Always try network first to get fresh station name
+                var ba: com.autoexpert.app.data.local.entity.BrandAmbassadorEntity? = null
+                if (true) {
                     val resp = api.getBaByPin(
                         appPin = "eq.${pin.value}",
                         apiKey = apiKey,

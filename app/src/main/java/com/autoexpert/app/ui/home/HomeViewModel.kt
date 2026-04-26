@@ -4,9 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.autoexpert.app.BuildConfig
 import com.autoexpert.app.data.local.dao.*
-import com.autoexpert.app.data.local.entity.SaleEntryQueueEntity
+import com.autoexpert.app.data.local.entity.*
 import com.autoexpert.app.data.remote.api.SupabaseApi
-import com.autoexpert.app.data.remote.model.*
 import com.autoexpert.app.util.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
@@ -21,8 +20,8 @@ data class HomeUiState(
     val todayReach: Int = 0,
     val todayLitres: Double = 0.0,
     val todayCommission: Double = 0.0,
-    val reachTarget: Double = 0.0,
-    val litresTarget: Double = 0.0,
+    val reachTarget: Double = 100.0,
+    val litresTarget: Double = 100.0,
     val unreadNotices: Int = 0,
     val unreadMessages: Int = 0,
     val attendanceThisMonth: Int = 0,
@@ -40,13 +39,16 @@ class HomeViewModel @Inject constructor(
     private val payoutDao: PayoutDao,
     private val attendanceDao: AttendanceQueueDao,
     private val targetDao: TargetDao,
+    private val skuDao: SkuDao,
+    private val vehicleTypeDao: VehicleTypeDao,
+    private val competitorBrandDao: CompetitorBrandDao,
     private val api: SupabaseApi,
 ) : ViewModel() {
 
-    private val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+    private val today       = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
     private val monthPrefix = today.substring(0, 7)
-    private val apiKey = BuildConfig.SUPABASE_ANON_KEY
-    private val auth = "Bearer $apiKey"
+    private val apiKey      = BuildConfig.SUPABASE_ANON_KEY
+    private val authHeader  = "Bearer $apiKey"
 
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState
@@ -57,6 +59,7 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun loadData() {
+        // BA name + station name from session
         viewModelScope.launch {
             combine(
                 session.baName.map { it ?: "" },
@@ -67,11 +70,9 @@ class HomeViewModel @Inject constructor(
                 }
         }
 
+        // Today's sale entries from local Room
         viewModelScope.launch {
-            session.baId.filterNotNull().collect { baId ->
-                // Today's entries
-                // Clear synced entries so deleted remote records disappear
-                try { saleDao.deleteSyncedByDate(baId, today) } catch(e:Exception){}
+            session.baId.map { it ?: "" }.filter { it.isNotEmpty() }.collect { baId ->
                 saleDao.getByBaAndDate(baId, today).collect { entries ->
                     _uiState.update { s -> s.copy(
                         todayReach      = entries.size,
@@ -83,34 +84,33 @@ class HomeViewModel @Inject constructor(
             }
         }
 
+        // Unread counts
         viewModelScope.launch {
             noticeDao.getUnreadCount().collect { count ->
                 _uiState.update { it.copy(unreadNotices = count) }
             }
         }
-
         viewModelScope.launch {
             messageDao.getUnreadCount().collect { count ->
                 _uiState.update { it.copy(unreadMessages = count) }
             }
         }
 
+        // Attendance + targets + unpaid balance
         viewModelScope.launch {
-            session.baId.filterNotNull().collect { baId ->
-                val unpaid = payoutDao.getTotalPaid(baId) ?: 0.0
+            session.baId.map { it ?: "" }.filter { it.isNotEmpty() }.collect { baId ->
+                val unpaid      = 0.0 // payouts fetched via sync
                 val presentDays = attendanceDao.countPresentDays(baId, monthPrefix)
-                val att = attendanceDao.getByBaAndDate(baId, today)
-
-                // Target
-                val stationId = session.stationId.first() ?: ""
-                val target = targetDao.getActiveTarget(baId, stationId, today)
+                val att         = attendanceDao.getByBaAndDate(baId, today)
+                val stationId   = session.stationId.first() ?: ""
+                val target      = targetDao.getActiveTarget(baId, stationId, today)
 
                 _uiState.update { it.copy(
                     unpaidBalance         = unpaid,
                     attendanceThisMonth   = presentDays,
                     todayAttendanceMarked = att != null,
-                    reachTarget  = if (target?.targetBasis == "reach")  target.targetValue else 20.0,
-                    litresTarget = if (target?.targetBasis == "litres") target.targetValue else 100.0,
+                    reachTarget  = if (target?.targetBasis == "reach"  || target?.targetBasis == "entries") target.targetValue else 100.0,
+                    litresTarget = if (target?.targetBasis == "litres" || target?.targetBasis == "volume")  target.targetValue else 100.0,
                 )}
             }
         }
@@ -120,46 +120,61 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             val baId = session.baId.first() ?: return@launch
             try {
-                // Sync notices
-                api.getNotices(apiKey = apiKey, auth = auth).body()?.let { notices ->
-                    val entities = notices.map { n ->
-                        com.autoexpert.app.data.local.entity.NoticeEntity(
-                            id = n.id, message = n.message, // body removed,
-                            targetBaIds = n.targetBaIds, isActive = n.isActive,
-                            postedAt = System.currentTimeMillis() //System.currentTimeMillis()
-                        )
-                    }
-                    noticeDao.upsertAll(entities)
+                // Reference data ? SKUs, vehicle types, competitor brands
+                api.getSkus(apiKey = apiKey, auth = authHeader).body()?.let { list ->
+                    skuDao.upsertAll(list.map { s -> SkuEntity(
+                        id = s.id, name = s.name, productType = s.productType,
+                        volumeMl = s.volumeMl, purchasePrice = s.purchasePrice,
+                        marginPercent = s.marginPercent, sellingPrice = s.sellingPrice,
+                        isActive = s.isActive
+                    )})
                 }
-                // Sync messages
+                api.getVehicleTypes(apiKey = apiKey, auth = authHeader).body()?.let { list ->
+                    vehicleTypeDao.upsertAll(list.map { v -> VehicleTypeEntity(
+                        id = v.id, name = v.name, iconKey = v.iconKey, sortOrder = v.sortOrder
+                    )})
+                }
+                api.getCompetitorBrands(apiKey = apiKey, auth = authHeader).body()?.let { list ->
+                    competitorBrandDao.upsertAll(list.map { b -> CompetitorBrandEntity(
+                        id = b.id, name = b.name
+                    )})
+                }
+
+                // Notices
+                api.getNotices(apiKey = apiKey, auth = authHeader).body()?.let { list ->
+                    noticeDao.upsertAll(list.map { n -> NoticeEntity(
+                        id = n.id, message = n.message,
+                        targetBaIds = n.targetBaIds, isActive = n.isActive,
+                        postedAt = System.currentTimeMillis()
+                    )})
+                }
+
+                // Messages
                 api.getMessages(
                     filter = "sender_id.eq.$baId,receiver_id.eq.$baId",
-                    apiKey = apiKey, auth = auth
-                ).body()?.let { msgs ->
-                    val entities = msgs.map { m ->
-                        com.autoexpert.app.data.local.entity.MessageEntity(
-                            id = m.id, senderId = m.senderId, senderName = m.senderName,
-                            receiverId = m.receiverId, body = m.body,
-                            createdAt = System.currentTimeMillis(),
-                            isRead = m.isRead, isOutgoing = m.senderId == baId
-                        )
-                    }
-                    messageDao.upsertAll(entities)
+                    apiKey = apiKey, auth = authHeader
+                ).body()?.let { list ->
+                    messageDao.upsertAll(list.map { m -> MessageEntity(
+                        id = m.id, senderId = m.senderId, senderName = m.senderName,
+                        receiverId = m.receiverId, body = m.body,
+                        createdAt = System.currentTimeMillis(),
+                        isRead = m.isRead, isOutgoing = m.senderId == baId
+                    )})
                 }
-                // Sync payouts
-                api.getPayouts(baId = "eq.$baId", apiKey = apiKey, auth = auth).body()?.let { payouts ->
-                    val entities = payouts.map { p ->
-                        com.autoexpert.app.data.local.entity.PayoutEntity(
-                            id = p.id, baId = p.baId, payoutDate = p.payoutDate,
-                            amount = p.amount, // amount removed p.amount,
-                            // amount removed p.amount, // payoutDate = p.payoutDate,
-                            // amount = p.amount
-                        )
-                    }
-                    payoutDao.upsertAll(entities)
+
+                // Payouts
+                api.getPayouts(baId = "eq.$baId", apiKey = apiKey, auth = authHeader).body()?.let { list ->
+                    payoutDao.upsertAll(list.map { p -> PayoutEntity(
+                        id = p.id, baId = p.baId,
+                        payoutDate = p.payoutDate ?: "",
+                        amount     = p.amount,
+                        note       = null,
+                        createdAt  = System.currentTimeMillis()
+                    )})
                 }
+
                 session.updateLastSync()
-            } catch (_: Exception) { /* offline — use cached data */ }
+            } catch (_: Exception) { /* offline ? use cached data */ }
         }
     }
 }
