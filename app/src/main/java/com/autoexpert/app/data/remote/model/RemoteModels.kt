@@ -91,6 +91,8 @@ data class RemoteSaleEntry(
     @SerializedName("vehicle_type_id") val vehicleTypeId: String?,
     @SerializedName("is_repeat") val isRepeat: Boolean,
     @SerializedName("competitor_brand_id") val competitorBrandId: String?,
+    @SerializedName("is_applicator") val isApplicator: Boolean = false,
+    @SerializedName("applicator_sku_id") val applicatorSkuId: String? = null,
     @SerializedName("entry_time") val entryTime: String,
     @SerializedName("synced_at") val syncedAt: String? = null,
 )

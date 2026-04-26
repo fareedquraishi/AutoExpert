@@ -8,7 +8,6 @@ import androidx.room.PrimaryKey
 data class BrandAmbassadorEntity(
     @PrimaryKey val id: String,
     val name: String,
-    val mobile: String?,
     val cnic: String?,
     val stationId: String?,
     val stationName: String?,

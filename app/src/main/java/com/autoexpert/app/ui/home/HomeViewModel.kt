@@ -59,8 +59,8 @@ class HomeViewModel @Inject constructor(
     private fun loadData() {
         viewModelScope.launch {
             combine(
-                session.baName.filterNotNull(),
-                session.stationName.filterNotNull(),
+                session.baName.map { it ?: "" },
+                session.stationName.map { it ?: "" },
             ) { name, station -> name to station }
                 .collect { (name, station) ->
                     _uiState.update { it.copy(baName = name, stationName = station) }

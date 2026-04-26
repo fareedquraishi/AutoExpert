@@ -38,7 +38,7 @@ public final class BrandAmbassadorDao_Impl implements BrandAmbassadorDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "INSERT OR REPLACE INTO `brand_ambassadors` (`id`,`name`,`mobile`,`cnic`,`stationId`,`stationName`,`appPin`,`isActive`,`employmentType`,`currentMonthlySalary`,`joinedAt`,`leaveAnnualLimit`,`leaveCasualLimit`,`leaveSickLimit`,`updatedAt`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        return "INSERT OR REPLACE INTO `brand_ambassadors` (`id`,`name`,`cnic`,`stationId`,`stationName`,`appPin`,`isActive`,`employmentType`,`currentMonthlySalary`,`joinedAt`,`leaveAnnualLimit`,`leaveCasualLimit`,`leaveSickLimit`,`updatedAt`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
       }
 
       @Override
@@ -46,44 +46,39 @@ public final class BrandAmbassadorDao_Impl implements BrandAmbassadorDao {
           @NonNull final BrandAmbassadorEntity entity) {
         statement.bindString(1, entity.getId());
         statement.bindString(2, entity.getName());
-        if (entity.getMobile() == null) {
+        if (entity.getCnic() == null) {
           statement.bindNull(3);
         } else {
-          statement.bindString(3, entity.getMobile());
-        }
-        if (entity.getCnic() == null) {
-          statement.bindNull(4);
-        } else {
-          statement.bindString(4, entity.getCnic());
+          statement.bindString(3, entity.getCnic());
         }
         if (entity.getStationId() == null) {
-          statement.bindNull(5);
+          statement.bindNull(4);
         } else {
-          statement.bindString(5, entity.getStationId());
+          statement.bindString(4, entity.getStationId());
         }
         if (entity.getStationName() == null) {
-          statement.bindNull(6);
+          statement.bindNull(5);
         } else {
-          statement.bindString(6, entity.getStationName());
+          statement.bindString(5, entity.getStationName());
         }
-        statement.bindString(7, entity.getAppPin());
+        statement.bindString(6, entity.getAppPin());
         final int _tmp = entity.isActive() ? 1 : 0;
-        statement.bindLong(8, _tmp);
+        statement.bindLong(7, _tmp);
         if (entity.getEmploymentType() == null) {
-          statement.bindNull(9);
+          statement.bindNull(8);
         } else {
-          statement.bindString(9, entity.getEmploymentType());
+          statement.bindString(8, entity.getEmploymentType());
         }
-        statement.bindDouble(10, entity.getCurrentMonthlySalary());
+        statement.bindDouble(9, entity.getCurrentMonthlySalary());
         if (entity.getJoinedAt() == null) {
-          statement.bindNull(11);
+          statement.bindNull(10);
         } else {
-          statement.bindString(11, entity.getJoinedAt());
+          statement.bindString(10, entity.getJoinedAt());
         }
-        statement.bindLong(12, entity.getLeaveAnnualLimit());
-        statement.bindLong(13, entity.getLeaveCasualLimit());
-        statement.bindLong(14, entity.getLeaveSickLimit());
-        statement.bindLong(15, entity.getUpdatedAt());
+        statement.bindLong(11, entity.getLeaveAnnualLimit());
+        statement.bindLong(12, entity.getLeaveCasualLimit());
+        statement.bindLong(13, entity.getLeaveSickLimit());
+        statement.bindLong(14, entity.getUpdatedAt());
       }
     };
   }
@@ -142,7 +137,6 @@ public final class BrandAmbassadorDao_Impl implements BrandAmbassadorDao {
         try {
           final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
           final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
-          final int _cursorIndexOfMobile = CursorUtil.getColumnIndexOrThrow(_cursor, "mobile");
           final int _cursorIndexOfCnic = CursorUtil.getColumnIndexOrThrow(_cursor, "cnic");
           final int _cursorIndexOfStationId = CursorUtil.getColumnIndexOrThrow(_cursor, "stationId");
           final int _cursorIndexOfStationName = CursorUtil.getColumnIndexOrThrow(_cursor, "stationName");
@@ -161,12 +155,6 @@ public final class BrandAmbassadorDao_Impl implements BrandAmbassadorDao {
             _tmpId = _cursor.getString(_cursorIndexOfId);
             final String _tmpName;
             _tmpName = _cursor.getString(_cursorIndexOfName);
-            final String _tmpMobile;
-            if (_cursor.isNull(_cursorIndexOfMobile)) {
-              _tmpMobile = null;
-            } else {
-              _tmpMobile = _cursor.getString(_cursorIndexOfMobile);
-            }
             final String _tmpCnic;
             if (_cursor.isNull(_cursorIndexOfCnic)) {
               _tmpCnic = null;
@@ -213,7 +201,7 @@ public final class BrandAmbassadorDao_Impl implements BrandAmbassadorDao {
             _tmpLeaveSickLimit = _cursor.getInt(_cursorIndexOfLeaveSickLimit);
             final long _tmpUpdatedAt;
             _tmpUpdatedAt = _cursor.getLong(_cursorIndexOfUpdatedAt);
-            _result = new BrandAmbassadorEntity(_tmpId,_tmpName,_tmpMobile,_tmpCnic,_tmpStationId,_tmpStationName,_tmpAppPin,_tmpIsActive,_tmpEmploymentType,_tmpCurrentMonthlySalary,_tmpJoinedAt,_tmpLeaveAnnualLimit,_tmpLeaveCasualLimit,_tmpLeaveSickLimit,_tmpUpdatedAt);
+            _result = new BrandAmbassadorEntity(_tmpId,_tmpName,_tmpCnic,_tmpStationId,_tmpStationName,_tmpAppPin,_tmpIsActive,_tmpEmploymentType,_tmpCurrentMonthlySalary,_tmpJoinedAt,_tmpLeaveAnnualLimit,_tmpLeaveCasualLimit,_tmpLeaveSickLimit,_tmpUpdatedAt);
           } else {
             _result = null;
           }
@@ -242,7 +230,6 @@ public final class BrandAmbassadorDao_Impl implements BrandAmbassadorDao {
         try {
           final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
           final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
-          final int _cursorIndexOfMobile = CursorUtil.getColumnIndexOrThrow(_cursor, "mobile");
           final int _cursorIndexOfCnic = CursorUtil.getColumnIndexOrThrow(_cursor, "cnic");
           final int _cursorIndexOfStationId = CursorUtil.getColumnIndexOrThrow(_cursor, "stationId");
           final int _cursorIndexOfStationName = CursorUtil.getColumnIndexOrThrow(_cursor, "stationName");
@@ -261,12 +248,6 @@ public final class BrandAmbassadorDao_Impl implements BrandAmbassadorDao {
             _tmpId = _cursor.getString(_cursorIndexOfId);
             final String _tmpName;
             _tmpName = _cursor.getString(_cursorIndexOfName);
-            final String _tmpMobile;
-            if (_cursor.isNull(_cursorIndexOfMobile)) {
-              _tmpMobile = null;
-            } else {
-              _tmpMobile = _cursor.getString(_cursorIndexOfMobile);
-            }
             final String _tmpCnic;
             if (_cursor.isNull(_cursorIndexOfCnic)) {
               _tmpCnic = null;
@@ -313,7 +294,7 @@ public final class BrandAmbassadorDao_Impl implements BrandAmbassadorDao {
             _tmpLeaveSickLimit = _cursor.getInt(_cursorIndexOfLeaveSickLimit);
             final long _tmpUpdatedAt;
             _tmpUpdatedAt = _cursor.getLong(_cursorIndexOfUpdatedAt);
-            _result = new BrandAmbassadorEntity(_tmpId,_tmpName,_tmpMobile,_tmpCnic,_tmpStationId,_tmpStationName,_tmpAppPin,_tmpIsActive,_tmpEmploymentType,_tmpCurrentMonthlySalary,_tmpJoinedAt,_tmpLeaveAnnualLimit,_tmpLeaveCasualLimit,_tmpLeaveSickLimit,_tmpUpdatedAt);
+            _result = new BrandAmbassadorEntity(_tmpId,_tmpName,_tmpCnic,_tmpStationId,_tmpStationName,_tmpAppPin,_tmpIsActive,_tmpEmploymentType,_tmpCurrentMonthlySalary,_tmpJoinedAt,_tmpLeaveAnnualLimit,_tmpLeaveCasualLimit,_tmpLeaveSickLimit,_tmpUpdatedAt);
           } else {
             _result = null;
           }

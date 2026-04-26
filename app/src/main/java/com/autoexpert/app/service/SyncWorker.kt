@@ -232,6 +232,8 @@ class SyncWorker @AssistedInject constructor(
                     vehicleTypeId    = entry.vehicleTypeId,
                     isRepeat         = entry.isRepeat,
                     competitorBrandId= entry.competitorBrandId,
+                    isApplicator     = entry.isApplicator,
+                    applicatorSkuId  = entry.applicatorSkuId,
                     entryTime        = entry.entryTime,
                     syncedAt         = Instant.now().toString(),
                 )

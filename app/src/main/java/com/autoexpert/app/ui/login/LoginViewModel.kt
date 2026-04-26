@@ -80,7 +80,6 @@ class LoginViewModel @Inject constructor(
                             ba = BrandAmbassadorEntity(
                                 id                   = remote.id,
                                 name                 = remote.name,
-                                mobile               = remote.mobile,
                                 cnic                 = remote.cnic,
                                 stationId            = remote.stationId,
                                 stationName          = null,
