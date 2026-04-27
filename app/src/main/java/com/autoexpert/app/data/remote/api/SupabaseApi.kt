@@ -88,6 +88,14 @@ interface SupabaseApi {
     ): Response<List<RemoteSaleEntry>>
 
     @POST("sale_entry_items")
+    @Headers("Prefer: return=representation")
+    suspend fun postSaleEntryItem(
+        @Body item: RemoteSaleEntryItem,
+        @Header("apikey") apiKey: String,
+        @Header("Authorization") auth: String,
+    ): Response<List<RemoteSaleEntryItem>>
+
+    @POST("sale_entry_items")
     suspend fun postSaleEntryItems(
         @Body items: List<RemoteSaleEntryItem>,
         @Header("apikey") apiKey: String,

@@ -160,7 +160,7 @@ class SyncWorker @AssistedInject constructor(
                 NoticeEntity(
                     id          = n.id,
                     message     = n.message,
-                    targetBaIds = n.targetBaIds,
+                    targetBaIds = n.targetBaIds?.joinToString(","),
                     isActive    = n.isActive,
                     postedAt    = try { Instant.parse(n.postedAt).toEpochMilli() } catch (e: Exception) { System.currentTimeMillis() }
                 )

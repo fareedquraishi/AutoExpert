@@ -171,8 +171,48 @@ class NewCustomerViewModel @Inject constructor(
                                 commissionEarned       = volL * _commissionRate.value,
                             )
                         }
-                        api.postSaleEntryItems(itemPayloads, apiKey, authHdr)
+                        for (item in itemPayloads) { api.postSaleEntryItem(item, apiKey, authHdr) }
                     }
+                    // Save to local Room with correct totals
+                    try {
+                        val entity = com.autoexpert.app.data.local.entity.SaleEntryQueueEntity(
+                            localId = remoteId ?: java.util.UUID.randomUUID().toString(),
+                            remoteId = remoteId,
+                            baId = baId,
+                            stationId = stationId,
+                            customerName = entryPayload.customerName,
+                            customerMobile = entryPayload.customerMobile,
+                            plateNumber = entryPayload.plateNumber,
+                            vehicleTypeId = entryPayload.vehicleTypeId,
+                            vehicleTypeName = s.vehicleTypeName.ifEmpty { null },
+                            isRepeat = entryPayload.isRepeat,
+                            entryTime = entryPayload.entryTime,
+                            syncStatus = "synced",
+                            totalLitres = totalLitres,
+                            totalCommission = commission,
+                        )
+                        saleQueueDao.insert(entity)
+                    } catch (_: Exception) {}
+                    // Save to local Room with correct totals
+                    try {
+                        val entity = com.autoexpert.app.data.local.entity.SaleEntryQueueEntity(
+                            localId = remoteId ?: java.util.UUID.randomUUID().toString(),
+                            remoteId = remoteId,
+                            baId = baId,
+                            stationId = stationId,
+                            customerName = entryPayload.customerName,
+                            customerMobile = entryPayload.customerMobile,
+                            plateNumber = entryPayload.plateNumber,
+                            vehicleTypeId = entryPayload.vehicleTypeId,
+                            vehicleTypeName = s.vehicleTypeName.ifEmpty { null },
+                            isRepeat = entryPayload.isRepeat,
+                            entryTime = entryPayload.entryTime,
+                            syncStatus = "synced",
+                            totalLitres = totalLitres,
+                            totalCommission = commission,
+                        )
+                        saleQueueDao.insert(entity)
+                    } catch (_: Exception) {}
                     _state.update { it.copy(isSubmitting = false, submitSuccess = true, totalCommission = commission) }
                 } else {
                     val err = resp.errorBody()?.string() ?: "HTTP ${resp.code()}"
