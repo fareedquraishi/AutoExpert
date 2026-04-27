@@ -106,7 +106,7 @@ class LoginViewModel @Inject constructor(
                         baId        = ba.id,
                         baName      = ba.name,
                         stationId   = ba.stationId,
-                        stationName = station?.name ?: "Station ${ba.stationId?.take(8) ?: "Unknown"}",
+                        stationName = if (station != null) "${station.name}, ${station.city ?: ""}".trimEnd(' ').trimEnd(',') else "Unknown Station",
                         lat         = station?.latitude,
                         lng         = station?.longitude,
                         radius      = station?.geofenceRadius ?: 200
