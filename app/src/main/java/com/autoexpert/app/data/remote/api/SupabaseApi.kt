@@ -18,6 +18,14 @@ interface SupabaseApi {
 
     // ── Stations ──────────────────────────────────────────────────────────
     @GET("stations")
+    suspend fun getStationById(
+        @Query("id") id: String,
+        @Query("select") select: String = "id,name,city,latitude,longitude,geofence_radius_m",
+        @Header("apikey") apiKey: String,
+        @Header("Authorization") auth: String,
+    ): Response<List<RemoteStation>>
+
+    @GET("stations")
     suspend fun getStations(
         @Query("select") select: String = "id,name,city,latitude,longitude,geofence_radius_m",
         @Header("apikey") apiKey: String,

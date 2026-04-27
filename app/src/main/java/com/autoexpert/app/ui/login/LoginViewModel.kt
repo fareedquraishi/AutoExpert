@@ -99,8 +99,8 @@ class LoginViewModel @Inject constructor(
 
                 if (ba != null) {
                     // Fetch station GPS coords
-                    val stationsResp = api.getStations(apiKey = apiKey, auth = authHeader)
-                    val station = stationsResp.body()?.find { it.id == ba.stationId }
+                    val stationsResp = api.getStationById(id = "eq.${ba.stationId}", apiKey = apiKey, auth = authHeader)
+                    val station = stationsResp.body()?.firstOrNull()
 
                     session.saveSession(
                         baId        = ba.id,
