@@ -93,6 +93,7 @@ data class RemoteSaleEntry(
     @SerializedName("is_repeat") val isRepeat: Boolean,
     @SerializedName("entry_time") val entryTime: String,
     @SerializedName("synced_at") val syncedAt: String? = null,
+    @SerializedName("sale_entry_items") val items: List<RemoteSaleEntryItem>? = null,
 )
 
 data class RemoteSaleEntryItem(

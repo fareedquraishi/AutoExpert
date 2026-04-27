@@ -177,8 +177,8 @@ class HomeViewModel @Inject constructor(
                                     isRepeat = e.isRepeat,
                                     entryTime = e.entryTime,
                                     syncStatus = "synced",
-                                    totalLitres = 0.0,
-                                    totalCommission = 0.0, // items fetched separately
+                                    totalLitres = e.items?.sumOf { it.qtyLitres } ?: 0.0,
+                                    totalCommission = e.items?.sumOf { it.commissionEarned } ?: 0.0,
                                 )) } catch (_: Exception) {}
                         }
                     }
