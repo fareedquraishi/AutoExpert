@@ -6,7 +6,7 @@ import com.autoexpert.app.BuildConfig
 import com.autoexpert.app.data.local.dao.*
 import com.autoexpert.app.data.local.entity.*
 import com.autoexpert.app.data.remote.api.SupabaseApi
-import com.autoexpert.app.service.SyncWorker
+import com.autoexpert.app.data.remote.model.*
 import com.autoexpert.app.util.SessionManager
 import android.content.Context
 import com.google.gson.Gson
@@ -14,8 +14,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.*
+import java.time.Instant
 import javax.inject.Inject
 
 data class CartItem(val sku: SkuEntity, var qty: Int = 0)
@@ -59,7 +58,6 @@ class NewCustomerViewModel @Inject constructor(
 
     private val _state = MutableStateFlow(CustomerEntryState())
     val state: StateFlow<CustomerEntryState> = _state.asStateFlow()
-
     private val _commissionRate = MutableStateFlow(50.0)
 
     init { reset() }
@@ -95,10 +93,7 @@ class NewCustomerViewModel @Inject constructor(
         _state.update { s ->
             val items = s.cart.values.filter { it.qty > 0 }
             val autoSkuId = if (v && items.size == 1) items.first().sku.id else null
-            s.copy(
-                isApplicator = v,
-                applicatorSkuId = if (!v) null else autoSkuId ?: s.applicatorSkuId
-            )
+            s.copy(isApplicator = v, applicatorSkuId = if (!v) null else autoSkuId ?: s.applicatorSkuId)
         }
     }
 
@@ -130,90 +125,81 @@ class NewCustomerViewModel @Inject constructor(
         viewModelScope.launch {
             _state.update { it.copy(isSubmitting = true, submitError = null) }
             val s = _state.value
-            val baId = session.baId.first() ?: return@launch
+            val baId = session.baId.first() ?: run {
+                _state.update { it.copy(isSubmitting = false, submitError = "Not logged in") }
+                return@launch
+            }
             val stationId = session.stationId.first() ?: ""
             val commission = totalCommission
-            val litres = totalLitres
+            val apiKey = BuildConfig.SUPABASE_ANON_KEY
+            val authHdr = "Bearer $apiKey"
 
-            val itemsList = selectedItems.map { cartItem ->
-                val volL = cartItem.sku.volumeLitres * cartItem.qty
-                val comm = volL * _commissionRate.value
-                mapOf(
-                    "skuId" to cartItem.sku.id,
-                    "qtyLitres" to volL,
-                    "purchasePriceSnapshot" to cartItem.sku.purchasePrice,
-                    "sellingPriceSnapshot" to cartItem.sku.sellingPrice,
-                    "marginSnapshot" to cartItem.sku.marginPercent,
-                    "commissionRateSnapshot" to _commissionRate.value.toString(),
-                    "commissionEarned" to comm,
-                    "hasApplicator" to (s.isApplicator && (s.applicatorSkuId == cartItem.sku.id || selectedItems.size == 1)),
-                    "applicatorQty" to if (s.isApplicator && (s.applicatorSkuId == cartItem.sku.id || selectedItems.size == 1)) volL else null
-                )
-            }
-
-            val entity = SaleEntryQueueEntity(
-                localId          = UUID.randomUUID().toString(),
-                baId             = baId,
-                stationId        = stationId,
-                customerName     = s.customerName.trim().split(" ").joinToString(" ") { it.replaceFirstChar(Char::uppercaseChar) },
-                customerMobile   = s.mobile.trim().ifEmpty { null },
-                plateNumber      = s.plateNumber.trim().uppercase().ifEmpty { null },
-                vehicleTypeId    = s.vehicleTypeId.ifEmpty { null },
-                vehicleTypeName  = s.vehicleTypeName.ifEmpty { null },
-                isRepeat         = s.isRepeat,
-                competitorBrandId = s.competitorBrandId,
-                isApplicator     = s.isApplicator,
-                applicatorSkuId  = s.applicatorSkuId,
-                totalLitres      = litres,
-                totalCommission  = commission,
-                itemsJson        = gson.toJson(itemsList),
-                entryTime        = java.time.Instant.now().toString(),
-                syncStatus       = "pending",
-            )
-            saleQueueDao.insert(entity)
-            // Direct sync to Supabase
             try {
-                val apiKey = com.autoexpert.app.BuildConfig.SUPABASE_ANON_KEY
-                val authHdr = "Bearer " + apiKey
-                val remote = com.autoexpert.app.data.remote.model.RemoteSaleEntry(
-                    baId = entity.baId,
-                    stationId = entity.stationId,
-                    customerName = entity.customerName,
-                    customerMobile = entity.customerMobile ?: "",
-                    plateNumber = entity.plateNumber,
-                    vehicleTypeId = entity.vehicleTypeId,
-                    isRepeat = entity.isRepeat,
-                    competitorBrandId = entity.competitorBrandId,
-                    isApplicator = entity.isApplicator,
-                    applicatorSkuId = entity.applicatorSkuId,
-                    entryTime = entity.entryTime,
+                // Post entry directly to Supabase
+                val entryPayload = RemoteSaleEntry(
+                    baId             = baId,
+                    stationId        = stationId,
+                    customerName     = s.customerName.trim().split(" ").joinToString(" ") { it.replaceFirstChar(Char::uppercaseChar) },
+                    customerMobile   = s.mobile.trim().ifEmpty { "" },
+                    plateNumber      = s.plateNumber.trim().uppercase().ifEmpty { null },
+                    vehicleTypeId    = s.vehicleTypeId.ifEmpty { null },
+                    isRepeat         = s.isRepeat,
+                    competitorBrandId = s.competitorBrandId,
+                    entryTime        = Instant.now().toString(),
+                    syncedAt         = Instant.now().toString(),
                 )
-                val resp = api.postSaleEntry(remote, apiKey, authHdr)
+
+                val resp = api.postSaleEntry(entryPayload, apiKey, authHdr)
+
                 if (resp.isSuccessful) {
                     val remoteId = resp.body()?.firstOrNull()?.id
-                    saleQueueDao.updateSyncStatus(entity.localId, "synced", remoteId)
+                    // Post items
+                    if (selectedItems.isNotEmpty() && remoteId != null) {
+                        val itemPayloads = selectedItems.map { cartItem ->
+                            val volL = cartItem.sku.volumeLitres * cartItem.qty
+                            val isApp = s.isApplicator && (s.applicatorSkuId == cartItem.sku.id || selectedItems.size == 1)
+                            RemoteSaleEntryItem(
+                                entryId                = remoteId,
+                                skuId                  = cartItem.sku.id,
+                                qtyLitres              = volL,
+                                hasApplicator          = isApp,
+                                applicatorQty          = if (isApp) volL else null,
+                                purchasePriceSnapshot  = cartItem.sku.purchasePrice,
+                                sellingPriceSnapshot   = cartItem.sku.sellingPrice,
+                                marginSnapshot         = cartItem.sku.marginPercent,
+                                commissionRateSnapshot = _commissionRate.value.toString(),
+                                commissionEarned       = volL * _commissionRate.value,
+                            )
+                        }
+                        api.postSaleEntryItems(itemPayloads, apiKey, authHdr)
+                    }
+                    _state.update { it.copy(isSubmitting = false, submitSuccess = true, totalCommission = commission) }
+                } else {
+                    val err = resp.errorBody()?.string() ?: "HTTP ${resp.code()}"
+                    _state.update { it.copy(isSubmitting = false, submitError = "Failed: $err") }
                 }
             } catch (e: Exception) {
-                SyncWorker.triggerImmediateSync(context)
+                _state.update { it.copy(isSubmitting = false, submitError = e.javaClass.simpleName + ": " + e.message) }
             }
-            _state.update { it.copy(isSubmitting = false, submitSuccess = true, totalCommission = commission) }
         }
     }
 
     fun reset() = viewModelScope.launch {
         loadCommissionRate()
-        val skus   = skuDao.getAllActiveOnce()
-        val vTypes = vehicleTypeDao.getAllOnce()
+        val skus    = skuDao.getAllActiveOnce()
+        val vTypes  = vehicleTypeDao.getAllOnce()
         val cBrands = competitorBrandDao.getAllOnce()
-        _state.update { it.copy(
-            step = 1, customerName = "", mobile = "", plateNumber = "",
-            vehicleTypeId = "", vehicleTypeName = "", isRepeat = false,
-            competitorBrandId = null, competitorBrandName = null,
-            isApplicator = false, applicatorSkuId = null,
-            isSubmitting = false, submitError = null, submitSuccess = false,
-            skus = skus, vehicleTypes = vTypes, competitorBrands = cBrands,
-            cart = skus.associate { s -> s.id to CartItem(s) }
-        )}
+        _state.update {
+            it.copy(
+                step = 1, customerName = "", mobile = "", plateNumber = "",
+                vehicleTypeId = "", vehicleTypeName = "", isRepeat = false,
+                competitorBrandId = null, competitorBrandName = null,
+                isApplicator = false, applicatorSkuId = null,
+                isSubmitting = false, submitError = null, submitSuccess = false,
+                skus = skus, vehicleTypes = vTypes, competitorBrands = cBrands,
+                cart = skus.associate { s -> s.id to CartItem(s) }
+            )
+        }
     }
 
     private suspend fun loadCommissionRate() {

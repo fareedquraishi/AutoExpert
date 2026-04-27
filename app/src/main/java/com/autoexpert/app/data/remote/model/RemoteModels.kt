@@ -86,13 +86,11 @@ data class RemoteSaleEntry(
     @SerializedName("ba_id") val baId: String,
     @SerializedName("station_id") val stationId: String,
     @SerializedName("customer_name") val customerName: String,
-    @SerializedName("customer_mobile") val customerMobile: String?,
+    @SerializedName("customer_mobile") val customerMobile: String? = null,
     @SerializedName("plate_number") val plateNumber: String?,
     @SerializedName("vehicle_type_id") val vehicleTypeId: String?,
-    @SerializedName("is_repeat") val isRepeat: Boolean,
     @SerializedName("competitor_brand_id") val competitorBrandId: String?,
-    @SerializedName("is_applicator") val isApplicator: Boolean = false,
-    @SerializedName("applicator_sku_id") val applicatorSkuId: String? = null,
+    @SerializedName("is_repeat") val isRepeat: Boolean,
     @SerializedName("entry_time") val entryTime: String,
     @SerializedName("synced_at") val syncedAt: String? = null,
 )
@@ -126,7 +124,7 @@ data class RemoteAttendance(
 data class RemoteNotice(
     val id: String,
     val message: String,
-    @SerializedName("target_ba_ids") val targetBaIds: String?,
+    @SerializedName("target_ba_ids") val targetBaIds: List<String>? = null,
     @SerializedName("is_active") val isActive: Boolean,
     @SerializedName("posted_at") val postedAt: String,
 )

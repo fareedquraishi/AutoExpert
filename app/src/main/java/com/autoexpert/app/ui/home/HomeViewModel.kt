@@ -61,7 +61,6 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun loadData() {
-        // BA name + station name from session
         viewModelScope.launch {
             combine(
                 session.baName.map { it ?: "" },
@@ -72,7 +71,6 @@ class HomeViewModel @Inject constructor(
                 }
         }
 
-        // Today's sale entries from local Room
         viewModelScope.launch {
             session.baId.map { it ?: "" }.filter { it.isNotEmpty() }.collect { baId ->
                 saleDao.getByBaAndDate(baId, today).collect { entries ->
@@ -86,7 +84,6 @@ class HomeViewModel @Inject constructor(
             }
         }
 
-        // Unread counts
         viewModelScope.launch {
             noticeDao.getUnreadCount().collect { count ->
                 _uiState.update { it.copy(unreadNotices = count) }
@@ -98,21 +95,17 @@ class HomeViewModel @Inject constructor(
             }
         }
 
-        // Attendance + targets + unpaid balance
         viewModelScope.launch {
             session.baId.map { it ?: "" }.filter { it.isNotEmpty() }.collect { baId ->
-                val unpaid      = 0.0 // payouts fetched via sync
                 val presentDays = attendanceDao.countPresentDays(baId, monthPrefix)
                 val att         = attendanceDao.getByBaAndDate(baId, today)
                 val stationId   = session.stationId.first() ?: ""
                 val target      = targetDao.getActiveTarget(baId, stationId, today)
-
                 _uiState.update { it.copy(
-                    unpaidBalance         = unpaid,
                     attendanceThisMonth   = presentDays,
                     todayAttendanceMarked = att != null,
-                    reachTarget  = if (target?.targetBasis == "reach"  || target?.targetBasis == "entries") target.targetValue else 100.0,
-                    litresTarget = if (target?.targetBasis == "litres" || target?.targetBasis == "volume")  target.targetValue else 100.0,
+                    reachTarget  = if (target?.targetBasis == "reach")  target.targetValue else 100.0,
+                    litresTarget = if (target?.targetBasis == "litres") target.targetValue else 100.0,
                 )}
             }
         }
@@ -120,12 +113,30 @@ class HomeViewModel @Inject constructor(
 
     fun syncRemoteData() {
         viewModelScope.launch {
-            val baId = session.baId.first() ?: run { _uiState.update { it.copy(syncError = "baId is null - not logged in") }; return@launch }
+            val baId = session.baId.first() ?: run {
+                _uiState.update { it.copy(syncError = "baId is null - not logged in") }
+                return@launch
+            }
             try {
-                // Reference data ? SKUs, vehicle types, competitor brands
-                val skuResp = api.getSkus(apiKey = apiKey, auth = authHeader)
-                android.util.Log.d("AutoExpert", "SKUs: code=" + skuResp.code() + " size=" + (skuResp.body()?.size ?: -1))
-                skuResp.body()?.let { list ->
+                // Fetch station name if missing
+                val currentStation = session.stationName.first()
+                if (currentStation.isNullOrEmpty()) {
+                    val stationId = session.stationId.first() ?: ""
+                    if (stationId.isNotEmpty()) {
+                        api.getStations(apiKey = apiKey, auth = authHeader).body()?.find { it.id == stationId }?.let { station ->
+                            val baName = session.baName.first() ?: ""
+                            session.saveSession(
+                                baId = baId, baName = baName,
+                                stationId = stationId, stationName = station.name,
+                                lat = station.latitude, lng = station.longitude,
+                                radius = station.geofenceRadius ?: 200
+                            )
+                        }
+                    }
+                }
+
+                // Sync reference data
+                api.getSkus(apiKey = apiKey, auth = authHeader).body()?.let { list ->
                     skuDao.upsertAll(list.map { s -> SkuEntity(
                         id = s.id, name = s.name, productType = s.productType,
                         volumeMl = s.volumeMl, purchasePrice = s.purchasePrice,
@@ -133,9 +144,7 @@ class HomeViewModel @Inject constructor(
                         isActive = s.isActive
                     )})
                 }
-                val vtResp = api.getVehicleTypes(apiKey = apiKey, auth = authHeader)
-                android.util.Log.d("AutoExpert", "VehicleTypes: code=" + vtResp.code() + " size=" + (vtResp.body()?.size ?: -1))
-                vtResp.body()?.let { list ->
+                api.getVehicleTypes(apiKey = apiKey, auth = authHeader).body()?.let { list ->
                     vehicleTypeDao.upsertAll(list.map { v -> VehicleTypeEntity(
                         id = v.id, name = v.name, iconKey = v.iconKey, sortOrder = v.sortOrder
                     )})
@@ -146,11 +155,40 @@ class HomeViewModel @Inject constructor(
                     )})
                 }
 
+                // Fetch today's entries from Supabase into Room
+                api.getSaleEntries(
+                    baId = "eq.$baId",
+                    date = "gte.${today}T00:00:00",
+                    select = "id,ba_id,station_id,customer_name,customer_mobile,plate_number,vehicle_type_id,is_repeat,entry_time,sale_entry_items(qty_litres,commission_earned)",
+                    apiKey = apiKey, auth = authHeader
+                ).body()?.let { entries ->
+                    entries.forEach { e ->
+                        if (e.id != null) {
+                            try { saleDao.insert(SaleEntryQueueEntity(
+                                    localId = e.id,
+                                    remoteId = e.id,
+                                    baId = e.baId,
+                                    stationId = e.stationId,
+                                    customerName = e.customerName,
+                                    customerMobile = e.customerMobile,
+                                    plateNumber = e.plateNumber,
+                                    vehicleTypeId = e.vehicleTypeId,
+                                    vehicleTypeName = null,
+                                    isRepeat = e.isRepeat,
+                                    entryTime = e.entryTime,
+                                    syncStatus = "synced",
+                                    totalLitres = 0.0,
+                                    totalCommission = 0.0, // items fetched separately
+                                )) } catch (_: Exception) {}
+                        }
+                    }
+                }
+
                 // Notices
                 api.getNotices(apiKey = apiKey, auth = authHeader).body()?.let { list ->
                     noticeDao.upsertAll(list.map { n -> NoticeEntity(
                         id = n.id, message = n.message,
-                        targetBaIds = n.targetBaIds, isActive = n.isActive,
+                        targetBaIds = n.targetBaIds?.joinToString(","), isActive = n.isActive,
                         postedAt = System.currentTimeMillis()
                     )})
                 }
@@ -168,20 +206,12 @@ class HomeViewModel @Inject constructor(
                     )})
                 }
 
-                // Payouts
-                api.getPayouts(baId = "eq.$baId", apiKey = apiKey, auth = authHeader).body()?.let { list ->
-                    payoutDao.upsertAll(list.map { p -> PayoutEntity(
-                        id = p.id, baId = p.baId,
-                        payoutDate = p.payoutDate ?: "",
-                        amount     = p.amount,
-                        note       = null,
-                        createdAt  = System.currentTimeMillis()
-                    )})
-                }
-
-                _uiState.update { it.copy(syncError = "OK:SKU=${skuResp.code()} VT=${vtResp.code()}") }
+                _uiState.update { it.copy(syncError = "OK") }
                 session.updateLastSync()
-            } catch (_: Exception) { /* offline ? use cached data */ }
+            } catch (e: Exception) {
+                val msg = e.javaClass.simpleName + ": " + (e.message ?: "?")
+                _uiState.update { it.copy(syncError = "ERR: $msg") }
+            }
         }
     }
 }
