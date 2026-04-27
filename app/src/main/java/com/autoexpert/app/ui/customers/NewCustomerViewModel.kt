@@ -53,6 +53,7 @@ class NewCustomerViewModel @Inject constructor(
     private val commissionTierDao: CommissionTierDao,
     private val baCommissionOverrideDao: BaCommissionOverrideDao,
     private val saleQueueDao: SaleEntryQueueDao,
+    private val api: SupabaseApi,
     private val gson: Gson,
 ) : ViewModel() {
 
@@ -170,7 +171,31 @@ class NewCustomerViewModel @Inject constructor(
                 syncStatus       = "pending",
             )
             saleQueueDao.insert(entity)
-            SyncWorker.triggerImmediateSync(context)
+            // Direct sync to Supabase
+            try {
+                val apiKey = com.autoexpert.app.BuildConfig.SUPABASE_ANON_KEY
+                val authHdr = "Bearer " + apiKey
+                val remote = com.autoexpert.app.data.remote.model.RemoteSaleEntry(
+                    baId = entity.baId,
+                    stationId = entity.stationId,
+                    customerName = entity.customerName,
+                    customerMobile = entity.customerMobile ?: "",
+                    plateNumber = entity.plateNumber,
+                    vehicleTypeId = entity.vehicleTypeId,
+                    isRepeat = entity.isRepeat,
+                    competitorBrandId = entity.competitorBrandId,
+                    isApplicator = entity.isApplicator,
+                    applicatorSkuId = entity.applicatorSkuId,
+                    entryTime = entity.entryTime,
+                )
+                val resp = api.postSaleEntry(remote, apiKey, authHdr)
+                if (resp.isSuccessful) {
+                    val remoteId = resp.body()?.firstOrNull()?.id
+                    saleQueueDao.updateSyncStatus(entity.localId, "synced", remoteId)
+                }
+            } catch (e: Exception) {
+                SyncWorker.triggerImmediateSync(context)
+            }
             _state.update { it.copy(isSubmitting = false, submitSuccess = true, totalCommission = commission) }
         }
     }

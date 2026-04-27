@@ -55,6 +55,7 @@ class HomeViewModel @Inject constructor(
     val uiState: StateFlow<HomeUiState> = _uiState
 
     init {
+        _uiState.update { it.copy(syncError = "VM_INIT") }
         loadData()
         syncRemoteData()
     }
@@ -122,7 +123,9 @@ class HomeViewModel @Inject constructor(
             val baId = session.baId.first() ?: run { _uiState.update { it.copy(syncError = "baId is null - not logged in") }; return@launch }
             try {
                 // Reference data ? SKUs, vehicle types, competitor brands
-                api.getSkus(apiKey = apiKey, auth = authHeader).body()?.let { list ->
+                val skuResp = api.getSkus(apiKey = apiKey, auth = authHeader)
+                android.util.Log.d("AutoExpert", "SKUs: code=" + skuResp.code() + " size=" + (skuResp.body()?.size ?: -1))
+                skuResp.body()?.let { list ->
                     skuDao.upsertAll(list.map { s -> SkuEntity(
                         id = s.id, name = s.name, productType = s.productType,
                         volumeMl = s.volumeMl, purchasePrice = s.purchasePrice,
@@ -130,7 +133,9 @@ class HomeViewModel @Inject constructor(
                         isActive = s.isActive
                     )})
                 }
-                api.getVehicleTypes(apiKey = apiKey, auth = authHeader).body()?.let { list ->
+                val vtResp = api.getVehicleTypes(apiKey = apiKey, auth = authHeader)
+                android.util.Log.d("AutoExpert", "VehicleTypes: code=" + vtResp.code() + " size=" + (vtResp.body()?.size ?: -1))
+                vtResp.body()?.let { list ->
                     vehicleTypeDao.upsertAll(list.map { v -> VehicleTypeEntity(
                         id = v.id, name = v.name, iconKey = v.iconKey, sortOrder = v.sortOrder
                     )})
@@ -174,6 +179,7 @@ class HomeViewModel @Inject constructor(
                     )})
                 }
 
+                _uiState.update { it.copy(syncError = "OK:SKU=${skuResp.code()} VT=${vtResp.code()}") }
                 session.updateLastSync()
             } catch (_: Exception) { /* offline ? use cached data */ }
         }
