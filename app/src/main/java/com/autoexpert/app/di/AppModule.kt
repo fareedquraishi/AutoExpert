@@ -44,9 +44,6 @@ object AppModule {
 
     @Provides @Singleton
     fun provideOkHttp(): OkHttpClient = OkHttpClient.Builder()
-        .addInterceptor(HttpLoggingInterceptor().apply {
-            level = HttpLoggingInterceptor.Level.BODY
-        })
         .addInterceptor { chain ->
             val req = chain.request()
             val newReq = if (req.method == "POST" || req.method == "PATCH") {

@@ -4,7 +4,6 @@ import com.autoexpert.app.data.local.dao.AttendanceQueueDao;
 import com.autoexpert.app.data.local.dao.CompetitorBrandDao;
 import com.autoexpert.app.data.local.dao.MessageDao;
 import com.autoexpert.app.data.local.dao.NoticeDao;
-import com.autoexpert.app.data.local.dao.PayoutDao;
 import com.autoexpert.app.data.local.dao.SaleEntryQueueDao;
 import com.autoexpert.app.data.local.dao.SkuDao;
 import com.autoexpert.app.data.local.dao.TargetDao;
@@ -41,8 +40,6 @@ public final class HomeViewModel_Factory implements Factory<HomeViewModel> {
 
   private final Provider<MessageDao> messageDaoProvider;
 
-  private final Provider<PayoutDao> payoutDaoProvider;
-
   private final Provider<AttendanceQueueDao> attendanceDaoProvider;
 
   private final Provider<TargetDao> targetDaoProvider;
@@ -57,15 +54,14 @@ public final class HomeViewModel_Factory implements Factory<HomeViewModel> {
 
   public HomeViewModel_Factory(Provider<SessionManager> sessionProvider,
       Provider<SaleEntryQueueDao> saleDaoProvider, Provider<NoticeDao> noticeDaoProvider,
-      Provider<MessageDao> messageDaoProvider, Provider<PayoutDao> payoutDaoProvider,
-      Provider<AttendanceQueueDao> attendanceDaoProvider, Provider<TargetDao> targetDaoProvider,
-      Provider<SkuDao> skuDaoProvider, Provider<VehicleTypeDao> vehicleTypeDaoProvider,
+      Provider<MessageDao> messageDaoProvider, Provider<AttendanceQueueDao> attendanceDaoProvider,
+      Provider<TargetDao> targetDaoProvider, Provider<SkuDao> skuDaoProvider,
+      Provider<VehicleTypeDao> vehicleTypeDaoProvider,
       Provider<CompetitorBrandDao> competitorBrandDaoProvider, Provider<SupabaseApi> apiProvider) {
     this.sessionProvider = sessionProvider;
     this.saleDaoProvider = saleDaoProvider;
     this.noticeDaoProvider = noticeDaoProvider;
     this.messageDaoProvider = messageDaoProvider;
-    this.payoutDaoProvider = payoutDaoProvider;
     this.attendanceDaoProvider = attendanceDaoProvider;
     this.targetDaoProvider = targetDaoProvider;
     this.skuDaoProvider = skuDaoProvider;
@@ -76,22 +72,22 @@ public final class HomeViewModel_Factory implements Factory<HomeViewModel> {
 
   @Override
   public HomeViewModel get() {
-    return newInstance(sessionProvider.get(), saleDaoProvider.get(), noticeDaoProvider.get(), messageDaoProvider.get(), payoutDaoProvider.get(), attendanceDaoProvider.get(), targetDaoProvider.get(), skuDaoProvider.get(), vehicleTypeDaoProvider.get(), competitorBrandDaoProvider.get(), apiProvider.get());
+    return newInstance(sessionProvider.get(), saleDaoProvider.get(), noticeDaoProvider.get(), messageDaoProvider.get(), attendanceDaoProvider.get(), targetDaoProvider.get(), skuDaoProvider.get(), vehicleTypeDaoProvider.get(), competitorBrandDaoProvider.get(), apiProvider.get());
   }
 
   public static HomeViewModel_Factory create(Provider<SessionManager> sessionProvider,
       Provider<SaleEntryQueueDao> saleDaoProvider, Provider<NoticeDao> noticeDaoProvider,
-      Provider<MessageDao> messageDaoProvider, Provider<PayoutDao> payoutDaoProvider,
-      Provider<AttendanceQueueDao> attendanceDaoProvider, Provider<TargetDao> targetDaoProvider,
-      Provider<SkuDao> skuDaoProvider, Provider<VehicleTypeDao> vehicleTypeDaoProvider,
+      Provider<MessageDao> messageDaoProvider, Provider<AttendanceQueueDao> attendanceDaoProvider,
+      Provider<TargetDao> targetDaoProvider, Provider<SkuDao> skuDaoProvider,
+      Provider<VehicleTypeDao> vehicleTypeDaoProvider,
       Provider<CompetitorBrandDao> competitorBrandDaoProvider, Provider<SupabaseApi> apiProvider) {
-    return new HomeViewModel_Factory(sessionProvider, saleDaoProvider, noticeDaoProvider, messageDaoProvider, payoutDaoProvider, attendanceDaoProvider, targetDaoProvider, skuDaoProvider, vehicleTypeDaoProvider, competitorBrandDaoProvider, apiProvider);
+    return new HomeViewModel_Factory(sessionProvider, saleDaoProvider, noticeDaoProvider, messageDaoProvider, attendanceDaoProvider, targetDaoProvider, skuDaoProvider, vehicleTypeDaoProvider, competitorBrandDaoProvider, apiProvider);
   }
 
   public static HomeViewModel newInstance(SessionManager session, SaleEntryQueueDao saleDao,
-      NoticeDao noticeDao, MessageDao messageDao, PayoutDao payoutDao,
-      AttendanceQueueDao attendanceDao, TargetDao targetDao, SkuDao skuDao,
-      VehicleTypeDao vehicleTypeDao, CompetitorBrandDao competitorBrandDao, SupabaseApi api) {
-    return new HomeViewModel(session, saleDao, noticeDao, messageDao, payoutDao, attendanceDao, targetDao, skuDao, vehicleTypeDao, competitorBrandDao, api);
+      NoticeDao noticeDao, MessageDao messageDao, AttendanceQueueDao attendanceDao,
+      TargetDao targetDao, SkuDao skuDao, VehicleTypeDao vehicleTypeDao,
+      CompetitorBrandDao competitorBrandDao, SupabaseApi api) {
+    return new HomeViewModel(session, saleDao, noticeDao, messageDao, attendanceDao, targetDao, skuDao, vehicleTypeDao, competitorBrandDao, api);
   }
 }

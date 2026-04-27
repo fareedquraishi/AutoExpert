@@ -1,6 +1,7 @@
 package com.autoexpert.app.ui.wallet;
 
 import com.autoexpert.app.data.local.dao.PayoutDao;
+import com.autoexpert.app.data.remote.api.SupabaseApi;
 import com.autoexpert.app.util.SessionManager;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.Factory;
@@ -28,23 +29,27 @@ public final class WalletViewModel_Factory implements Factory<WalletViewModel> {
 
   private final Provider<SessionManager> sessionProvider;
 
+  private final Provider<SupabaseApi> apiProvider;
+
   public WalletViewModel_Factory(Provider<PayoutDao> payoutDaoProvider,
-      Provider<SessionManager> sessionProvider) {
+      Provider<SessionManager> sessionProvider, Provider<SupabaseApi> apiProvider) {
     this.payoutDaoProvider = payoutDaoProvider;
     this.sessionProvider = sessionProvider;
+    this.apiProvider = apiProvider;
   }
 
   @Override
   public WalletViewModel get() {
-    return newInstance(payoutDaoProvider.get(), sessionProvider.get());
+    return newInstance(payoutDaoProvider.get(), sessionProvider.get(), apiProvider.get());
   }
 
   public static WalletViewModel_Factory create(Provider<PayoutDao> payoutDaoProvider,
-      Provider<SessionManager> sessionProvider) {
-    return new WalletViewModel_Factory(payoutDaoProvider, sessionProvider);
+      Provider<SessionManager> sessionProvider, Provider<SupabaseApi> apiProvider) {
+    return new WalletViewModel_Factory(payoutDaoProvider, sessionProvider, apiProvider);
   }
 
-  public static WalletViewModel newInstance(PayoutDao payoutDao, SessionManager session) {
-    return new WalletViewModel(payoutDao, session);
+  public static WalletViewModel newInstance(PayoutDao payoutDao, SessionManager session,
+      SupabaseApi api) {
+    return new WalletViewModel(payoutDao, session, api);
   }
 }

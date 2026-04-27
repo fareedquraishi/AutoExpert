@@ -112,6 +112,9 @@ interface SaleEntryQueueDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(entry: SaleEntryQueueEntity)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsertAll(entries: List<SaleEntryQueueEntity>)
+
     @Query("SELECT * FROM sale_entries_queue WHERE syncStatus = 'pending' ORDER BY createdAt ASC")
     suspend fun getPending(): List<SaleEntryQueueEntity>
 

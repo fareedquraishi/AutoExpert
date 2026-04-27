@@ -152,6 +152,25 @@ public final class SaleEntryQueueDao_Impl implements SaleEntryQueueDao {
   }
 
   @Override
+  public Object upsertAll(final List<SaleEntryQueueEntity> entries,
+      final Continuation<? super Unit> $completion) {
+    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
+      @Override
+      @NonNull
+      public Unit call() throws Exception {
+        __db.beginTransaction();
+        try {
+          __insertionAdapterOfSaleEntryQueueEntity.insert(entries);
+          __db.setTransactionSuccessful();
+          return Unit.INSTANCE;
+        } finally {
+          __db.endTransaction();
+        }
+      }
+    }, $completion);
+  }
+
+  @Override
   public Object updateSyncStatus(final String localId, final String status, final String remoteId,
       final Continuation<? super Unit> $completion) {
     return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
