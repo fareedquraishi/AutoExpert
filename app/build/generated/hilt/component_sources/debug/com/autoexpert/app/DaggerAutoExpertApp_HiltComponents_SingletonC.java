@@ -461,30 +461,33 @@ public final class DaggerAutoExpertApp_HiltComponents_SingletonC {
 
     @IdentifierNameString
     private static final class LazyClassKeyProvider {
-      static String com_autoexpert_app_ui_login_LoginViewModel = "com.autoexpert.app.ui.login.LoginViewModel";
+      static String com_autoexpert_app_ui_customers_NewCustomerViewModel = "com.autoexpert.app.ui.customers.NewCustomerViewModel";
+
+      static String com_autoexpert_app_ui_profile_ProfileViewModel = "com.autoexpert.app.ui.profile.ProfileViewModel";
 
       static String com_autoexpert_app_ui_notices_NoticesViewModel = "com.autoexpert.app.ui.notices.NoticesViewModel";
 
-      static String com_autoexpert_app_ui_customers_NewCustomerViewModel = "com.autoexpert.app.ui.customers.NewCustomerViewModel";
+      static String com_autoexpert_app_ui_login_LoginViewModel = "com.autoexpert.app.ui.login.LoginViewModel";
 
       static String com_autoexpert_app_ui_customers_CustomerListViewModel = "com.autoexpert.app.ui.customers.CustomerListViewModel";
 
       static String com_autoexpert_app_ui_home_HomeViewModel = "com.autoexpert.app.ui.home.HomeViewModel";
 
-      static String com_autoexpert_app_ui_messaging_MessagingViewModel = "com.autoexpert.app.ui.messaging.MessagingViewModel";
-
-      static String com_autoexpert_app_ui_profile_ProfileViewModel = "com.autoexpert.app.ui.profile.ProfileViewModel";
-
       static String com_autoexpert_app_ui_wallet_WalletViewModel = "com.autoexpert.app.ui.wallet.WalletViewModel";
 
+      static String com_autoexpert_app_ui_messaging_MessagingViewModel = "com.autoexpert.app.ui.messaging.MessagingViewModel";
+
       @KeepFieldType
-      LoginViewModel com_autoexpert_app_ui_login_LoginViewModel2;
+      NewCustomerViewModel com_autoexpert_app_ui_customers_NewCustomerViewModel2;
+
+      @KeepFieldType
+      ProfileViewModel com_autoexpert_app_ui_profile_ProfileViewModel2;
 
       @KeepFieldType
       NoticesViewModel com_autoexpert_app_ui_notices_NoticesViewModel2;
 
       @KeepFieldType
-      NewCustomerViewModel com_autoexpert_app_ui_customers_NewCustomerViewModel2;
+      LoginViewModel com_autoexpert_app_ui_login_LoginViewModel2;
 
       @KeepFieldType
       CustomerListViewModel com_autoexpert_app_ui_customers_CustomerListViewModel2;
@@ -493,13 +496,10 @@ public final class DaggerAutoExpertApp_HiltComponents_SingletonC {
       HomeViewModel com_autoexpert_app_ui_home_HomeViewModel2;
 
       @KeepFieldType
-      MessagingViewModel com_autoexpert_app_ui_messaging_MessagingViewModel2;
-
-      @KeepFieldType
-      ProfileViewModel com_autoexpert_app_ui_profile_ProfileViewModel2;
-
-      @KeepFieldType
       WalletViewModel com_autoexpert_app_ui_wallet_WalletViewModel2;
+
+      @KeepFieldType
+      MessagingViewModel com_autoexpert_app_ui_messaging_MessagingViewModel2;
     }
   }
 
@@ -561,42 +561,42 @@ public final class DaggerAutoExpertApp_HiltComponents_SingletonC {
 
     @IdentifierNameString
     private static final class LazyClassKeyProvider {
-      static String com_autoexpert_app_ui_wallet_WalletViewModel = "com.autoexpert.app.ui.wallet.WalletViewModel";
-
       static String com_autoexpert_app_ui_notices_NoticesViewModel = "com.autoexpert.app.ui.notices.NoticesViewModel";
 
-      static String com_autoexpert_app_ui_messaging_MessagingViewModel = "com.autoexpert.app.ui.messaging.MessagingViewModel";
+      static String com_autoexpert_app_ui_wallet_WalletViewModel = "com.autoexpert.app.ui.wallet.WalletViewModel";
 
       static String com_autoexpert_app_ui_customers_NewCustomerViewModel = "com.autoexpert.app.ui.customers.NewCustomerViewModel";
 
-      static String com_autoexpert_app_ui_customers_CustomerListViewModel = "com.autoexpert.app.ui.customers.CustomerListViewModel";
+      static String com_autoexpert_app_ui_messaging_MessagingViewModel = "com.autoexpert.app.ui.messaging.MessagingViewModel";
 
-      static String com_autoexpert_app_ui_home_HomeViewModel = "com.autoexpert.app.ui.home.HomeViewModel";
+      static String com_autoexpert_app_ui_customers_CustomerListViewModel = "com.autoexpert.app.ui.customers.CustomerListViewModel";
 
       static String com_autoexpert_app_ui_profile_ProfileViewModel = "com.autoexpert.app.ui.profile.ProfileViewModel";
 
-      static String com_autoexpert_app_ui_login_LoginViewModel = "com.autoexpert.app.ui.login.LoginViewModel";
+      static String com_autoexpert_app_ui_home_HomeViewModel = "com.autoexpert.app.ui.home.HomeViewModel";
 
-      @KeepFieldType
-      WalletViewModel com_autoexpert_app_ui_wallet_WalletViewModel2;
+      static String com_autoexpert_app_ui_login_LoginViewModel = "com.autoexpert.app.ui.login.LoginViewModel";
 
       @KeepFieldType
       NoticesViewModel com_autoexpert_app_ui_notices_NoticesViewModel2;
 
       @KeepFieldType
-      MessagingViewModel com_autoexpert_app_ui_messaging_MessagingViewModel2;
+      WalletViewModel com_autoexpert_app_ui_wallet_WalletViewModel2;
 
       @KeepFieldType
       NewCustomerViewModel com_autoexpert_app_ui_customers_NewCustomerViewModel2;
 
       @KeepFieldType
+      MessagingViewModel com_autoexpert_app_ui_messaging_MessagingViewModel2;
+
+      @KeepFieldType
       CustomerListViewModel com_autoexpert_app_ui_customers_CustomerListViewModel2;
 
       @KeepFieldType
-      HomeViewModel com_autoexpert_app_ui_home_HomeViewModel2;
+      ProfileViewModel com_autoexpert_app_ui_profile_ProfileViewModel2;
 
       @KeepFieldType
-      ProfileViewModel com_autoexpert_app_ui_profile_ProfileViewModel2;
+      HomeViewModel com_autoexpert_app_ui_home_HomeViewModel2;
 
       @KeepFieldType
       LoginViewModel com_autoexpert_app_ui_login_LoginViewModel2;
