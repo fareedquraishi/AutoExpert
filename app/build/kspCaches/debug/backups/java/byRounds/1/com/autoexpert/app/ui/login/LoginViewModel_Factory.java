@@ -25,31 +25,31 @@ import javax.inject.Provider;
     "cast"
 })
 public final class LoginViewModel_Factory implements Factory<LoginViewModel> {
-  private final Provider<BrandAmbassadorDao> baDaoProvider;
-
   private final Provider<SupabaseApi> apiProvider;
+
+  private final Provider<BrandAmbassadorDao> baDaoProvider;
 
   private final Provider<SessionManager> sessionProvider;
 
-  public LoginViewModel_Factory(Provider<BrandAmbassadorDao> baDaoProvider,
-      Provider<SupabaseApi> apiProvider, Provider<SessionManager> sessionProvider) {
-    this.baDaoProvider = baDaoProvider;
+  public LoginViewModel_Factory(Provider<SupabaseApi> apiProvider,
+      Provider<BrandAmbassadorDao> baDaoProvider, Provider<SessionManager> sessionProvider) {
     this.apiProvider = apiProvider;
+    this.baDaoProvider = baDaoProvider;
     this.sessionProvider = sessionProvider;
   }
 
   @Override
   public LoginViewModel get() {
-    return newInstance(baDaoProvider.get(), apiProvider.get(), sessionProvider.get());
+    return newInstance(apiProvider.get(), baDaoProvider.get(), sessionProvider.get());
   }
 
-  public static LoginViewModel_Factory create(Provider<BrandAmbassadorDao> baDaoProvider,
-      Provider<SupabaseApi> apiProvider, Provider<SessionManager> sessionProvider) {
-    return new LoginViewModel_Factory(baDaoProvider, apiProvider, sessionProvider);
+  public static LoginViewModel_Factory create(Provider<SupabaseApi> apiProvider,
+      Provider<BrandAmbassadorDao> baDaoProvider, Provider<SessionManager> sessionProvider) {
+    return new LoginViewModel_Factory(apiProvider, baDaoProvider, sessionProvider);
   }
 
-  public static LoginViewModel newInstance(BrandAmbassadorDao baDao, SupabaseApi api,
+  public static LoginViewModel newInstance(SupabaseApi api, BrandAmbassadorDao baDao,
       SessionManager session) {
-    return new LoginViewModel(baDao, api, session);
+    return new LoginViewModel(api, baDao, session);
   }
 }

@@ -1,6 +1,6 @@
 package com.autoexpert.app.ui.login
 
-import android.content.Context
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.autoexpert.app.BuildConfig
@@ -9,12 +9,13 @@ import com.autoexpert.app.data.local.entity.BrandAmbassadorEntity
 import com.autoexpert.app.data.remote.api.SupabaseApi
 import com.autoexpert.app.util.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 sealed class LoginState {
-    object Idle : LoginState()
+    object Idle     : LoginState()
     object Checking : LoginState()
     data class Success(val ba: BrandAmbassadorEntity) : LoginState()
     data class Error(val message: String) : LoginState()
@@ -23,30 +24,22 @@ sealed class LoginState {
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val baDao: BrandAmbassadorDao,
-    private val api: SupabaseApi,
+    private val api    : SupabaseApi,
+    private val baDao  : BrandAmbassadorDao,
     private val session: SessionManager,
 ) : ViewModel() {
 
+    val pin   = mutableStateOf("")
     private val _state = MutableStateFlow<LoginState>(LoginState.Idle)
-    val state: StateFlow<LoginState> = _state
+    val state : StateFlow<LoginState> = _state
 
-    val pin = MutableStateFlow("")
-    val isAlreadyLoggedIn = MutableStateFlow(false)
+    private val apiKey     = BuildConfig.SUPABASE_ANON_KEY
+    private val authHeader = "Bearer " + apiKey
 
-    private val apiKey = BuildConfig.SUPABASE_ANON_KEY
-    private val authHeader = "Bearer $apiKey"
-
-    init {
-        viewModelScope.launch {
-            session.baId.collect { id ->
-                isAlreadyLoggedIn.value = !id.isNullOrEmpty()
-            }
+    fun addDigit(d: String) {
+        if (pin.value.length < 6) {
+            pin.value = pin.value + d
         }
-    }
-
-    fun appendPin(digit: String) {
-        if (pin.value.length < 6) pin.value += digit
         if (pin.value.length == 6) verifyPin()
     }
 
@@ -64,93 +57,100 @@ class LoginViewModel @Inject constructor(
         viewModelScope.launch {
             _state.value = LoginState.Checking
             try {
-                android.util.Log.d("AutoExpert", "PIN attempt: " + pin.value)
-                // 1. Always try network first to get fresh station name
-                var ba: com.autoexpert.app.data.local.entity.BrandAmbassadorEntity? = null
-                if (true) {
-                    val resp = api.getBaByPin(
-                        appPin = "eq.${pin.value}",
-                        apiKey = apiKey,
-                        auth   = authHeader
-                    )
-                    android.util.Log.d("AutoExpert", "API response code: " + resp.code() + " body: " + resp.body()?.size)
-                if (resp.isSuccessful) {
-                        val remote = resp.body()?.firstOrNull()
-                        if (remote != null) {
-                            ba = BrandAmbassadorEntity(
-                                id                   = remote.id,
-                                name                 = remote.name,
-                                cnic                 = remote.cnic,
-                                stationId            = remote.stationId,
-                                stationName          = null,
-                                appPin               = remote.appPin,
-                                isActive             = remote.isActive,
-                                employmentType       = remote.employmentType,
-                                currentMonthlySalary = remote.currentMonthlySalary,
-                                joinedAt             = remote.joinedAt,
-                                leaveAnnualLimit     = remote.leaveAnnualLimit,
-                                leaveCasualLimit     = remote.leaveCasualLimit,
-                                leaveSickLimit       = remote.leaveSickLimit,
-                            )
-                            baDao.upsert(ba)
+                // Fetch BA from Supabase
+                val resp = api.getBaByPin(
+                    appPin = "eq." + pin.value,
+                    apiKey = apiKey,
+                    auth   = authHeader
+                )
+
+                if (!resp.isSuccessful || resp.body().isNullOrEmpty()) {
+                    pin.value = ""
+                    _state.value = LoginState.Error("Incorrect PIN. Please try again.")
+                    return@launch
+                }
+
+                val remote = resp.body()!!.first()
+
+                // Build entity safely using local variables (no dot-access in string templates)
+                val baId         = remote.id
+                val baName       = remote.name
+                val baStationId  = remote.stationId ?: ""
+                val baCnic       = remote.cnic
+                val baPin        = remote.appPin
+                val baActive     = remote.isActive
+                val baEmpType    = remote.employmentType
+                val baSalary     = remote.currentMonthlySalary
+                val baJoined     = remote.joinedAt
+                val baAnnual     = remote.leaveAnnualLimit
+                val baCasual     = remote.leaveCasualLimit
+                val baSick       = remote.leaveSickLimit
+
+                val ba = BrandAmbassadorEntity(
+                    id                   = baId,
+                    name                 = baName,
+                    cnic                 = baCnic,
+                    stationId            = baStationId,
+                    stationName          = null,
+                    appPin               = baPin,
+                    isActive             = baActive,
+                    employmentType       = baEmpType,
+                    currentMonthlySalary = baSalary,
+                    joinedAt             = baJoined,
+                    leaveAnnualLimit     = baAnnual,
+                    leaveCasualLimit     = baCasual,
+                    leaveSickLimit       = baSick,
+                )
+                baDao.upsert(ba)
+
+                // Fetch station name safely
+                var stationName   = "Station"
+                var stationLat    : Double? = null
+                var stationLng    : Double? = null
+                var stationRadius = 200
+
+                if (baStationId.isNotEmpty()) {
+                    try {
+                        val stResp = api.getStationById(
+                            id     = "eq." + baStationId,
+                            apiKey = apiKey,
+                            auth   = authHeader
+                        )
+                        val st = stResp.body()?.firstOrNull()
+                        if (st != null) {
+                            val stName = st.name
+                            val stCity = st.city ?: ""
+                            stationName   = if (stCity.isNotEmpty()) "$stName, $stCity" else stName
+                            stationLat    = st.latitude
+                            stationLng    = st.longitude
+                            stationRadius = st.geofenceRadius ?: 200
                         }
+                    } catch (ex: Exception) {
+                        android.util.Log.e("AutoExpert", "Station fetch error: " + ex.message)
                     }
                 }
 
-                if (ba != null) {
-                    // Fetch station GPS coords
-                    val stationsResp = api.getStationById(id = "eq.${ba.stationId}", apiKey = apiKey, auth = authHeader)
-                    val station = stationsResp.body()?.firstOrNull()
+                // Save session safely using local variables only
+                session.saveSession(
+                    baId        = baId,
+                    baName      = baName,
+                    stationId   = baStationId,
+                    stationName = stationName,
+                    lat         = stationLat,
+                    lng         = stationLng,
+                    radius      = stationRadius
+                )
 
-                    session.saveSession(
-                        baId        = ba.id,
-                        baName      = ba.name,
-                        stationId   = ba.stationId,
-                        stationName = if (station != null) "${station.name}, ${station.city ?: ""}".trimEnd(' ').trimEnd(',') else "Unknown Station",
-                        lat         = station?.latitude,
-                        lng         = station?.longitude,
-                        radius      = station?.geofenceRadius ?: 200
-                    )
-                    _state.value = LoginState.Success(ba)
-                } else {
-                    pin.value = ""
-                    _state.value = LoginState.Error("Incorrect PIN. Please try again.")
-                }
+                _state.value = LoginState.Success(ba)
+
             } catch (e: Exception) {
                 android.util.Log.e("AutoExpert", "Login error: " + e.javaClass.simpleName + ": " + e.message)
-                _state.value = LoginState.Error("Error: " + e.javaClass.simpleName + ": " + e.message)
-                pin.value = ""
+                _state.value = LoginState.Error("Connection error. Check your internet.")
             }
         }
     }
 
     fun sendPinResetRequest() {
-        viewModelScope.launch {
-            try {
-                val baName = session.baName.first() ?: "Unknown BA"
-                api.postMessage(
-                    body = mapOf(
-                        "sender_id"   to "system",
-                        "sender_name" to baName,
-                        "receiver_id" to "admin",
-                        "body"        to "🔑 PIN Reset Request from $baName. Please reset their PIN."
-                    ),
-                    apiKey = apiKey, auth = authHeader
-                )
-                _state.value = LoginState.ResetSent
-            } catch (e: Exception) {
-                _state.value = LoginState.Error("Could not send request. Check connectivity.")
-            }
-        }
-    }
-
-    fun saveBiometricForCurrentPin(context: Context) {
-        context.getSharedPreferences("bio_prefs", android.content.Context.MODE_PRIVATE)
-            .edit().putString("enrolled_pin", pin.value).apply()
-    }
-
-    fun getBiometricPin(context: Context): String? {
-        return context.getSharedPreferences("bio_prefs", android.content.Context.MODE_PRIVATE)
-            .getString("enrolled_pin", null)
+        _state.value = LoginState.ResetSent
     }
 }
