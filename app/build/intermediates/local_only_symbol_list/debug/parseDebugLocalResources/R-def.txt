@@ -9,6 +9,7 @@ color petronas_green
 color petronas_green_dark
 color white
 drawable euro_logo
+drawable euro_logo_white
 drawable ic_notification
 drawable ic_petronas_splash
 drawable petronas_logo

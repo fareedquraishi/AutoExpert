@@ -40,6 +40,10 @@
         "source": "com.autoexpert.app-main-81:/drawable/ic_notification.xml"
     },
     {
+        "merged": "com.autoexpert.app-debug-79:/drawable_euro_logo_white.png.flat",
+        "source": "com.autoexpert.app-main-81:/drawable/euro_logo_white.png"
+    },
+    {
         "merged": "com.autoexpert.app-debug-79:/drawable_ic_petronas_splash.xml.flat",
         "source": "com.autoexpert.app-main-81:/drawable/ic_petronas_splash.xml"
     },
