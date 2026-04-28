@@ -8,7 +8,7 @@
     <color name="petronas_green">#00A86B</color>
     <color name="petronas_green_dark">#007A4D</color>
     <color name="white">#FFFFFF</color>
-    <string name="app_name">PAEC Field App</string>
+    <string name="app_name">Euro AutoExpert</string>
     <string name="attendance_marked_body">You\'ve arrived at your station. Attendance recorded automatically via GPS.</string>
     <string name="attendance_marked_title">Attendance Marked ✅</string>
     <string name="biometric_cancel">Use PIN instead</string>
