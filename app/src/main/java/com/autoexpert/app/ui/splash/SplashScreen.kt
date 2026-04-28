@@ -99,8 +99,8 @@ fun SplashScreen(onTimeout: () -> Unit) {
                 .statusBarsPadding()
                 .padding(16.dp)
                 .size(80.dp)
-                .background(Color.White.copy(.08f), RoundedCornerShape(14.dp))
-                .border(1.dp, Color.White.copy(.15f), RoundedCornerShape(14.dp))
+                .background(Color(0xFF0A1428), RoundedCornerShape(14.dp))
+                .border(1.dp, PetronasGreen.copy(.5f), RoundedCornerShape(14.dp))
                 .alpha(euroAlpha),
             contentAlignment = Alignment.Center
         ) {

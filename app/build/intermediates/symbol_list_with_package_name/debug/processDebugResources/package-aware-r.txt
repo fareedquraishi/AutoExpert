@@ -448,6 +448,7 @@ color material_grey_850
 color material_grey_900
 color notification_action_color_filter
 color notification_icon_bg_color
+color petronas_dark
 color petronas_green
 color petronas_green_dark
 color primary_dark_material_dark
@@ -723,6 +724,7 @@ drawable ic_call_answer_video
 drawable ic_call_answer_video_low
 drawable ic_call_decline
 drawable ic_call_decline_low
+drawable ic_launcher_foreground
 drawable ic_notification
 drawable ic_petronas_splash
 drawable icon_background
