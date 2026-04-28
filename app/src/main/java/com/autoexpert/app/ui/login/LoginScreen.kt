@@ -80,7 +80,7 @@ fun LoginScreen(
                 .border(1.dp, Color.White.copy(.08f), RoundedCornerShape(10.dp)),
             contentAlignment = Alignment.Center
         ) {
-            Image(painterResource(R.drawable.euro_logo), "Euro", Modifier.size(24.dp))
+            Image(painterResource(R.drawable.euro_logo), "Euro", Modifier.size(110.dp))
         }
 
         Column(
@@ -98,8 +98,8 @@ fun LoginScreen(
                         RoundedCornerShape(24.dp)),
                 contentAlignment = Alignment.Center
             ) {
-                Image(painterResource(R.drawable.petronas_logo), "Petronas",
-                    Modifier.size(72.dp, 58.dp))
+                Image(painterResource(R.drawable.euro_logo), "Euro Oil",
+                    Modifier.size(90.dp, 90.dp))
             }
 
             Spacer(Modifier.height(14.dp))

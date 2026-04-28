@@ -98,7 +98,7 @@ fun SplashScreen(onTimeout: () -> Unit) {
                 .align(Alignment.TopStart)
                 .statusBarsPadding()
                 .padding(16.dp)
-                .size(52.dp)
+                .size(80.dp)
                 .background(Color.White.copy(.08f), RoundedCornerShape(14.dp))
                 .border(1.dp, Color.White.copy(.15f), RoundedCornerShape(14.dp))
                 .alpha(euroAlpha),
@@ -107,7 +107,7 @@ fun SplashScreen(onTimeout: () -> Unit) {
             Image(
                 painter = painterResource(R.drawable.euro_logo),
                 contentDescription = "Euro",
-                modifier = Modifier.size(38.dp)
+                modifier = Modifier.size(64.dp)
             )
         }
 
@@ -136,7 +136,7 @@ fun SplashScreen(onTimeout: () -> Unit) {
                 Image(
                     painter = painterResource(R.drawable.petronas_logo),
                     contentDescription = "Petronas",
-                    modifier = Modifier.size(140.dp, 110.dp)
+                    modifier = Modifier.size(160.dp, 160.dp)
                 )
             }
 
