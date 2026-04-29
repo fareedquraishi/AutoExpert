@@ -1,5 +1,8 @@
 package com.autoexpert.app.ui.login
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.collectAsState
+
 import android.content.Context
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
@@ -33,7 +36,7 @@ fun LoginScreen(
     vm: LoginViewModel = hiltViewModel()
 ) {
     val state by vm.state.collectAsState()
-    val pin by vm.pin.collectAsState()
+    val pin = vm.pin
     val context = LocalContext.current
     val haptic = LocalHapticFeedback.current
     val scope = rememberCoroutineScope()
@@ -129,7 +132,7 @@ fun LoginScreen(
                 modifier = Modifier.offset(x = shakeOffset.value.dp)
             ) {
                 repeat(6) { i ->
-                    val filled = i < pin.length
+                    val filled = i < pin.value.length
                     val isError = state is LoginState.Error
                     Box(
                         Modifier.size(12.dp)
@@ -164,7 +167,7 @@ fun LoginScreen(
 
             // PIN Pad
             PinPad(
-                onDigit = { vm.appendPin(it); haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove) },
+                onDigit = { vm.addDigit(it); haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove) },
                 onDelete = { vm.deletePin(); haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove) },
                 onBiometric = { triggerBiometric(context, vm, onLoginSuccess) },
                 isLoading = state is LoginState.Checking
@@ -343,7 +346,7 @@ private fun triggerBiometric(context: Context, vm: LoginViewModel, onSuccess: ()
     val prompt = BiometricPrompt(activity, executor, object : BiometricPrompt.AuthenticationCallback() {
         override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
             // Directly verify stored PIN
-            repeat(bio.length) { vm.appendPin(bio[it].toString()) }
+            repeat(bio.length) { vm.addDigit(bio[it].toString()) }
         }
         override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {}
         override fun onAuthenticationFailed() {}

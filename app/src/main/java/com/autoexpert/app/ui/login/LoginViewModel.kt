@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 sealed class LoginState {
-    object Idle     : LoginState()
+    object Idle : LoginState()
     object Checking : LoginState()
     data class Success(val ba: BrandAmbassadorEntity) : LoginState()
     data class Error(val message: String) : LoginState()
@@ -24,133 +24,88 @@ sealed class LoginState {
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val api    : SupabaseApi,
-    private val baDao  : BrandAmbassadorDao,
+    private val api: SupabaseApi,
+    private val baDao: BrandAmbassadorDao,
     private val session: SessionManager,
 ) : ViewModel() {
 
-    val pin   = mutableStateOf("")
+    val pin = mutableStateOf("")
     private val _state = MutableStateFlow<LoginState>(LoginState.Idle)
-    val state : StateFlow<LoginState> = _state
+    val state: StateFlow<LoginState> = _state
 
-    private val apiKey     = BuildConfig.SUPABASE_ANON_KEY
+    private val apiKey = BuildConfig.SUPABASE_ANON_KEY
     private val authHeader = "Bearer " + apiKey
 
-    fun addDigit(d: String) {
-        if (pin.value.length < 6) {
-            pin.value = pin.value + d
-        }
-        if (pin.value.length == 6) verifyPin()
-    }
+    fun addDigit(d: String) { if (pin.value.length < 6) pin.value += d }
+    fun deletePin() { if (pin.value.isNotEmpty()) pin.value = pin.value.dropLast(1) }
+    fun clearPin() { pin.value = "" }
 
-    fun deletePin() {
-        if (pin.value.isNotEmpty()) pin.value = pin.value.dropLast(1)
-        _state.value = LoginState.Idle
-    }
-
-    fun clearPin() {
-        pin.value = ""
-        _state.value = LoginState.Idle
-    }
-
-    private fun verifyPin() {
+    fun verifyPin() {
+        if (pin.value.length < 6) return
         viewModelScope.launch {
             _state.value = LoginState.Checking
             try {
-                // Fetch BA from Supabase
-                val resp = api.getBaByPin(
-                    appPin = "eq." + pin.value,
-                    apiKey = apiKey,
-                    auth   = authHeader
-                )
-
-                if (!resp.isSuccessful || resp.body().isNullOrEmpty()) {
-                    pin.value = ""
-                    _state.value = LoginState.Error("Incorrect PIN. Please try again.")
+                // FIXED: Passing apiKey and authHeader
+                val resp = api.getBaByPin(appPin = "eq." + pin.value, apiKey = apiKey, auth = authHeader)
+                val remote = resp.body()?.firstOrNull()
+                
+                if (remote == null) {
+                    _state.value = LoginState.Error("Invalid PIN")
                     return@launch
                 }
 
-                val remote = resp.body()!!.first()
-
-                // Build entity safely using local variables (no dot-access in string templates)
-                val baId         = remote.id
-                val baName       = remote.name
-                val baStationId  = remote.stationId ?: ""
-                val baCnic       = remote.cnic
-                val baPin        = remote.appPin
-                val baActive     = remote.isActive
-                val baEmpType    = remote.employmentType
-                val baSalary     = remote.currentMonthlySalary
-                val baJoined     = remote.joinedAt
-                val baAnnual     = remote.leaveAnnualLimit
-                val baCasual     = remote.leaveCasualLimit
-                val baSick       = remote.leaveSickLimit
-
-                val ba = BrandAmbassadorEntity(
-                    id                   = baId,
-                    name                 = baName,
-                    cnic                 = baCnic,
-                    stationId            = baStationId,
-                    stationName          = null,
-                    appPin               = baPin,
-                    isActive             = baActive,
-                    employmentType       = baEmpType,
-                    currentMonthlySalary = baSalary,
-                    joinedAt             = baJoined,
-                    leaveAnnualLimit     = baAnnual,
-                    leaveCasualLimit     = baCasual,
-                    leaveSickLimit       = baSick,
-                )
-                baDao.upsert(ba)
-
-                // Fetch station name safely
-                var stationName   = "Station"
-                var stationLat    : Double? = null
-                var stationLng    : Double? = null
-                var stationRadius = 200
+                val baStationId = remote.stationId ?: ""
+                var stationName = "Station"
+                var stLat: Double? = null
+                var stLng: Double? = null
+                var stRad = 200
 
                 if (baStationId.isNotEmpty()) {
                     try {
-                        val stResp = api.getStationById(
-                            id     = "eq." + baStationId,
-                            apiKey = apiKey,
-                            auth   = authHeader
-                        )
-                        val st = stResp.body()?.firstOrNull()
-                        if (st != null) {
-                            val stName = st.name
-                            val stCity = st.city ?: ""
-                            stationName   = if (stCity.isNotEmpty()) "$stName, $stCity" else stName
-                            stationLat    = st.latitude
-                            stationLng    = st.longitude
-                            stationRadius = st.geofenceRadius ?: 200
+                        // FIXED: Passing apiKey and authHeader
+                        val stResp = api.getStationById(id = "eq." + baStationId, apiKey = apiKey, auth = authHeader)
+                        stResp.body()?.firstOrNull()?.let { st ->
+                            stationName = if (!st.city.isNullOrEmpty()) "${st.name}, ${st.city}" else st.name
+                            stLat = st.latitude
+                            stLng = st.longitude
+                            stRad = st.geofenceRadius ?: 200
                         }
-                    } catch (ex: Exception) {
-                        android.util.Log.e("AutoExpert", "Station fetch error: " + ex.message)
-                    }
+                    } catch (e: Exception) {}
                 }
 
-                // Save session safely using local variables only
+                val ba = BrandAmbassadorEntity(
+                    id = remote.id,
+                    name = remote.name,
+                    stationId = baStationId,
+                    stationName = stationName,
+                    cnic = remote.cnic ?: "",
+                    appPin = remote.appPin ?: "",
+                    isActive = remote.isActive ?: true,
+                    employmentType = remote.employmentType,
+                    currentMonthlySalary = remote.currentMonthlySalary,
+                    joinedAt = remote.joinedAt,
+                    leaveAnnualLimit = remote.leaveAnnualLimit ?: 0,
+                    leaveCasualLimit = remote.leaveCasualLimit ?: 0,
+                    leaveSickLimit = remote.leaveSickLimit ?: 0
+                )
+                
+                baDao.upsert(ba)
                 session.saveSession(
-                    baId        = baId,
-                    baName      = baName,
+                    baId        = remote.id,
+                    baName      = remote.name,
                     stationId   = baStationId,
                     stationName = stationName,
-                    lat         = stationLat,
-                    lng         = stationLng,
-                    radius      = stationRadius
+                    lat         = stLat,
+                    lng         = stLng,
+                    radius      = stRad
                 )
-
                 _state.value = LoginState.Success(ba)
 
             } catch (e: Exception) {
-                android.util.Log.e("AutoExpert", "Login error: " + e.javaClass.simpleName + ": " + e.message)
-                _state.value = LoginState.Error("Connection error. Check your internet.")
+                _state.value = LoginState.Error("Connection error")
             }
         }
     }
 
-    fun sendPinResetRequest() {
-        _state.value = LoginState.ResetSent
-    }
+    fun sendPinResetRequest() { _state.value = LoginState.ResetSent }
 }
