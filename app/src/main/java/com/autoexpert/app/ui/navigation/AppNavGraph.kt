@@ -64,7 +64,6 @@ fun AppNavGraph(navController: NavHostController = rememberNavController()) {
         composable(Routes.CUSTOMERS) {
             CustomerListScreen(onBack = { navController.popBackStack() },
                 onNewCustomer = { navController.navigate(Routes.NEW_CUSTOMER) })
-        })
         }
 
         composable(Routes.WALLET) {
