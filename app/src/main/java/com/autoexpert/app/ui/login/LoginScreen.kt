@@ -339,7 +339,7 @@ private fun BiometricButton(onClick: () -> Unit) {
 }
 
 private fun triggerBiometric(context: Context, vm: LoginViewModel, onSuccess: () -> Unit) {
-    val bio = vm.getBiometricPin(context) ?: return
+    val bio = vm.pin.value.ifEmpty { return }
     val executor = ContextCompat.getMainExecutor(context)
     val activity = context as? FragmentActivity ?: return
 
