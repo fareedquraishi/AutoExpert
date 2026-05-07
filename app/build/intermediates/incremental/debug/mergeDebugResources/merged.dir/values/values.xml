@@ -1944,11 +1944,11 @@
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">false</item>
     </style>
-    <style name="Theme.AutoExpert.Splash" parent="Theme.SplashScreen">
-        <item name="windowSplashScreenBackground">@color/dark_bg</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/euro_logo_white</item>
-        <item name="windowSplashScreenIconBackgroundColor">@color/dark_bg</item>
-        <item name="postSplashScreenTheme">@style/Theme.AutoExpert</item>
+    <style name="Theme.AutoExpert.Splash" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/dark_bg</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">false</item>
     </style>
     <style name="Theme.SplashScreen" parent="Theme.SplashScreen.Common">
         <item name="postSplashScreenTheme">?android:attr/theme</item>
