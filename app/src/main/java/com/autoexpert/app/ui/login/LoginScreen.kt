@@ -346,7 +346,7 @@ private fun triggerBiometric(context: Context, vm: LoginViewModel, onSuccess: ()
     val prompt = BiometricPrompt(activity, executor, object : BiometricPrompt.AuthenticationCallback() {
         override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
             // Directly verify stored PIN
-            repeat(bio.length) { vm.addDigit(bio[it].toString()) }
+            // biometric fill disabled
         }
         override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {}
         override fun onAuthenticationFailed() {}
