@@ -11,7 +11,7 @@ interface SupabaseApi {
     suspend fun getBaByPin(
         @Query("app_pin") appPin: String,           // "eq.123456"
         @Query("is_active") isActive: String = "eq.true",
-        @Query("select") select: String = "id,name,mobile,cnic,station_id,app_pin,is_active,employment_type,current_monthly_salary,joined_at,leave_annual_limit,leave_casual_limit,leave_sick_limit",
+        @Query("select") select: String = "id,name,mobile,cnic,station_id,app_pin,is_active,employment_type,current_monthly_salary,joined_at,leave_annual_limit,leave_casual_limit,leave_sick_limit,stations(id,name,city)",
         @Header("apikey") apiKey: String,
         @Header("Authorization") auth: String,
     ): Response<List<RemoteBa>>
