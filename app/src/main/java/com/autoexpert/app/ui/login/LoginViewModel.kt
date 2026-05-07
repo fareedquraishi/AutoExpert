@@ -109,26 +109,14 @@ class LoginViewModel @Inject constructor(
                 var stationLng    : Double? = null
                 var stationRadius = 200
 
-                if (baStationId.isNotEmpty()) {
-                    try {
-                        val stResp = api.getStations(
-                            apiKey = apiKey,
-                            auth   = authHeader
-                        )
-                        val allStations = stResp.body() ?: emptyList()
-                        val stFiltered = allStations.filter { it.id == baStationId }
-                        val st = stFiltered.firstOrNull()
-                        if (st != null) {
-                            val stName = st.name
-                            val stCity = st.city ?: ""
-                            stationName   = if (stCity.isNotEmpty()) "$stName, $stCity" else stName
-                            stationLat    = st.latitude
-                            stationLng    = st.longitude
-                            stationRadius = st.geofenceRadius ?: 200
-                        }
-                    } catch (ex: Exception) {
-                        android.util.Log.e("AutoExpert", "Station fetch error: " + ex.message)
-                    }
+                // Use nested station from BA response
+                val ns = remote.stations
+                if (ns != null) {
+                    val sn = ns.name
+                    val sc = ns.city ?: ""
+                    stationName = if (sc.isNotEmpty()) "$sn, $sc" else sn
+                    stationLat  = ns.latitude
+                    stationLng  = ns.longitude
                 }
 
                 // Save session safely using local variables only
