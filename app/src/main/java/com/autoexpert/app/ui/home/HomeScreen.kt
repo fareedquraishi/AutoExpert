@@ -381,7 +381,7 @@ fun HomeBottomNavBar(selected: Int, unreadMessages: Int, onSelect: (Int) -> Unit
         val items = listOf(
             NavItem("Home",      Icons.Filled.Home,         0),
             NavItem("Customers", Icons.Filled.People,       1),
-            NavItem("Chat",      Icons.Filled.Chat,         2),
+            NavItem("Notices",   Icons.Filled.Notifications, 2),
             NavItem("Wallet",    Icons.Filled.AccountBalanceWallet, 3),
             NavItem("Profile",   Icons.Filled.Person,       4),
         )

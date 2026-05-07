@@ -7,7 +7,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.autoexpert.app.ui.home.HomeScreen
 import com.autoexpert.app.ui.login.LoginScreen
-import com.autoexpert.app.ui.messaging.MessagingScreen
 import com.autoexpert.app.ui.customers.CustomerListScreen
 import com.autoexpert.app.ui.customers.NewCustomerScreen
 import com.autoexpert.app.ui.wallet.WalletScreen
@@ -21,7 +20,6 @@ object Routes {
     const val HOME      = "home"
     const val CUSTOMERS = "customers"
     const val NEW_CUSTOMER = "new_customer"
-    const val MESSAGING = "messaging"
     const val WALLET    = "wallet"
     const val PROFILE   = "profile"
     const val NOTICES   = "notices"
@@ -50,7 +48,7 @@ fun AppNavGraph(navController: NavHostController = rememberNavController()) {
         composable(Routes.HOME) {
             HomeScreen(
                 onNewCustomer  = { navController.navigate(Routes.NEW_CUSTOMER) },
-                onOpenChat     = { navController.navigate(Routes.MESSAGING) },
+                onOpenChat     = { navController.navigate(Routes.NOTICES) },
                 onOpenNotices  = { navController.navigate(Routes.NOTICES) },
                 onOpenCustomers= { navController.navigate(Routes.CUSTOMERS) },
                 onOpenWallet   = { navController.navigate(Routes.WALLET) },
@@ -66,10 +64,7 @@ fun AppNavGraph(navController: NavHostController = rememberNavController()) {
         composable(Routes.CUSTOMERS) {
             CustomerListScreen(onBack = { navController.popBackStack() },
                 onNewCustomer = { navController.navigate(Routes.NEW_CUSTOMER) })
-        }
-
-        composable(Routes.MESSAGING) {
-            MessagingScreen(onBack = { navController.popBackStack() })
+        })
         }
 
         composable(Routes.WALLET) {

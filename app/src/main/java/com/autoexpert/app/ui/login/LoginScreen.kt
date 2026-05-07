@@ -4,8 +4,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.collectAsState
 
 import android.content.Context
-import androidx.biometric.BiometricManager
-import androidx.biometric.BiometricPrompt
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -23,7 +21,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.*
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.FragmentActivity
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.autoexpert.app.R
 import com.autoexpert.app.ui.components.DarkGradient
@@ -169,16 +166,10 @@ fun LoginScreen(
             PinPad(
                 onDigit = { vm.addDigit(it); haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove) },
                 onDelete = { vm.deletePin(); haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove) },
-                onBiometric = { triggerBiometric(context, vm, onLoginSuccess) },
                 isLoading = state is LoginState.Checking
             )
 
             Spacer(Modifier.height(16.dp))
-
-            // Biometric button
-            BiometricButton {
-                triggerBiometric(context, vm, onLoginSuccess)
-            }
 
             Spacer(Modifier.height(10.dp))
 
@@ -251,7 +242,6 @@ fun LoginScreen(
 private fun PinPad(
     onDigit: (String) -> Unit,
     onDelete: () -> Unit,
-    onBiometric: () -> Unit,
     isLoading: Boolean
 ) {
     val keys = listOf(
@@ -270,7 +260,6 @@ private fun PinPad(
                         onClick = {
                             when (key) {
                                 "DEL" -> onDelete()
-                                "BIO" -> onBiometric()
                                 else  -> onDigit(key)
                             }
                         },
@@ -322,41 +311,4 @@ private fun PinKey(
 }
 
 @Composable
-private fun BiometricButton(onClick: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .background(PetronasGreen.copy(.09f), RoundedCornerShape(28.dp))
-            .border(1.dp, PetronasGreen.copy(.22f), RoundedCornerShape(28.dp))
-            .clickable { onClick() }
-            .padding(horizontal = 18.dp, vertical = 9.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(7.dp)
-    ) {
-        Text("☝️", fontSize = 16.sp)
-        Text("Use Fingerprint / Face ID",
-            fontSize = 12.sp, fontWeight = FontWeight.Bold, color = PetronasGreen)
-    }
-}
 
-private fun triggerBiometric(context: Context, vm: LoginViewModel, onSuccess: () -> Unit) {
-    return // biometric disabled temporarily
-    val executor = ContextCompat.getMainExecutor(context)
-    val activity = context as? FragmentActivity ?: return
-
-    val prompt = BiometricPrompt(activity, executor, object : BiometricPrompt.AuthenticationCallback() {
-        override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
-            // Directly verify stored PIN
-            // biometric fill disabled
-        }
-        override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {}
-        override fun onAuthenticationFailed() {}
-    })
-
-    val info = BiometricPrompt.PromptInfo.Builder()
-        .setTitle("Auto Expert Centre")
-        .setSubtitle("Confirm your identity")
-        .setNegativeButtonText("Use PIN")
-        .build()
-
-    prompt.authenticate(info)
-}
