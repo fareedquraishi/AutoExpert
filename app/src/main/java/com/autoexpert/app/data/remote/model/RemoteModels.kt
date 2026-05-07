@@ -18,6 +18,7 @@ data class RemoteBa(
     @SerializedName("leave_annual_limit") val leaveAnnualLimit: Int = 0,
     @SerializedName("leave_casual_limit") val leaveCasualLimit: Int = 0,
     @SerializedName("leave_sick_limit") val leaveSickLimit: Int = 0,
+    val stations: RemoteStation? = null,
 )
 
 data class RemoteStation(
