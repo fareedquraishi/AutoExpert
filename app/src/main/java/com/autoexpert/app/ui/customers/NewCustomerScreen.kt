@@ -307,7 +307,7 @@ private fun Step2Products(state: CustomerEntryState, vm: NewCustomerViewModel) {
         Surface(color = Color.White, shadowElevation = 4.dp) {
             Column(Modifier.fillMaxWidth().navigationBarsPadding().padding(12.dp)) {
                 Surface(
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp).clickable { vm.submitWithoutProduct() },
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp).clickable { if (!state.isSubmitting) vm.submitWithoutProduct() },
                     color    = Color(0xFFFFFBEB),
                     shape    = RoundedCornerShape(10.dp),
                     border   = BorderStroke(1.5.dp, Color(0xFFD97706))

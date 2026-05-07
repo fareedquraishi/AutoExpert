@@ -122,6 +122,7 @@ class NewCustomerViewModel @Inject constructor(
     }
 
     fun submit() {
+        if (_state.value.isSubmitting) return
         viewModelScope.launch {
             _state.update { it.copy(isSubmitting = true, submitError = null) }
             val s = _state.value
