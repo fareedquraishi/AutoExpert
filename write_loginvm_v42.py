@@ -1,4 +1,4 @@
-content = """\
+sed -n '20,30p' app/src/main/java/com/autoexpert/app/data/remote/api/SupabaseApi.ktcontent = """\
 package com.autoexpert.app.ui.login
 
 import androidx.compose.runtime.mutableStateOf

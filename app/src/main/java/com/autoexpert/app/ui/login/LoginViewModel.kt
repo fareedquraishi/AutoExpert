@@ -111,12 +111,13 @@ class LoginViewModel @Inject constructor(
 
                 if (baStationId.isNotEmpty()) {
                     try {
-                        val stResp = api.getStationById(
-                            id     = "eq." + baStationId,
+                        val stResp = api.getStations(
                             apiKey = apiKey,
                             auth   = authHeader
                         )
-                        val st = stResp.body()?.firstOrNull()
+                        val allStations = stResp.body() ?: emptyList()
+                        val stFiltered = allStations.filter { it.id == baStationId }
+                        val st = stFiltered.firstOrNull()
                         if (st != null) {
                             val stName = st.name
                             val stCity = st.city ?: ""
