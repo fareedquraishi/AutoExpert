@@ -12,7 +12,7 @@
     <!-- Splash theme — extends core-splashscreen -->
     <style name="Theme.AutoExpert.Splash" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@color/dark_bg</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_petronas_splash</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/euro_logo_white</item>
         <item name="windowSplashScreenIconBackgroundColor">@color/dark_bg</item>
         <item name="postSplashScreenTheme">@style/Theme.AutoExpert</item>
     </style>

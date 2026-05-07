@@ -36,7 +36,7 @@ class LoginViewModel @Inject constructor(
     private val apiKey = BuildConfig.SUPABASE_ANON_KEY
     private val authHeader = "Bearer " + apiKey
 
-    fun addDigit(d: String) { if (pin.value.length < 6) pin.value += d }
+    fun addDigit(d: String) { if (pin.value.length < 6) { pin.value += d; if (pin.value.length == 6) verifyPin() } }
     fun deletePin() { if (pin.value.isNotEmpty()) pin.value = pin.value.dropLast(1) }
     fun clearPin() { pin.value = "" }
 
