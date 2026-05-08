@@ -69,20 +69,6 @@ fun LoginScreen(
                 )
         )
 
-        // Euro icon — top left
-        Box(
-            modifier = Modifier
-                .align(Alignment.TopStart)
-                .statusBarsPadding()
-                .padding(18.dp)
-                .size(34.dp)
-                .background(Color.White.copy(.05f), RoundedCornerShape(10.dp))
-                .border(1.dp, Color.White.copy(.08f), RoundedCornerShape(10.dp)),
-            contentAlignment = Alignment.Center
-        ) {
-            Image(painterResource(R.drawable.euro_logo), "Euro", Modifier.size(110.dp))
-        }
-
         Column(
             modifier = Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding(),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -191,6 +177,7 @@ fun LoginScreen(
             Text("POWERED BY", fontSize = 8.sp, color = Color.White.copy(.2f), letterSpacing = 1.sp)
             Text("Fintectual Pvt Ltd", fontSize = 10.sp, color = PetronasGreen.copy(.5f),
                 fontWeight = FontWeight.Bold, letterSpacing = .3.sp)
+            Text("v2.0", fontSize = 9.sp, color = Color.White.copy(.25f), letterSpacing = 1.sp)
         }
 
         // Loading overlay

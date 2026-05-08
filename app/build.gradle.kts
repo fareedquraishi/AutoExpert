@@ -15,8 +15,8 @@ android {
         applicationId = "com.autoexpert.app"
         minSdk = 26
         targetSdk = 34
-        versionCode = 1
-        versionName = "4.0"
+        versionCode = 54
+        versionName = "2.0"
 
         buildConfigField("String", "SUPABASE_URL", "\"https://iageuvrhveeptvyjiavy.supabase.co\"")
         buildConfigField("String", "SUPABASE_ANON_KEY", "\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlhZ2V1dnJodmVlcHR2eWppYXZ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MDU3MTgsImV4cCI6MjA5MjA4MTcxOH0.35-iowTY8iM1XWTxPr-q6QQ05Dbpn0HZR5kZ2MFL0Ok\"")

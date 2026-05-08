@@ -60,7 +60,6 @@ fun HomeScreen(
             modifier = Modifier.fillMaxSize().padding(padding),
             contentPadding = PaddingValues(bottom = 12.dp)
         ) {
-            // ?? Header ??
             item {
                 Box(
                     Modifier.fillMaxWidth()
@@ -75,34 +74,28 @@ fun HomeScreen(
                         ) {
                             Column {
                                 Text(greetingText(), fontSize = 11.sp, color = Color.White.copy(0.6f))
-                                Text(
-                                    ui.baName.ifEmpty { "Loading..." },
-                                    fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.White
-                                )
+                                Text(ui.baName.ifEmpty { "Loading..." }, fontSize = 20.sp,
+                                    fontWeight = FontWeight.Bold, color = Color.White)
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Icon(Icons.Filled.LocationOn, null,
                                         tint = PetronasGreen, modifier = Modifier.size(12.dp))
                                     Spacer(Modifier.width(3.dp))
-                                    Text(ui.stationName.ifEmpty { "?" }, fontSize = 12.sp, color = PetronasGreen)
+                                    Text(ui.stationName.ifEmpty { "?" }, fontSize = 12.sp,
+                                        color = PetronasGreen)
                                 }
                             }
                             Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                                HeaderIconBtn(
-                                    icon = Icons.Filled.Notifications,
-                                    badge = ui.unreadNotices,
-                                    onClick = onOpenNotices
-                                )
-                                HeaderIconBtn(icon = Icons.Filled.Chat, onClick = onOpenChat)
-                                HeaderIconBtn(icon = Icons.Filled.Refresh, onClick = { vm.syncFromSupabase() })
+                                HeaderIconBtn(Icons.Filled.Notifications, ui.unreadNotices, onOpenNotices)
+                                HeaderIconBtn(Icons.Filled.Campaign, 0, onOpenChat)
+                                HeaderIconBtn(Icons.Filled.Refresh, 0) { vm.syncFromSupabase() }
                             }
                         }
 
                         Spacer(Modifier.height(14.dp))
 
-                        // ?? KPI Strip ??
+                        // KPI Strip
                         Column(
-                            Modifier.fillMaxWidth()
-                                .clip(RoundedCornerShape(10.dp))
+                            Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp))
                                 .background(Color.White.copy(0.1f))
                         ) {
                             KpiRow(
@@ -118,14 +111,13 @@ fun HomeScreen(
                                 col1Val = "%.1fL".format(ui.todayLitres), col1Lbl = "Sold",
                                 col2Val = "%.0fL".format(ui.litresTarget), col2Lbl = "Target",
                                 col3Val = "%.1fL".format(maxOf(0.0, ui.litresTarget - ui.todayLitres)), col3Lbl = "Left",
-                                col4Val = "${ui.todayConversions}", col4Lbl = "Conv.",
+                                col4Val = calcReqPace(ui.reachTarget.toInt(), ui.todayReach), col4Lbl = "Req/hr",
                             )
                         }
                     }
                 }
             }
 
-            // ?? Notice Banner ??
             if (ui.unreadNotices > 0) {
                 item {
                     Row(
@@ -138,7 +130,8 @@ fun HomeScreen(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        Icon(Icons.Filled.Campaign, null, tint = PetronasGreen, modifier = Modifier.size(20.dp))
+                        Icon(Icons.Filled.Campaign, null, tint = PetronasGreen,
+                            modifier = Modifier.size(20.dp))
                         Column(Modifier.weight(1f)) {
                             Text("New Notice from Admin", fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold, color = Color.White)
@@ -149,7 +142,6 @@ fun HomeScreen(
                 }
             }
 
-            // ?? New Customer Button ??
             item {
                 Button(
                     onClick = onNewCustomer,
@@ -164,7 +156,6 @@ fun HomeScreen(
                 }
             }
 
-            // ?? Customers Header ??
             item {
                 Row(
                     Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 2.dp),
@@ -173,8 +164,8 @@ fun HomeScreen(
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-                        Icon(Icons.Filled.Group, null,
-                            tint = TextSecondary, modifier = Modifier.size(14.dp))
+                        Icon(Icons.Filled.Group, null, tint = TextSecondary,
+                            modifier = Modifier.size(14.dp))
                         Text("TODAY'S CUSTOMERS", fontSize = 10.sp,
                             fontWeight = FontWeight.Bold, color = TextSecondary)
                     }
@@ -183,7 +174,6 @@ fun HomeScreen(
                 }
             }
 
-            // ?? Customer Cards ??
             if (ui.todayCustomers.isEmpty()) {
                 item {
                     Column(
@@ -191,23 +181,41 @@ fun HomeScreen(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
-                        Icon(Icons.Filled.DirectionsRun, null,
-                            tint = TextSecondary, modifier = Modifier.size(40.dp))
+                        Icon(Icons.Filled.DirectionsRun, null, tint = TextSecondary,
+                            modifier = Modifier.size(40.dp))
                         Text("No customers yet today", fontSize = 13.sp, color = TextSecondary)
-                        Text("Tap '+ New Customer' to add your first",
+                        Text("Tap + New Customer to add your first",
                             fontSize = 11.sp, color = TextSecondary)
                     }
                 }
             } else {
                 items(ui.todayCustomers) { entry ->
-                    CustomerCard(
-                        entry = entry,
-                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 3.dp)
-                    )
+                    CustomerCard(entry = entry,
+                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 3.dp))
                 }
             }
         }
     }
+}
+
+private fun calcReqPace(target: Int, reached: Int): String {
+    val cal = Calendar.getInstance()
+    val nowMins = cal.get(Calendar.HOUR_OF_DAY) * 60 + cal.get(Calendar.MINUTE)
+    val shiftEnd = 20 * 60  // 8 PM
+    val breakStart = 13 * 60
+    val breakEnd = 14 * 60
+    var remaining = shiftEnd - nowMins
+    if (nowMins in breakStart until breakEnd) {
+        remaining -= (breakEnd - nowMins)
+    } else if (nowMins < breakStart) {
+        remaining -= 60
+    }
+    remaining = maxOf(0, remaining)
+    val remainingHours = remaining / 60.0
+    val remainingCustomers = maxOf(0, target - reached)
+    if (remainingHours <= 0) return "?"
+    val pace = remainingCustomers / remainingHours
+    return "%.1f".format(pace)
 }
 
 @Composable
@@ -217,10 +225,8 @@ private fun HeaderIconBtn(
     onClick: () -> Unit
 ) {
     Box(
-        Modifier.size(36.dp)
-            .clip(RoundedCornerShape(9.dp))
-            .background(Color.White.copy(0.12f))
-            .clickable { onClick() },
+        Modifier.size(36.dp).clip(RoundedCornerShape(9.dp))
+            .background(Color.White.copy(0.12f)).clickable { onClick() },
         contentAlignment = Alignment.Center
     ) {
         BadgedBox(badge = {
@@ -273,11 +279,11 @@ private fun CustomerCard(entry: SaleEntryQueueEntity, modifier: Modifier = Modif
     val isSale   = entry.totalLitres > 0
     val isRepeat = entry.isRepeat
 
-    val (dotColor, badgeText, badgeColor) = when {
-        !isRepeat && isSale  -> Triple(PetronasGreen,    "Conquest", PetronasGreen)
-        isRepeat  && isSale  -> Triple(Color(0xFF1565C0), "Repeat",   Color(0xFF1565C0))
-        isRepeat  && !isSale -> Triple(Color(0xFFF59E0B), "Existing", Color(0xFFF59E0B))
-        else                 -> Triple(Color(0xFF9E9E9E), "Prospect", Color(0xFF9E9E9E))
+    val (borderColor, dotColor, badgeText, badgeColor) = when {
+        !isRepeat && isSale  -> listOf(PetronasGreen,    PetronasGreen,    "Conquest", PetronasGreen)
+        isRepeat  && isSale  -> listOf(Color(0xFF3B82F6), Color(0xFF3B82F6), "Repeat",   Color(0xFF3B82F6))
+        isRepeat  && !isSale -> listOf(Color(0xFFF59E0B), Color(0xFFF59E0B), "Existing", Color(0xFFF59E0B))
+        else                 -> listOf(Color(0xFF9E9E9E), Color(0xFF9E9E9E), "Prospect", Color(0xFF9E9E9E))
     }
 
     val timeStr = try {
@@ -286,68 +292,78 @@ private fun CustomerCard(entry: SaleEntryQueueEntity, modifier: Modifier = Modif
         SimpleDateFormat("hh:mm a", Locale.getDefault()).format(d ?: Date())
     } catch (_: Exception) { "" }
 
-    val vehicleLabel = when (entry.vehicleTypeName?.lowercase()?.trim()) {
-        "car", "sedan", "suv"     -> "Car"
-        "motorcycle", "bike"      -> "Bike"
-        "rickshaw", "auto"        -> "Auto"
-        "truck", "van"            -> "Truck"
-        "tractor"                 -> "Tractor"
-        else                      -> entry.vehicleTypeName ?: ""
+    val vehicleIcon = when (entry.vehicleTypeName?.lowercase()?.trim()) {
+        "motorcycle", "bike"      -> Icons.Filled.TwoWheeler
+        "truck", "van"            -> Icons.Filled.LocalShipping
+        "tractor"                 -> Icons.Filled.Agriculture
+        "rickshaw", "auto"        -> Icons.Filled.ElectricRickshaw
+        else                      -> Icons.Filled.DirectionsCar
     }
+
+    // Parse itemsJson for product info
+    val productLine = try {
+        val json = entry.itemsJson
+        if (json != "[]" && json.isNotEmpty()) {
+            val items = json.removeSurrounding("[", "]").split("},")
+            items.mapNotNull { item ->
+                val name = Regex("""skuName":"([^"]+)""").find(item)?.groupValues?.get(1)
+                val qty  = Regex("""qty":([0-9.]+)""").find(item)?.groupValues?.get(1)?.toDoubleOrNull()
+                if (name != null && qty != null) "$name ${qty}L" else null
+            }.joinToString(" · ")
+        } else ""
+    } catch (_: Exception) { "" }
 
     Row(
         modifier = modifier.fillMaxWidth()
             .background(Color.White, RoundedCornerShape(10.dp))
             .border(1.dp, Color(0xFFE8ECF0), RoundedCornerShape(10.dp))
-            .padding(horizontal = 10.dp, vertical = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(9.dp),
-        verticalAlignment = Alignment.Top
+            .clip(RoundedCornerShape(10.dp)),
     ) {
-        // Avatar
+        // Colored left border
         Box(
-            Modifier.size(32.dp)
-                .background(dotColor.copy(0.1f), RoundedCornerShape(8.dp)),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                entry.customerName.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
-                fontSize = 13.sp, fontWeight = FontWeight.Bold, color = dotColor
-            )
-        }
+            Modifier.width(4.dp).fillMaxHeight()
+                .background(borderColor as Color)
+        )
 
-        // Info
-        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            // Name + badge
-            Row(verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-                Text(entry.customerName, fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold, color = TextPrimary)
-                Box(
-                    Modifier.background(badgeColor.copy(0.1f), RoundedCornerShape(3.dp))
-                        .padding(horizontal = 5.dp, vertical = 1.dp)
-                ) {
-                    Text(badgeText, fontSize = 8.sp,
-                        fontWeight = FontWeight.Bold, color = badgeColor)
-                }
+        Row(
+            Modifier.weight(1f).padding(horizontal = 10.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Avatar
+            Box(
+                Modifier.size(32.dp).background((dotColor as Color).copy(0.1f),
+                    RoundedCornerShape(8.dp)),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(entry.customerName.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
+                    fontSize = 13.sp, fontWeight = FontWeight.Bold, color = dotColor)
             }
 
-            // Vehicle + time on one line
-            Text(
-                buildString {
-                    if (vehicleLabel.isNotEmpty()) append(vehicleLabel)
-                    if (vehicleLabel.isNotEmpty() && timeStr.isNotEmpty()) append(" ? ")
-                    append(timeStr)
-                },
-                fontSize = 10.sp, color = Color(0xFFAAAAAA)
-            )
+            // Info
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                // Name + badge
+                Row(verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+                    Text(entry.customerName, fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold, color = TextPrimary,
+                        maxLines = 1, overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f, fill = false))
+                    Box(
+                        Modifier.background((badgeColor as Color).copy(0.12f),
+                            RoundedCornerShape(3.dp)).padding(horizontal = 5.dp, vertical = 1.dp)
+                    ) {
+                        Text(badgeText as String, fontSize = 8.sp,
+                            fontWeight = FontWeight.Bold, color = badgeColor)
+                    }
+                }
 
-            // Product info
-            if (isSale) {
+                // Vehicle icon + time + applicator
                 Row(verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text("%.1fL".format(entry.totalLitres),
-                        fontSize = 10.sp, fontWeight = FontWeight.SemiBold,
-                        color = PetronasGreen)
+                    Icon(vehicleIcon, null, tint = Color(0xFFAAAAAA),
+                        modifier = Modifier.size(12.dp))
+                    Text(timeStr, fontSize = 10.sp, color = Color(0xFFAAAAAA))
                     if (entry.isApplicator) {
                         Box(Modifier.background(Color(0xFF8B5CF6).copy(0.1f),
                             RoundedCornerShape(3.dp)).padding(horizontal = 4.dp, vertical = 1.dp)) {
@@ -356,18 +372,29 @@ private fun CustomerCard(entry: SaleEntryQueueEntity, modifier: Modifier = Modif
                         }
                     }
                 }
-            } else {
-                Text(if (isRepeat) "Visited ? no purchase" else "No purchase",
-                    fontSize = 10.sp, color = Color(0xFFAAAAAA))
-            }
-        }
 
-        // Right: commission
-        if (isSale) {
-            Column(horizontalAlignment = Alignment.End,
-                verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text("Rs ${pkrFmt.format(entry.totalCommission.toLong())}",
-                    fontSize = 12.sp, fontWeight = FontWeight.Bold, color = PetronasGreen)
+                // Product line
+                if (productLine.isNotEmpty()) {
+                    Text(productLine, fontSize = 10.sp, color = PetronasGreen,
+                        maxLines = 1, overflow = TextOverflow.Ellipsis)
+                } else if (isSale) {
+                    Text("%.1fL".format(entry.totalLitres), fontSize = 10.sp,
+                        color = PetronasGreen)
+                } else {
+                    Text(if (isRepeat) "Visited ? no purchase" else "No purchase",
+                        fontSize = 10.sp, color = Color(0xFFAAAAAA))
+                }
+            }
+
+            // Right: commission
+            if (isSale) {
+                Column(horizontalAlignment = Alignment.End,
+                    verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text("Rs ${pkrFmt.format(entry.totalCommission.toLong())}",
+                        fontSize = 12.sp, fontWeight = FontWeight.Bold, color = PetronasGreen)
+                    Text("%.1fL".format(entry.totalLitres),
+                        fontSize = 10.sp, color = TextSecondary)
+                }
             }
         }
     }
@@ -377,13 +404,13 @@ private fun CustomerCard(entry: SaleEntryQueueEntity, modifier: Modifier = Modif
 fun HomeBottomNavBar(selected: Int, unreadMessages: Int, onSelect: (Int) -> Unit) {
     NavigationBar(containerColor = Color.White, tonalElevation = 6.dp) {
         data class NavItem(val label: String,
-                           val icon: androidx.compose.ui.graphics.vector.ImageVector, val idx: Int)
+            val icon: androidx.compose.ui.graphics.vector.ImageVector, val idx: Int)
         val items = listOf(
-            NavItem("Home",      Icons.Filled.Home,         0),
-            NavItem("Customers", Icons.Filled.People,       1),
-            NavItem("Notices",   Icons.Filled.Notifications, 2),
-            NavItem("Wallet",    Icons.Filled.AccountBalanceWallet, 3),
-            NavItem("Profile",   Icons.Filled.Person,       4),
+            NavItem("Home",      Icons.Filled.Home,                 0),
+            NavItem("Customers", Icons.Filled.People,               1),
+            NavItem("Notices",   Icons.Filled.Notifications,        2),
+            NavItem("Wallet",    Icons.Filled.AccountBalanceWallet,  3),
+            NavItem("Profile",   Icons.Filled.Person,               4),
         )
         items.forEach { item ->
             NavigationBarItem(

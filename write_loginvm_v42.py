@@ -1,4 +1,6 @@
-sed -n '20,30p' app/src/main/java/com/autoexpert/app/data/remote/api/SupabaseApi.ktcontent = """\
+sed -n '20,30p' app/src/main/java/com/autoexpert/app/data/remote/api/SupabaseApi.ktgrep -n "is_active\|isActive\|vehicleType\|VehicleType" app/src/main/java/com/autoexpert/app/data/remote/api/SupabaseApi.kt | head -10
+echo "---"
+grep -n "vehicleType\|VehicleType\|vehicle_type" app/src/main/java/com/autoexpert/app/ui/customers/NewCustomerScreen.kt | head -10content = """\
 package com.autoexpert.app.ui.login
 
 import androidx.compose.runtime.mutableStateOf

@@ -42,7 +42,10 @@ interface VehicleTypeDao {
     @Query("SELECT * FROM vehicle_types ORDER BY sortOrder, name")
     suspend fun getAllOnce(): List<VehicleTypeEntity>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Query("DELETE FROM vehicle_types")
+    suspend fun deleteAll()
+
+    @Upsert
     suspend fun upsertAll(items: List<VehicleTypeEntity>)
 }
 

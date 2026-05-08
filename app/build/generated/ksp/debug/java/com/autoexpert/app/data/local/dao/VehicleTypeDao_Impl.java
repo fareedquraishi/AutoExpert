@@ -4,9 +4,12 @@ import android.database.Cursor;
 import android.os.CancellationSignal;
 import androidx.annotation.NonNull;
 import androidx.room.CoroutinesRoom;
+import androidx.room.EntityDeletionOrUpdateAdapter;
 import androidx.room.EntityInsertionAdapter;
+import androidx.room.EntityUpsertionAdapter;
 import androidx.room.RoomDatabase;
 import androidx.room.RoomSQLiteQuery;
+import androidx.room.SharedSQLiteStatement;
 import androidx.room.util.CursorUtil;
 import androidx.room.util.DBUtil;
 import androidx.sqlite.db.SupportSQLiteStatement;
@@ -31,15 +34,25 @@ import kotlinx.coroutines.flow.Flow;
 public final class VehicleTypeDao_Impl implements VehicleTypeDao {
   private final RoomDatabase __db;
 
-  private final EntityInsertionAdapter<VehicleTypeEntity> __insertionAdapterOfVehicleTypeEntity;
+  private final SharedSQLiteStatement __preparedStmtOfDeleteAll;
+
+  private final EntityUpsertionAdapter<VehicleTypeEntity> __upsertionAdapterOfVehicleTypeEntity;
 
   public VehicleTypeDao_Impl(@NonNull final RoomDatabase __db) {
     this.__db = __db;
-    this.__insertionAdapterOfVehicleTypeEntity = new EntityInsertionAdapter<VehicleTypeEntity>(__db) {
+    this.__preparedStmtOfDeleteAll = new SharedSQLiteStatement(__db) {
+      @Override
+      @NonNull
+      public String createQuery() {
+        final String _query = "DELETE FROM vehicle_types";
+        return _query;
+      }
+    };
+    this.__upsertionAdapterOfVehicleTypeEntity = new EntityUpsertionAdapter<VehicleTypeEntity>(new EntityInsertionAdapter<VehicleTypeEntity>(__db) {
       @Override
       @NonNull
       protected String createQuery() {
-        return "INSERT OR REPLACE INTO `vehicle_types` (`id`,`name`,`iconKey`,`sortOrder`) VALUES (?,?,?,?)";
+        return "INSERT INTO `vehicle_types` (`id`,`name`,`iconKey`,`sortOrder`) VALUES (?,?,?,?)";
       }
 
       @Override
@@ -50,7 +63,46 @@ public final class VehicleTypeDao_Impl implements VehicleTypeDao {
         statement.bindString(3, entity.getIconKey());
         statement.bindLong(4, entity.getSortOrder());
       }
-    };
+    }, new EntityDeletionOrUpdateAdapter<VehicleTypeEntity>(__db) {
+      @Override
+      @NonNull
+      protected String createQuery() {
+        return "UPDATE `vehicle_types` SET `id` = ?,`name` = ?,`iconKey` = ?,`sortOrder` = ? WHERE `id` = ?";
+      }
+
+      @Override
+      protected void bind(@NonNull final SupportSQLiteStatement statement,
+          @NonNull final VehicleTypeEntity entity) {
+        statement.bindString(1, entity.getId());
+        statement.bindString(2, entity.getName());
+        statement.bindString(3, entity.getIconKey());
+        statement.bindLong(4, entity.getSortOrder());
+        statement.bindString(5, entity.getId());
+      }
+    });
+  }
+
+  @Override
+  public Object deleteAll(final Continuation<? super Unit> $completion) {
+    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
+      @Override
+      @NonNull
+      public Unit call() throws Exception {
+        final SupportSQLiteStatement _stmt = __preparedStmtOfDeleteAll.acquire();
+        try {
+          __db.beginTransaction();
+          try {
+            _stmt.executeUpdateDelete();
+            __db.setTransactionSuccessful();
+            return Unit.INSTANCE;
+          } finally {
+            __db.endTransaction();
+          }
+        } finally {
+          __preparedStmtOfDeleteAll.release(_stmt);
+        }
+      }
+    }, $completion);
   }
 
   @Override
@@ -62,7 +114,7 @@ public final class VehicleTypeDao_Impl implements VehicleTypeDao {
       public Unit call() throws Exception {
         __db.beginTransaction();
         try {
-          __insertionAdapterOfVehicleTypeEntity.insert(items);
+          __upsertionAdapterOfVehicleTypeEntity.upsert(items);
           __db.setTransactionSuccessful();
           return Unit.INSTANCE;
         } finally {
