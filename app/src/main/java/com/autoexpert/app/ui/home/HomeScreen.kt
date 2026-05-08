@@ -44,12 +44,12 @@ fun HomeScreen(
                 selected = selectedNav,
                 unreadMessages = ui.unreadMessages,
                 onSelect = { i ->
-                    selectedNav = i
                     when (i) {
-                        1 -> onOpenCustomers()
-                        2 -> onOpenChat()
-                        3 -> onOpenWallet()
-                        4 -> onOpenProfile()
+                        0 -> selectedNav = 0
+                        1 -> { selectedNav = 1; onOpenCustomers() }
+                        2 -> { selectedNav = 2; onOpenChat() }
+                        3 -> { selectedNav = 3; onOpenWallet() }
+                        4 -> { selectedNav = 4; onOpenProfile() }
                     }
                 }
             )
@@ -256,7 +256,7 @@ private fun KpiRow(
         KpiCell(col1Val, col1Lbl, Modifier.weight(1f))
         KpiCell(col2Val, col2Lbl, Modifier.weight(1f))
         KpiCell(col3Val, col3Lbl, Modifier.weight(1f), amber = true)
-        KpiCell(col4Val, col4Lbl, Modifier.weight(1.3f), green = true)
+        KpiCell(col4Val, col4Lbl, Modifier.weight(1.3f), amber = true)
     }
 }
 
@@ -267,7 +267,7 @@ private fun KpiCell(
     amber: Boolean = false, green: Boolean = false
 ) {
     Column(modifier.padding(horizontal = 1.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(value, fontSize = 12.sp, fontWeight = FontWeight.Bold,
+        Text(value, fontSize = 13.sp, fontWeight = FontWeight.Bold,
             color = when { green -> PetronasGreen; amber -> Color(0xFFFBBF24); else -> Color.White },
             maxLines = 1, overflow = TextOverflow.Ellipsis)
         Text(label, fontSize = 8.sp, color = Color.White.copy(0.45f))
@@ -287,9 +287,12 @@ private fun CustomerCard(entry: SaleEntryQueueEntity, modifier: Modifier = Modif
     }
 
     val timeStr = try {
-        val d = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
-            .parse(entry.entryTime.take(19))
-        SimpleDateFormat("hh:mm a", Locale.getDefault()).format(d ?: Date())
+        val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
+        sdf.timeZone = java.util.TimeZone.getTimeZone("UTC")
+        val d = sdf.parse(entry.entryTime.take(19))
+        val outFmt = SimpleDateFormat("hh:mm a", Locale.getDefault())
+        outFmt.timeZone = java.util.TimeZone.getTimeZone("Asia/Karachi")
+        outFmt.format(d ?: Date())
     } catch (_: Exception) { "" }
 
     val vehicleIcon = when (entry.vehicleTypeName?.lowercase()?.trim()) {

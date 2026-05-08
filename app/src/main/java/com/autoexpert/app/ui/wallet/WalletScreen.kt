@@ -161,7 +161,7 @@ fun WalletScreen(
                 Box(
                     Modifier.fillMaxWidth()
                         .background(Color(0xFF007273))
-                        .padding(16.dp, 24.dp, 16.dp, 28.dp)
+                        .padding(16.dp, 16.dp, 16.dp, 20.dp)
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier.fillMaxWidth()) {
@@ -177,11 +177,11 @@ fun WalletScreen(
                                 modifier = Modifier.size(28.dp), strokeWidth = 2.dp)
                         } else {
                             Text("Rs ${pkrFmt.format(ui.unpaidBalance.toLong())}",
-                                fontSize = 38.sp, fontWeight = FontWeight.ExtraBold,
+                                fontSize = 32.sp, fontWeight = FontWeight.ExtraBold,
                                 color = Color(0xFFFBBF24))
                         }
 
-                        Spacer(Modifier.height(20.dp))
+                        Spacer(Modifier.height(12.dp))
 
                         Row(
                             Modifier.fillMaxWidth(),
