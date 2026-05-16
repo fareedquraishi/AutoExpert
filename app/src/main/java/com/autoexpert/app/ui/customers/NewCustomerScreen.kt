@@ -1,5 +1,6 @@
 @file:OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 package com.autoexpert.app.ui.customers
+import com.autoexpert.app.R
 
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -163,8 +164,19 @@ private fun Step1Info(state: CustomerEntryState, vm: NewCustomerViewModel) {
                                 Modifier.fillMaxWidth().padding(6.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-                                Text(vehicleIcon(vt.iconKey), fontSize = 14.sp, fontWeight = FontWeight.ExtraBold,
-                                    color = if (sel) PetronasGreen else TextPrimary)
+                                val iconRes = when (vt.iconKey.lowercase()) {
+                                    "motorcycle", "bike" -> R.drawable.ic_vehicle_motorcycle
+                                    "van", "pickup"      -> R.drawable.ic_vehicle_van
+                                    "truck"              -> R.drawable.ic_vehicle_truck
+                                    "heavy"              -> R.drawable.ic_vehicle_heavy
+                                    "rickshaw", "auto"   -> R.drawable.ic_vehicle_rickshaw
+                                    else                 -> R.drawable.ic_vehicle_car
+                                }
+                                androidx.compose.foundation.Image(
+                                    painter = androidx.compose.ui.res.painterResource(iconRes),
+                                    contentDescription = vt.name,
+                                    modifier = androidx.compose.ui.Modifier.size(40.dp)
+                                )
                                 Text(
                                     vt.name, fontSize = 10.sp, fontWeight = FontWeight.Bold,
                                     color    = if (sel) PetronasGreenDark else TextSecondary,
