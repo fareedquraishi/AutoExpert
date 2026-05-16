@@ -8,6 +8,7 @@ import androidx.compose.foundation.shape.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
+import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.*
 import androidx.compose.ui.*
 import androidx.compose.ui.draw.clip
@@ -37,6 +38,9 @@ fun HomeScreen(
 ) {
     val ui by vm.uiState.collectAsState()
     var selectedNav by remember { mutableIntStateOf(0) }
+
+    // Prevent back button from closing app on home screen
+    BackHandler(enabled = true) { /* do nothing - stay on home */ }
 
     Scaffold(
         bottomBar = {

@@ -14,7 +14,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import java.time.Instant
+import java.text.SimpleDateFormat
+import java.util.*
 import javax.inject.Inject
 
 data class CartItem(val sku: SkuEntity, var qty: Int = 0)
@@ -146,8 +147,8 @@ class NewCustomerViewModel @Inject constructor(
                     vehicleTypeId    = s.vehicleTypeId.ifEmpty { null },
                     isRepeat         = s.isRepeat,
                     competitorBrandId = s.competitorBrandId,
-                    entryTime        = Instant.now().toString(),
-                    syncedAt         = Instant.now().toString(),
+                    entryTime        = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault()).apply { timeZone = TimeZone.getTimeZone("UTC") }.format(Date()) + "Z",
+                    syncedAt         = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault()).apply { timeZone = TimeZone.getTimeZone("UTC") }.format(Date()) + "Z",
                 )
 
                 val resp = api.postSaleEntry(entryPayload, apiKey, authHdr)
