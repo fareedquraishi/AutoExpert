@@ -391,7 +391,6 @@ private fun CustomerCard(entry: SaleEntryQueueEntity, modifier: Modifier = Modif
         }
     }
 }
-}
 
 @Composable
 fun HomeBottomNavBar(selected: Int, unreadMessages: Int, onSelect: (Int) -> Unit) {

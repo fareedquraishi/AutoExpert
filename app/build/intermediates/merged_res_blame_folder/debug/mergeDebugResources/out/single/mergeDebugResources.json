@@ -1,19 +1,7 @@
 [
     {
-        "merged": "/home/codespace/.gradle/daemon/8.7/com.autoexpert.app-debug-79:/mipmap-xxxhdpi_ic_launcher.xml.flat",
-        "source": "/home/codespace/.gradle/daemon/8.7/com.autoexpert.app-main-81:/mipmap-xxxhdpi/ic_launcher.xml"
-    },
-    {
         "merged": "/home/codespace/.gradle/daemon/8.7/com.autoexpert.app-debug-79:/drawable_petronas_logo.png.flat",
         "source": "/home/codespace/.gradle/daemon/8.7/com.autoexpert.app-main-81:/drawable/petronas_logo.png"
-    },
-    {
-        "merged": "/home/codespace/.gradle/daemon/8.7/com.autoexpert.app-debug-79:/drawable_euro_logo_white.png.flat",
-        "source": "/home/codespace/.gradle/daemon/8.7/com.autoexpert.app-main-81:/drawable/euro_logo_white.png"
-    },
-    {
-        "merged": "com.autoexpert.app-debug-79:/drawable_ic_vehicle_heavy.png.flat",
-        "source": "com.autoexpert.app-main-81:/drawable/ic_vehicle_heavy.png"
     },
     {
         "merged": "/home/codespace/.gradle/daemon/8.7/com.autoexpert.app-debug-79:/mipmap-xxhdpi_ic_launcher_round.xml.flat",
@@ -28,10 +16,6 @@
         "source": "/home/codespace/.gradle/daemon/8.7/com.autoexpert.app-main-81:/mipmap-xhdpi/ic_launcher.xml"
     },
     {
-        "merged": "/home/codespace/.gradle/daemon/8.7/com.autoexpert.app-debug-79:/mipmap-xxxhdpi_ic_launcher_round.xml.flat",
-        "source": "/home/codespace/.gradle/daemon/8.7/com.autoexpert.app-main-81:/mipmap-xxxhdpi/ic_launcher_round.xml"
-    },
-    {
         "merged": "com.autoexpert.app-debug-79:/drawable_ic_vehicle_motorcycle.png.flat",
         "source": "com.autoexpert.app-main-81:/drawable/ic_vehicle_motorcycle.png"
     },
@@ -44,24 +28,64 @@
         "source": "/home/codespace/.gradle/daemon/8.7/com.autoexpert.app-main-81:/mipmap-xxhdpi/ic_launcher.xml"
     },
     {
-        "merged": "com.autoexpert.app-debug-79:/drawable_ic_vehicle_car.png.flat",
-        "source": "com.autoexpert.app-main-81:/drawable/ic_vehicle_car.png"
-    },
-    {
         "merged": "com.autoexpert.app-debug-79:/drawable_ic_vehicle_rickshaw.png.flat",
         "source": "com.autoexpert.app-main-81:/drawable/ic_vehicle_rickshaw.png"
+    },
+    {
+        "merged": "/home/codespace/.gradle/daemon/8.7/com.autoexpert.app-debug-79:/drawable_ic_vehicle_rickshaw.png.flat",
+        "source": "/home/codespace/.gradle/daemon/8.7/com.autoexpert.app-main-81:/drawable/ic_vehicle_rickshaw.png"
     },
     {
         "merged": "/home/codespace/.gradle/daemon/8.7/com.autoexpert.app-debug-79:/mipmap-mdpi_ic_launcher.xml.flat",
         "source": "/home/codespace/.gradle/daemon/8.7/com.autoexpert.app-main-81:/mipmap-mdpi/ic_launcher.xml"
     },
     {
-        "merged": "/home/codespace/.gradle/daemon/8.7/com.autoexpert.app-debug-79:/drawable_euro_logo.png.flat",
-        "source": "/home/codespace/.gradle/daemon/8.7/com.autoexpert.app-main-81:/drawable/euro_logo.png"
-    },
-    {
         "merged": "/home/codespace/.gradle/daemon/8.7/com.autoexpert.app-debug-79:/drawable_ic_petronas_splash.xml.flat",
         "source": "/home/codespace/.gradle/daemon/8.7/com.autoexpert.app-main-81:/drawable/ic_petronas_splash.xml"
+    },
+    {
+        "merged": "com.autoexpert.app-debug-79:/drawable_ic_vehicle_truck.png.flat",
+        "source": "com.autoexpert.app-main-81:/drawable/ic_vehicle_truck.png"
+    },
+    {
+        "merged": "/home/codespace/.gradle/daemon/8.7/com.autoexpert.app-debug-79:/mipmap-xxxhdpi_ic_launcher.xml.flat",
+        "source": "/home/codespace/.gradle/daemon/8.7/com.autoexpert.app-main-81:/mipmap-xxxhdpi/ic_launcher.xml"
+    },
+    {
+        "merged": "/home/codespace/.gradle/daemon/8.7/com.autoexpert.app-debug-79:/drawable_ic_vehicle_motorcycle.png.flat",
+        "source": "/home/codespace/.gradle/daemon/8.7/com.autoexpert.app-main-81:/drawable/ic_vehicle_motorcycle.png"
+    },
+    {
+        "merged": "/home/codespace/.gradle/daemon/8.7/com.autoexpert.app-debug-79:/drawable_euro_logo_white.png.flat",
+        "source": "/home/codespace/.gradle/daemon/8.7/com.autoexpert.app-main-81:/drawable/euro_logo_white.png"
+    },
+    {
+        "merged": "/home/codespace/.gradle/daemon/8.7/com.autoexpert.app-debug-79:/drawable_ic_vehicle_van.png.flat",
+        "source": "/home/codespace/.gradle/daemon/8.7/com.autoexpert.app-main-81:/drawable/ic_vehicle_van.png"
+    },
+    {
+        "merged": "com.autoexpert.app-debug-79:/drawable_ic_vehicle_heavy.png.flat",
+        "source": "com.autoexpert.app-main-81:/drawable/ic_vehicle_heavy.png"
+    },
+    {
+        "merged": "/home/codespace/.gradle/daemon/8.7/com.autoexpert.app-debug-79:/drawable_ic_vehicle_truck.png.flat",
+        "source": "/home/codespace/.gradle/daemon/8.7/com.autoexpert.app-main-81:/drawable/ic_vehicle_truck.png"
+    },
+    {
+        "merged": "/home/codespace/.gradle/daemon/8.7/com.autoexpert.app-debug-79:/mipmap-xxxhdpi_ic_launcher_round.xml.flat",
+        "source": "/home/codespace/.gradle/daemon/8.7/com.autoexpert.app-main-81:/mipmap-xxxhdpi/ic_launcher_round.xml"
+    },
+    {
+        "merged": "/home/codespace/.gradle/daemon/8.7/com.autoexpert.app-debug-79:/drawable_ic_vehicle_car.png.flat",
+        "source": "/home/codespace/.gradle/daemon/8.7/com.autoexpert.app-main-81:/drawable/ic_vehicle_car.png"
+    },
+    {
+        "merged": "com.autoexpert.app-debug-79:/drawable_ic_vehicle_car.png.flat",
+        "source": "com.autoexpert.app-main-81:/drawable/ic_vehicle_car.png"
+    },
+    {
+        "merged": "/home/codespace/.gradle/daemon/8.7/com.autoexpert.app-debug-79:/drawable_euro_logo.png.flat",
+        "source": "/home/codespace/.gradle/daemon/8.7/com.autoexpert.app-main-81:/drawable/euro_logo.png"
     },
     {
         "merged": "/home/codespace/.gradle/daemon/8.7/com.autoexpert.app-debug-79:/mipmap-hdpi_ic_launcher_round.xml.flat",
@@ -72,8 +96,8 @@
         "source": "/home/codespace/.gradle/daemon/8.7/com.autoexpert.app-main-81:/mipmap-xhdpi/ic_launcher_round.xml"
     },
     {
-        "merged": "com.autoexpert.app-debug-79:/drawable_ic_vehicle_truck.png.flat",
-        "source": "com.autoexpert.app-main-81:/drawable/ic_vehicle_truck.png"
+        "merged": "/home/codespace/.gradle/daemon/8.7/com.autoexpert.app-debug-79:/drawable_ic_vehicle_heavy.png.flat",
+        "source": "/home/codespace/.gradle/daemon/8.7/com.autoexpert.app-main-81:/drawable/ic_vehicle_heavy.png"
     },
     {
         "merged": "com.autoexpert.app-debug-79:/drawable_ic_vehicle_van.png.flat",
