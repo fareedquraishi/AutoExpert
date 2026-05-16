@@ -727,6 +727,12 @@ drawable ic_call_decline_low
 drawable ic_launcher_foreground
 drawable ic_notification
 drawable ic_petronas_splash
+drawable ic_vehicle_car
+drawable ic_vehicle_heavy
+drawable ic_vehicle_motorcycle
+drawable ic_vehicle_rickshaw
+drawable ic_vehicle_truck
+drawable ic_vehicle_van
 drawable icon_background
 drawable notification_action_background
 drawable notification_bg

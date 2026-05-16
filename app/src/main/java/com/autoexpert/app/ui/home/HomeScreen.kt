@@ -1,6 +1,7 @@
 package com.autoexpert.app.ui.home
 
 import androidx.compose.foundation.*
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -17,6 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.*
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.autoexpert.app.R
 import com.autoexpert.app.data.local.entity.SaleEntryQueueEntity
 import com.autoexpert.app.ui.components.*
 import com.autoexpert.app.ui.theme.*
@@ -299,15 +301,15 @@ private fun CustomerCard(entry: SaleEntryQueueEntity, modifier: Modifier = Modif
         outFmt.format(d ?: Date())
     } catch (_: Exception) { "" }
 
-    val vehicleIcon = when (entry.vehicleTypeName?.lowercase()?.trim()) {
-        "motorcycle", "bike"      -> Icons.Filled.TwoWheeler
-        "truck", "van"            -> Icons.Filled.LocalShipping
-        "tractor"                 -> Icons.Filled.Agriculture
-        "rickshaw", "auto"        -> Icons.Filled.ElectricRickshaw
-        else                      -> Icons.Filled.DirectionsCar
+    val vehicleIconRes = when (entry.vehicleTypeName?.lowercase()?.trim()) {
+        "motorcycle", "bike"                -> R.drawable.ic_vehicle_motorcycle
+        "pickup", "van", "pickup / van"     -> R.drawable.ic_vehicle_van
+        "truck"                             -> R.drawable.ic_vehicle_truck
+        "heavy vehicle", "heavy"            -> R.drawable.ic_vehicle_heavy
+        "rickshaw", "auto", "tuk tuk"       -> R.drawable.ic_vehicle_rickshaw
+        else                                -> R.drawable.ic_vehicle_car
     }
 
-    // Parse itemsJson for product info
     val productLine = try {
         val json = entry.itemsJson
         if (json != "[]" && json.isNotEmpty()) {
@@ -315,10 +317,13 @@ private fun CustomerCard(entry: SaleEntryQueueEntity, modifier: Modifier = Modif
             items.mapNotNull { item ->
                 val name = Regex("""skuName":"([^"]+)""").find(item)?.groupValues?.get(1)
                 val qty  = Regex("""qty":([0-9.]+)""").find(item)?.groupValues?.get(1)?.toDoubleOrNull()
-                if (name != null && qty != null) "$name ${qty}L" else null
-            }.joinToString(" · ")
-        } else ""
-    } catch (_: Exception) { "" }
+                if (name != null && qty != null) Pair(name, qty) else null
+            }
+        } else emptyList()
+    } catch (_: Exception) { emptyList() }
+
+    val productText = productLine.joinToString(" · ") { it.first }
+    val totalLitresText = if (isSale) "%.1fL".format(entry.totalLitres) else ""
 
     Row(
         modifier = modifier.fillMaxWidth()
@@ -326,11 +331,7 @@ private fun CustomerCard(entry: SaleEntryQueueEntity, modifier: Modifier = Modif
             .border(1.dp, Color(0xFFE8ECF0), RoundedCornerShape(10.dp))
             .clip(RoundedCornerShape(10.dp)),
     ) {
-        // Colored left border
-        Box(
-            Modifier.width(4.dp).fillMaxHeight()
-                .background(borderColor as Color)
-        )
+        Box(Modifier.width(4.dp).fillMaxHeight().background(borderColor as Color))
 
         Row(
             Modifier.weight(1f).padding(horizontal = 10.dp, vertical = 8.dp),
@@ -339,72 +340,57 @@ private fun CustomerCard(entry: SaleEntryQueueEntity, modifier: Modifier = Modif
         ) {
             // Avatar
             Box(
-                Modifier.size(32.dp).background((dotColor as Color).copy(0.1f),
-                    RoundedCornerShape(8.dp)),
+                Modifier.size(32.dp).background((dotColor as Color).copy(0.1f), RoundedCornerShape(8.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 Text(entry.customerName.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
                     fontSize = 13.sp, fontWeight = FontWeight.Bold, color = dotColor)
             }
 
-            // Info
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                // Name + badge
-                Row(verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-                    Text(entry.customerName, fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold, color = TextPrimary,
-                        maxLines = 1, overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.weight(1f, fill = false))
-                    Box(
-                        Modifier.background((badgeColor as Color).copy(0.12f),
-                            RoundedCornerShape(3.dp)).padding(horizontal = 5.dp, vertical = 1.dp)
-                    ) {
-                        Text(badgeText as String, fontSize = 8.sp,
-                            fontWeight = FontWeight.Bold, color = badgeColor)
-                    }
-                }
-
-                // Vehicle icon + time + applicator
-                Row(verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Icon(vehicleIcon, null, tint = Color(0xFFAAAAAA),
-                        modifier = Modifier.size(12.dp))
-                    Text(timeStr, fontSize = 10.sp, color = Color(0xFFAAAAAA))
-                    if (entry.isApplicator) {
-                        Box(Modifier.background(Color(0xFF8B5CF6).copy(0.1f),
-                            RoundedCornerShape(3.dp)).padding(horizontal = 4.dp, vertical = 1.dp)) {
-                            Text("App", fontSize = 8.sp, color = Color(0xFF8B5CF6),
-                                fontWeight = FontWeight.Bold)
+            // Two rows of info
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                // Row 1: Name + Badge | Commission
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+                        Text(entry.customerName, fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold, color = TextPrimary,
+                            maxLines = 1, overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f, fill = false))
+                        Box(Modifier.background((badgeColor as Color).copy(0.12f),
+                            RoundedCornerShape(3.dp)).padding(horizontal = 5.dp, vertical = 1.dp)) {
+                            Text(badgeText as String, fontSize = 8.sp,
+                                fontWeight = FontWeight.Bold, color = badgeColor)
                         }
                     }
+                    if (isSale) {
+                        Text("Rs ${pkrFmt.format(entry.totalCommission.toLong())}",
+                            fontSize = 12.sp, fontWeight = FontWeight.Bold, color = PetronasGreen)
+                    }
                 }
 
-                // Product line
-                if (productLine.isNotEmpty()) {
-                    Text(productLine, fontSize = 10.sp, color = PetronasGreen,
-                        maxLines = 1, overflow = TextOverflow.Ellipsis)
-                } else if (isSale) {
-                    Text("%.1fL".format(entry.totalLitres), fontSize = 10.sp,
-                        color = PetronasGreen)
-                } else {
-                    Text(if (isRepeat) "Visited ? no purchase" else "No purchase",
-                        fontSize = 10.sp, color = Color(0xFFAAAAAA))
-                }
-            }
-
-            // Right: commission
-            if (isSale) {
-                Column(horizontalAlignment = Alignment.End,
-                    verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    Text("Rs ${pkrFmt.format(entry.totalCommission.toLong())}",
-                        fontSize = 12.sp, fontWeight = FontWeight.Bold, color = PetronasGreen)
-                    Text("%.1fL".format(entry.totalLitres),
-                        fontSize = 10.sp, color = TextSecondary)
+                // Row 2: Vehicle icon + Time + Product | Litres
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Image(painter = androidx.compose.ui.res.painterResource(vehicleIconRes),
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp))
+                        Text(timeStr, fontSize = 10.sp, color = Color(0xFFAAAAAA))
+                        if (productText.isNotEmpty()) {
+                            Text(productText, fontSize = 10.sp, color = PetronasGreen,
+                                maxLines = 1, overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.weight(1f, fill = false))
+                        }
+                    }
+                    if (totalLitresText.isNotEmpty()) {
+                        Text(totalLitresText, fontSize = 10.sp, color = TextSecondary)
+                    }
                 }
             }
         }
     }
+}
 }
 
 @Composable
