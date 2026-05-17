@@ -160,6 +160,8 @@ class HomeViewModel @Inject constructor(
                 }
 
                 // Fetch today entries from Supabase - batch insert to avoid UI jumping
+                val vehicleTypes = vehicleTypeDao.getAllOnce()
+                val skus = skuDao.getAllActiveOnce()
                 val remoteEntries = api.getSaleEntries(
                     baId = "eq.$baId",
                     date = "gte.${today}T00:00:00",
@@ -179,12 +181,16 @@ class HomeViewModel @Inject constructor(
                         customerMobile   = e.customerMobile,
                         plateNumber      = e.plateNumber,
                         vehicleTypeId    = e.vehicleTypeId,
-                        vehicleTypeName  = null,
+                        vehicleTypeName  = vehicleTypes.find { it.id == e.vehicleTypeId }?.name,
                         isRepeat         = e.isRepeat,
                         entryTime        = e.entryTime,
                         syncStatus       = "synced",
                         totalLitres      = e.items?.sumOf { it.qtyLitres } ?: 0.0,
                         totalCommission  = e.items?.sumOf { it.commissionEarned } ?: 0.0,
+                        itemsJson        = e.items?.joinToString(",", "[", "]") { i ->
+                            val skuName = skus.find { s -> s.id == i.skuId }?.name ?: ""
+                            "{" + '"' + "skuName" + '"' + ":" + '"' + skuName + '"' + "," + '"' + "qty" + '"' + ":" + i.qtyLitres + "," + '"' + "commission" + '"' + ":" + i.commissionEarned + "}"
+                        } ?: "[]",
                     )
                 }
                 if (entities.isNotEmpty()) {
