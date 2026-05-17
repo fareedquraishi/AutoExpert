@@ -105,7 +105,7 @@ class SummaryViewModel @Inject constructor(
             // Vehicle counts
             val vehicleMap = mutableMapOf<String, Int>()
             todayEntries.forEach { e ->
-                val v = e.vehicleTypeName ?: "Unknown"
+                val v = e.vehicleTypeName?.ifEmpty { "Unknown" } ?: "Unknown"
                 vehicleMap[v] = (vehicleMap[v] ?: 0) + 1
             }
 
@@ -150,29 +150,45 @@ class SummaryViewModel @Inject constructor(
         val vehicles = state.vehicleCounts.entries.joinToString(" | ") { "${it.key}: ${it.value}" }
             .ifEmpty { "None" }
 
+        val div = "___________________________"
         return """
-? Daily Summary ? $date
-? Shift: 10:00 AM ? $now
-? ${state.baName} | ${state.stationName}
+*Daily Summary*
+_${state.baName} | ${state.stationName}_
+_${date} | Shift: 10:00 AM - ${now}_
 
-? Reach: ${state.todayReach}/${state.reachTarget.toInt()}  $reachArrow
-? Litres: ${"%.1f".format(state.todayLitres)}L/${state.litresTarget.toInt()}L  $litresArrow
-? Today: Rs ${pkrFmt.format(state.todayCommission.toLong())}  $commArrow
-? Unpaid Balance: Rs ${pkrFmt.format(state.unpaidBalance.toLong())}
+$div
+*Performance*
+$div
+*Reach:* _${state.todayReach}/${state.reachTarget.toInt()}_ $reachArrow
+*Litres:* _${"%.1f".format(state.todayLitres)}L/${state.litresTarget.toInt()}L_ $litresArrow
+*Commission:* _Rs ${pkrFmt.format(state.todayCommission.toLong())}_ $commArrow
+*Unpaid Balance:* _Rs ${pkrFmt.format(state.unpaidBalance.toLong())}_
 
-? Breakdown:
-? Conquest: ${state.conquest} | Repeat: ${state.repeat}
-? Existing: ${state.existing} | Prospect: ${state.prospect}
+$div
+*Customer Breakdown*
+$div
+_Conquest: ${state.conquest} | Repeat: ${state.repeat}_
+_Existing: ${state.existing} | Prospect: ${state.prospect}_
 
-? By Vehicle:
-? $vehicles
+$div
+*By Vehicle*
+$div
+_${vehicles}_
 
-? Products Sold:
+$div
+*Products Sold*
+$div
 $products
 
-? Applicator: ${state.applicatorCount} customers
+$div
+*My Performance*
+$div
+*MTD:* _Rs ${pkrFmt.format(state.todayCommission.toLong())} | ${"%.1f".format(state.todayLitres)}L_
+*All Time:* _Rs ${pkrFmt.format(state.unpaidBalance.toLong() + state.todayCommission.toLong())} | ${"%.1f".format(state.todayLitres)}L_
 
-? AutoExpert BA App v2.0
+$div
+_*Prepared by Fintectual Pvt Ltd*_
+_*AutoExpert BA App v2.0*_
         """.trimIndent()
     }
 }

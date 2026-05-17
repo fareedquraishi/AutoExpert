@@ -70,12 +70,23 @@ fun AppNavGraph(navController: NavHostController = rememberNavController()) {
         }
 
         composable(Routes.WALLET) {
-            WalletScreen(onBack = { navController.popBackStack() })
+            WalletScreen(
+                    onBack      = { navController.popBackStack() },
+                    onHome      = { navController.navigate(Routes.HOME) { popUpTo(Routes.HOME) { inclusive = true } } },
+                    onCustomers = { navController.navigate(Routes.CUSTOMERS) },
+                    onSummary   = { navController.navigate(Routes.SUMMARY) },
+                    onProfile   = { navController.navigate(Routes.PROFILE) }
+                )
         }
 
         composable(Routes.PROFILE) {
-            ProfileScreen(onBack = { navController.popBackStack() },
-                onLogout = { navController.navigate(Routes.LOGIN) {
+            ProfileScreen(
+                    onBack      = { navController.popBackStack() },
+                    onHome      = { navController.navigate(Routes.HOME) { popUpTo(Routes.HOME) { inclusive = true } } },
+                    onCustomers = { navController.navigate(Routes.CUSTOMERS) },
+                    onWallet    = { navController.navigate(Routes.WALLET) },
+                    onSummary   = { navController.navigate(Routes.SUMMARY) },
+                    onLogout = { navController.navigate(Routes.LOGIN) {
                     popUpTo(Routes.HOME) { inclusive = true }
                 }})
         }

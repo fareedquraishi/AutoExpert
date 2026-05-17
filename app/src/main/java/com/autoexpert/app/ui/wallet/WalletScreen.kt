@@ -139,7 +139,7 @@ fun WalletScreen(
     onBack: () -> Unit,
     onHome: () -> Unit = {},
     onCustomers: () -> Unit = {},
-    onChat: () -> Unit = {},
+    onSummary: () -> Unit = {},
     onProfile: () -> Unit = {},
     vm: WalletViewModel = hiltViewModel()
 ) {
@@ -147,8 +147,8 @@ fun WalletScreen(
 
     Scaffold(
         bottomBar = {
-            HomeBottomNavBar(selected = 3, unreadMessages = 0, onSelect = { i ->
-                when (i) { 0 -> onHome(); 1 -> onCustomers(); 2 -> onChat(); 4 -> onProfile() }
+            HomeBottomNavBar(selected = 2, unreadMessages = 0, onSelect = { i ->
+                when (i) { 0 -> onHome(); 1 -> onCustomers(); 3 -> onSummary(); 4 -> onProfile() }
             })
         },
         containerColor = Color(0xFFF2F4F5)

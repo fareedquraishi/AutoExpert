@@ -16,6 +16,7 @@ import com.autoexpert.app.data.local.dao.AttendanceQueueDao
 import com.autoexpert.app.data.local.dao.LeaveRequestDao
 import com.autoexpert.app.data.local.entity.LeaveRequestEntity
 import com.autoexpert.app.ui.components.*
+import com.autoexpert.app.ui.home.HomeBottomNavBar
 import com.autoexpert.app.ui.theme.*
 import com.autoexpert.app.util.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -58,6 +59,10 @@ class ProfileViewModel @Inject constructor(
 fun ProfileScreen(
     onBack: () -> Unit,
     onLogout: () -> Unit,
+    onHome: () -> Unit = {},
+    onCustomers: () -> Unit = {},
+    onWallet: () -> Unit = {},
+    onSummary: () -> Unit = {},
     vm: ProfileViewModel = hiltViewModel()
 ) {
     val baName      by vm.baName.collectAsState()
