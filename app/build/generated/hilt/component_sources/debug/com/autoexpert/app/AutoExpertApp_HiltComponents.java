@@ -15,6 +15,7 @@ import com.autoexpert.app.ui.login.LoginViewModel_HiltModules;
 import com.autoexpert.app.ui.messaging.MessagingViewModel_HiltModules;
 import com.autoexpert.app.ui.notices.NoticesViewModel_HiltModules;
 import com.autoexpert.app.ui.profile.ProfileViewModel_HiltModules;
+import com.autoexpert.app.ui.summary.SummaryViewModel_HiltModules;
 import com.autoexpert.app.ui.wallet.WalletViewModel_HiltModules;
 import dagger.Binds;
 import dagger.Component;
@@ -185,6 +186,7 @@ public final class AutoExpertApp_HiltComponents {
           NewCustomerViewModel_HiltModules.KeyModule.class,
           NoticesViewModel_HiltModules.KeyModule.class,
           ProfileViewModel_HiltModules.KeyModule.class,
+          SummaryViewModel_HiltModules.KeyModule.class,
           WalletViewModel_HiltModules.KeyModule.class
       }
   )
@@ -229,6 +231,7 @@ public final class AutoExpertApp_HiltComponents {
           NewCustomerViewModel_HiltModules.BindsModule.class,
           NoticesViewModel_HiltModules.BindsModule.class,
           ProfileViewModel_HiltModules.BindsModule.class,
+          SummaryViewModel_HiltModules.BindsModule.class,
           WalletViewModel_HiltModules.BindsModule.class
       }
   )

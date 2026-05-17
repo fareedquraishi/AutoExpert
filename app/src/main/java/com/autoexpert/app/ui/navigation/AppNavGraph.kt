@@ -12,6 +12,7 @@ import com.autoexpert.app.ui.customers.NewCustomerScreen
 import com.autoexpert.app.ui.wallet.WalletScreen
 import com.autoexpert.app.ui.profile.ProfileScreen
 import com.autoexpert.app.ui.notices.NoticesScreen
+import com.autoexpert.app.ui.summary.SummaryScreen
 import com.autoexpert.app.ui.splash.SplashScreen
 
 object Routes {
@@ -23,6 +24,7 @@ object Routes {
     const val WALLET    = "wallet"
     const val PROFILE   = "profile"
     const val NOTICES   = "notices"
+    const val SUMMARY   = "summary"
 }
 
 @Composable
@@ -52,6 +54,7 @@ fun AppNavGraph(navController: NavHostController = rememberNavController()) {
                 onOpenNotices  = { navController.navigate(Routes.NOTICES) },
                 onOpenCustomers= { navController.navigate(Routes.CUSTOMERS) },
                 onOpenWallet   = { navController.navigate(Routes.WALLET) },
+                onOpenSummary  = { navController.navigate(Routes.SUMMARY) },
                 onOpenProfile  = { navController.navigate(Routes.PROFILE) },
             )
         }
@@ -79,6 +82,15 @@ fun AppNavGraph(navController: NavHostController = rememberNavController()) {
 
         composable(Routes.NOTICES) {
             NoticesScreen(onBack = { navController.popBackStack() })
+        }
+        composable(Routes.SUMMARY) {
+            SummaryScreen(
+                onBack = { navController.popBackStack() },
+                onHome = { navController.navigate(Routes.HOME) { popUpTo(Routes.HOME) { inclusive = true } } },
+                onCustomers = { navController.navigate(Routes.CUSTOMERS) },
+                onWallet = { navController.navigate(Routes.WALLET) },
+                onProfile = { navController.navigate(Routes.PROFILE) }
+            )
         }
     }
 }

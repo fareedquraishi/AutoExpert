@@ -71,6 +71,8 @@ import com.autoexpert.app.ui.notices.NoticesViewModel;
 import com.autoexpert.app.ui.notices.NoticesViewModel_HiltModules;
 import com.autoexpert.app.ui.profile.ProfileViewModel;
 import com.autoexpert.app.ui.profile.ProfileViewModel_HiltModules;
+import com.autoexpert.app.ui.summary.SummaryViewModel;
+import com.autoexpert.app.ui.summary.SummaryViewModel_HiltModules;
 import com.autoexpert.app.ui.wallet.WalletViewModel;
 import com.autoexpert.app.ui.wallet.WalletViewModel_HiltModules;
 import com.autoexpert.app.util.SessionManager;
@@ -441,7 +443,7 @@ public final class DaggerAutoExpertApp_HiltComponents_SingletonC {
 
     @Override
     public Map<Class<?>, Boolean> getViewModelKeys() {
-      return LazyClassKeyMap.<Boolean>of(MapBuilder.<String, Boolean>newMapBuilder(8).put(LazyClassKeyProvider.com_autoexpert_app_ui_customers_CustomerListViewModel, CustomerListViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_autoexpert_app_ui_home_HomeViewModel, HomeViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_autoexpert_app_ui_login_LoginViewModel, LoginViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_autoexpert_app_ui_messaging_MessagingViewModel, MessagingViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_autoexpert_app_ui_customers_NewCustomerViewModel, NewCustomerViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_autoexpert_app_ui_notices_NoticesViewModel, NoticesViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_autoexpert_app_ui_profile_ProfileViewModel, ProfileViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_autoexpert_app_ui_wallet_WalletViewModel, WalletViewModel_HiltModules.KeyModule.provide()).build());
+      return LazyClassKeyMap.<Boolean>of(MapBuilder.<String, Boolean>newMapBuilder(9).put(LazyClassKeyProvider.com_autoexpert_app_ui_customers_CustomerListViewModel, CustomerListViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_autoexpert_app_ui_home_HomeViewModel, HomeViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_autoexpert_app_ui_login_LoginViewModel, LoginViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_autoexpert_app_ui_messaging_MessagingViewModel, MessagingViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_autoexpert_app_ui_customers_NewCustomerViewModel, NewCustomerViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_autoexpert_app_ui_notices_NoticesViewModel, NoticesViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_autoexpert_app_ui_profile_ProfileViewModel, ProfileViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_autoexpert_app_ui_summary_SummaryViewModel, SummaryViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_autoexpert_app_ui_wallet_WalletViewModel, WalletViewModel_HiltModules.KeyModule.provide()).build());
     }
 
     @Override
@@ -461,30 +463,41 @@ public final class DaggerAutoExpertApp_HiltComponents_SingletonC {
 
     @IdentifierNameString
     private static final class LazyClassKeyProvider {
-      static String com_autoexpert_app_ui_login_LoginViewModel = "com.autoexpert.app.ui.login.LoginViewModel";
-
-      static String com_autoexpert_app_ui_home_HomeViewModel = "com.autoexpert.app.ui.home.HomeViewModel";
+      static String com_autoexpert_app_ui_notices_NoticesViewModel = "com.autoexpert.app.ui.notices.NoticesViewModel";
 
       static String com_autoexpert_app_ui_messaging_MessagingViewModel = "com.autoexpert.app.ui.messaging.MessagingViewModel";
 
-      static String com_autoexpert_app_ui_customers_NewCustomerViewModel = "com.autoexpert.app.ui.customers.NewCustomerViewModel";
+      static String com_autoexpert_app_ui_login_LoginViewModel = "com.autoexpert.app.ui.login.LoginViewModel";
 
-      static String com_autoexpert_app_ui_wallet_WalletViewModel = "com.autoexpert.app.ui.wallet.WalletViewModel";
-
-      static String com_autoexpert_app_ui_notices_NoticesViewModel = "com.autoexpert.app.ui.notices.NoticesViewModel";
+      static String com_autoexpert_app_ui_summary_SummaryViewModel = "com.autoexpert.app.ui.summary.SummaryViewModel";
 
       static String com_autoexpert_app_ui_customers_CustomerListViewModel = "com.autoexpert.app.ui.customers.CustomerListViewModel";
 
       static String com_autoexpert_app_ui_profile_ProfileViewModel = "com.autoexpert.app.ui.profile.ProfileViewModel";
 
+      static String com_autoexpert_app_ui_customers_NewCustomerViewModel = "com.autoexpert.app.ui.customers.NewCustomerViewModel";
+
+      static String com_autoexpert_app_ui_wallet_WalletViewModel = "com.autoexpert.app.ui.wallet.WalletViewModel";
+
+      static String com_autoexpert_app_ui_home_HomeViewModel = "com.autoexpert.app.ui.home.HomeViewModel";
+
+      @KeepFieldType
+      NoticesViewModel com_autoexpert_app_ui_notices_NoticesViewModel2;
+
+      @KeepFieldType
+      MessagingViewModel com_autoexpert_app_ui_messaging_MessagingViewModel2;
+
       @KeepFieldType
       LoginViewModel com_autoexpert_app_ui_login_LoginViewModel2;
 
       @KeepFieldType
-      HomeViewModel com_autoexpert_app_ui_home_HomeViewModel2;
+      SummaryViewModel com_autoexpert_app_ui_summary_SummaryViewModel2;
 
       @KeepFieldType
-      MessagingViewModel com_autoexpert_app_ui_messaging_MessagingViewModel2;
+      CustomerListViewModel com_autoexpert_app_ui_customers_CustomerListViewModel2;
+
+      @KeepFieldType
+      ProfileViewModel com_autoexpert_app_ui_profile_ProfileViewModel2;
 
       @KeepFieldType
       NewCustomerViewModel com_autoexpert_app_ui_customers_NewCustomerViewModel2;
@@ -493,13 +506,7 @@ public final class DaggerAutoExpertApp_HiltComponents_SingletonC {
       WalletViewModel com_autoexpert_app_ui_wallet_WalletViewModel2;
 
       @KeepFieldType
-      NoticesViewModel com_autoexpert_app_ui_notices_NoticesViewModel2;
-
-      @KeepFieldType
-      CustomerListViewModel com_autoexpert_app_ui_customers_CustomerListViewModel2;
-
-      @KeepFieldType
-      ProfileViewModel com_autoexpert_app_ui_profile_ProfileViewModel2;
+      HomeViewModel com_autoexpert_app_ui_home_HomeViewModel2;
     }
   }
 
@@ -524,6 +531,8 @@ public final class DaggerAutoExpertApp_HiltComponents_SingletonC {
 
     private Provider<ProfileViewModel> profileViewModelProvider;
 
+    private Provider<SummaryViewModel> summaryViewModelProvider;
+
     private Provider<WalletViewModel> walletViewModelProvider;
 
     private ViewModelCImpl(SingletonCImpl singletonCImpl,
@@ -546,12 +555,13 @@ public final class DaggerAutoExpertApp_HiltComponents_SingletonC {
       this.newCustomerViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 4);
       this.noticesViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 5);
       this.profileViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 6);
-      this.walletViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 7);
+      this.summaryViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 7);
+      this.walletViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 8);
     }
 
     @Override
     public Map<Class<?>, javax.inject.Provider<ViewModel>> getHiltViewModelMap() {
-      return LazyClassKeyMap.<javax.inject.Provider<ViewModel>>of(MapBuilder.<String, javax.inject.Provider<ViewModel>>newMapBuilder(8).put(LazyClassKeyProvider.com_autoexpert_app_ui_customers_CustomerListViewModel, ((Provider) customerListViewModelProvider)).put(LazyClassKeyProvider.com_autoexpert_app_ui_home_HomeViewModel, ((Provider) homeViewModelProvider)).put(LazyClassKeyProvider.com_autoexpert_app_ui_login_LoginViewModel, ((Provider) loginViewModelProvider)).put(LazyClassKeyProvider.com_autoexpert_app_ui_messaging_MessagingViewModel, ((Provider) messagingViewModelProvider)).put(LazyClassKeyProvider.com_autoexpert_app_ui_customers_NewCustomerViewModel, ((Provider) newCustomerViewModelProvider)).put(LazyClassKeyProvider.com_autoexpert_app_ui_notices_NoticesViewModel, ((Provider) noticesViewModelProvider)).put(LazyClassKeyProvider.com_autoexpert_app_ui_profile_ProfileViewModel, ((Provider) profileViewModelProvider)).put(LazyClassKeyProvider.com_autoexpert_app_ui_wallet_WalletViewModel, ((Provider) walletViewModelProvider)).build());
+      return LazyClassKeyMap.<javax.inject.Provider<ViewModel>>of(MapBuilder.<String, javax.inject.Provider<ViewModel>>newMapBuilder(9).put(LazyClassKeyProvider.com_autoexpert_app_ui_customers_CustomerListViewModel, ((Provider) customerListViewModelProvider)).put(LazyClassKeyProvider.com_autoexpert_app_ui_home_HomeViewModel, ((Provider) homeViewModelProvider)).put(LazyClassKeyProvider.com_autoexpert_app_ui_login_LoginViewModel, ((Provider) loginViewModelProvider)).put(LazyClassKeyProvider.com_autoexpert_app_ui_messaging_MessagingViewModel, ((Provider) messagingViewModelProvider)).put(LazyClassKeyProvider.com_autoexpert_app_ui_customers_NewCustomerViewModel, ((Provider) newCustomerViewModelProvider)).put(LazyClassKeyProvider.com_autoexpert_app_ui_notices_NoticesViewModel, ((Provider) noticesViewModelProvider)).put(LazyClassKeyProvider.com_autoexpert_app_ui_profile_ProfileViewModel, ((Provider) profileViewModelProvider)).put(LazyClassKeyProvider.com_autoexpert_app_ui_summary_SummaryViewModel, ((Provider) summaryViewModelProvider)).put(LazyClassKeyProvider.com_autoexpert_app_ui_wallet_WalletViewModel, ((Provider) walletViewModelProvider)).build());
     }
 
     @Override
@@ -561,42 +571,47 @@ public final class DaggerAutoExpertApp_HiltComponents_SingletonC {
 
     @IdentifierNameString
     private static final class LazyClassKeyProvider {
-      static String com_autoexpert_app_ui_wallet_WalletViewModel = "com.autoexpert.app.ui.wallet.WalletViewModel";
-
-      static String com_autoexpert_app_ui_home_HomeViewModel = "com.autoexpert.app.ui.home.HomeViewModel";
-
       static String com_autoexpert_app_ui_notices_NoticesViewModel = "com.autoexpert.app.ui.notices.NoticesViewModel";
 
-      static String com_autoexpert_app_ui_login_LoginViewModel = "com.autoexpert.app.ui.login.LoginViewModel";
-
       static String com_autoexpert_app_ui_messaging_MessagingViewModel = "com.autoexpert.app.ui.messaging.MessagingViewModel";
+
+      static String com_autoexpert_app_ui_home_HomeViewModel = "com.autoexpert.app.ui.home.HomeViewModel";
 
       static String com_autoexpert_app_ui_customers_NewCustomerViewModel = "com.autoexpert.app.ui.customers.NewCustomerViewModel";
 
       static String com_autoexpert_app_ui_customers_CustomerListViewModel = "com.autoexpert.app.ui.customers.CustomerListViewModel";
 
+      static String com_autoexpert_app_ui_login_LoginViewModel = "com.autoexpert.app.ui.login.LoginViewModel";
+
+      static String com_autoexpert_app_ui_summary_SummaryViewModel = "com.autoexpert.app.ui.summary.SummaryViewModel";
+
+      static String com_autoexpert_app_ui_wallet_WalletViewModel = "com.autoexpert.app.ui.wallet.WalletViewModel";
+
       static String com_autoexpert_app_ui_profile_ProfileViewModel = "com.autoexpert.app.ui.profile.ProfileViewModel";
-
-      @KeepFieldType
-      WalletViewModel com_autoexpert_app_ui_wallet_WalletViewModel2;
-
-      @KeepFieldType
-      HomeViewModel com_autoexpert_app_ui_home_HomeViewModel2;
 
       @KeepFieldType
       NoticesViewModel com_autoexpert_app_ui_notices_NoticesViewModel2;
 
       @KeepFieldType
-      LoginViewModel com_autoexpert_app_ui_login_LoginViewModel2;
+      MessagingViewModel com_autoexpert_app_ui_messaging_MessagingViewModel2;
 
       @KeepFieldType
-      MessagingViewModel com_autoexpert_app_ui_messaging_MessagingViewModel2;
+      HomeViewModel com_autoexpert_app_ui_home_HomeViewModel2;
 
       @KeepFieldType
       NewCustomerViewModel com_autoexpert_app_ui_customers_NewCustomerViewModel2;
 
       @KeepFieldType
       CustomerListViewModel com_autoexpert_app_ui_customers_CustomerListViewModel2;
+
+      @KeepFieldType
+      LoginViewModel com_autoexpert_app_ui_login_LoginViewModel2;
+
+      @KeepFieldType
+      SummaryViewModel com_autoexpert_app_ui_summary_SummaryViewModel2;
+
+      @KeepFieldType
+      WalletViewModel com_autoexpert_app_ui_wallet_WalletViewModel2;
 
       @KeepFieldType
       ProfileViewModel com_autoexpert_app_ui_profile_ProfileViewModel2;
@@ -644,7 +659,10 @@ public final class DaggerAutoExpertApp_HiltComponents_SingletonC {
           case 6: // com.autoexpert.app.ui.profile.ProfileViewModel 
           return (T) new ProfileViewModel(singletonCImpl.sessionManagerProvider.get(), singletonCImpl.leaveRequestDao(), singletonCImpl.attendanceQueueDao());
 
-          case 7: // com.autoexpert.app.ui.wallet.WalletViewModel 
+          case 7: // com.autoexpert.app.ui.summary.SummaryViewModel 
+          return (T) new SummaryViewModel(singletonCImpl.saleEntryQueueDao(), singletonCImpl.payoutDao(), singletonCImpl.sessionManagerProvider.get());
+
+          case 8: // com.autoexpert.app.ui.wallet.WalletViewModel 
           return (T) new WalletViewModel(singletonCImpl.payoutDao(), singletonCImpl.sessionManagerProvider.get(), singletonCImpl.provideSupabaseApiProvider.get());
 
           default: throw new AssertionError(id);

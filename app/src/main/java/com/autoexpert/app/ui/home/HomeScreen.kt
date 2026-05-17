@@ -35,6 +35,7 @@ fun HomeScreen(
     onOpenNotices: () -> Unit,
     onOpenCustomers: () -> Unit,
     onOpenWallet: () -> Unit,
+    onOpenSummary: () -> Unit,
     onOpenProfile: () -> Unit,
     vm: HomeViewModel = hiltViewModel()
 ) {
@@ -53,8 +54,8 @@ fun HomeScreen(
                     when (i) {
                         0 -> selectedNav = 0
                         1 -> { selectedNav = 1; onOpenCustomers() }
-                        2 -> { selectedNav = 2; onOpenChat() }
-                        3 -> { selectedNav = 3; onOpenWallet() }
+                        2 -> { selectedNav = 2; onOpenWallet() }
+                        3 -> { selectedNav = 3; onOpenSummary() }
                         4 -> { selectedNav = 4; onOpenProfile() }
                     }
                 }
@@ -294,19 +295,16 @@ private fun CustomerCard(entry: SaleEntryQueueEntity, modifier: Modifier = Modif
 
     val timeStr = try {
         val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
-        sdf.timeZone = java.util.TimeZone.getTimeZone("UTC")
         val d = sdf.parse(entry.entryTime.take(19))
-        val outFmt = SimpleDateFormat("hh:mm a", Locale.getDefault())
-        outFmt.timeZone = java.util.TimeZone.getTimeZone("Asia/Karachi")
-        outFmt.format(d ?: Date())
+        SimpleDateFormat("hh:mm a", Locale.getDefault()).format(d ?: Date())
     } catch (_: Exception) { "" }
 
     val vehicleIconRes = when (entry.vehicleTypeName?.lowercase()?.trim()) {
-        "motorcycle", "bike"                -> R.drawable.ic_vehicle_motorcycle
-        "pickup", "van", "pickup / van"     -> R.drawable.ic_vehicle_van
+        "motorcycle"                        -> R.drawable.ic_vehicle_motorcycle
+        "pickup / van", "pickup", "van"     -> R.drawable.ic_vehicle_van
         "truck"                             -> R.drawable.ic_vehicle_truck
-        "heavy vehicle", "heavy"            -> R.drawable.ic_vehicle_heavy
-        "rickshaw", "auto", "tuk tuk"       -> R.drawable.ic_vehicle_rickshaw
+        "heavy vehicle"                     -> R.drawable.ic_vehicle_heavy
+        "rickshaw"                          -> R.drawable.ic_vehicle_rickshaw
         else                                -> R.drawable.ic_vehicle_car
     }
 
@@ -400,8 +398,8 @@ fun HomeBottomNavBar(selected: Int, unreadMessages: Int, onSelect: (Int) -> Unit
         val items = listOf(
             NavItem("Home",      Icons.Filled.Home,                 0),
             NavItem("Customers", Icons.Filled.People,               1),
-            NavItem("Notices",   Icons.Filled.Notifications,        2),
-            NavItem("Wallet",    Icons.Filled.AccountBalanceWallet,  3),
+            NavItem("Wallet",    Icons.Filled.AccountBalanceWallet,  2),
+            NavItem("Summary",   Icons.Filled.Summarize,            3),
             NavItem("Profile",   Icons.Filled.Person,               4),
         )
         items.forEach { item ->
@@ -410,7 +408,7 @@ fun HomeBottomNavBar(selected: Int, unreadMessages: Int, onSelect: (Int) -> Unit
                 onClick  = { onSelect(item.idx) },
                 icon = {
                     BadgedBox(badge = {
-                        if (item.idx == 2 && unreadMessages > 0)
+                        if (item.idx == 0 && unreadMessages > 0)
                             Badge { Text("$unreadMessages") }
                     }) {
                         Icon(item.icon, item.label, modifier = Modifier.size(22.dp))

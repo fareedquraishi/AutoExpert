@@ -13,6 +13,7 @@ import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
@@ -125,12 +126,22 @@ class NewCustomerViewModel @Inject constructor(
     fun submit() {
         if (_state.value.isSubmitting) return
         viewModelScope.launch {
-            _state.update { it.copy(isSubmitting = true, submitError = null) }
+            // Duplicate check: same name + mobile + plate today
             val s = _state.value
-            val baId = session.baId.first() ?: run {
-                _state.update { it.copy(isSubmitting = false, submitError = "Not logged in") }
+            val baId = session.baId.first() ?: return@launch
+            val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+            val todayEntries = saleQueueDao.getByBaAndDate(baId, today).first()
+            val isDup = todayEntries.any { e ->
+                e.customerName.trim().equals(s.customerName.trim(), ignoreCase = true) &&
+                e.customerMobile == s.mobile.trim() &&
+                !s.plateNumber.isNullOrEmpty() &&
+                e.plateNumber?.equals(s.plateNumber.trim().uppercase()) == true
+            }
+            if (isDup) {
+                _state.update { it.copy(isSubmitting = false, submitError = "Duplicate entry: same customer already logged today") }
                 return@launch
             }
+            _state.update { it.copy(isSubmitting = true, submitError = null) }
             val stationId = session.stationId.first() ?: ""
             val commission = totalCommission
             val apiKey = BuildConfig.SUPABASE_ANON_KEY
@@ -147,8 +158,8 @@ class NewCustomerViewModel @Inject constructor(
                     vehicleTypeId    = s.vehicleTypeId.ifEmpty { null },
                     isRepeat         = s.isRepeat,
                     competitorBrandId = s.competitorBrandId,
-                    entryTime        = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault()).apply { timeZone = TimeZone.getTimeZone("UTC") }.format(Date()) + "Z",
-                    syncedAt         = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault()).apply { timeZone = TimeZone.getTimeZone("UTC") }.format(Date()) + "Z",
+                    entryTime        = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault()).format(Date()),
+                    syncedAt         = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault()).format(Date()),
                 )
 
                 val resp = api.postSaleEntry(entryPayload, apiKey, authHdr)
