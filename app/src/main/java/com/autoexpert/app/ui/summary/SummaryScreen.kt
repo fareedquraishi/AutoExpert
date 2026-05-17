@@ -222,7 +222,7 @@ fun SummaryScreen(
                     Text("Daily Summary", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.White)
                     Text(SimpleDateFormat("EEEE, dd MMM yyyy", Locale.getDefault()).format(Date()),
                         fontSize = 12.sp, color = Color.White.copy(0.6f))
-                    Text("? Shift: 10:00 AM ? ${SimpleDateFormat("hh:mm a", Locale.getDefault()).format(Date())}",
+                    Text("Shift: 10:00 AM - " + SimpleDateFormat("hh:mm a", Locale.getDefault()).format(Date()),
                         fontSize = 11.sp, color = PetronasGreen)
                 }
             }
