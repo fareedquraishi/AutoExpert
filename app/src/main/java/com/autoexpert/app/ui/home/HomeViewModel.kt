@@ -165,7 +165,7 @@ class HomeViewModel @Inject constructor(
                 val remoteEntries = api.getSaleEntries(
                     baId = "eq.$baId",
                     date = "gte.${today}T00:00:00",
-                    select = "id,ba_id,station_id,customer_name,customer_mobile,plate_number,vehicle_type_id,is_repeat,entry_time,sale_entry_items(qty_litres,commission_earned)",
+                    select = "id,ba_id,station_id,customer_name,customer_mobile,plate_number,vehicle_type_id,is_repeat,entry_time,sale_entry_items(sku_id,qty_litres,commission_earned,has_applicator)",
                     apiKey = apiKey, auth = authHeader
                 ).body() ?: emptyList()
 

@@ -185,7 +185,6 @@ $div
 $div
 *MTD:* _Rs ${pkrFmt.format(state.todayCommission.toLong())} | ${"%.1f".format(state.todayLitres)}L_
 *All Time:* _Rs ${pkrFmt.format(state.unpaidBalance.toLong() + state.todayCommission.toLong())} | ${"%.1f".format(state.todayLitres)}L_
-
 $div
 _*Prepared by Fintectual Pvt Ltd*_
 _*AutoExpert BA App v2.0*_
