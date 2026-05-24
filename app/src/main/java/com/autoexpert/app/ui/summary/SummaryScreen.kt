@@ -84,17 +84,16 @@ class SummaryViewModel @Inject constructor(
             val allEarned   = saleDao.getByBa(baId).first().sumOf { it.totalCommission }
             val unpaid      = allEarned - totalPaid
 
-            // Parse itemsJson for products
             val productMap = mutableMapOf<String, Double>()
             todayEntries.forEach { e ->
                 try {
                     val json = e.itemsJson
-                    if (json != "[]") {
+                    if (json != "[]" && json.isNotEmpty()) {
                         val items = json.removeSurrounding("[", "]").split("},")
                         items.forEach { item ->
                             val name = Regex("""skuName":"([^"]+)""").find(item)?.groupValues?.get(1)
                             val qty  = Regex("""qty":([0-9.]+)""").find(item)?.groupValues?.get(1)?.toDoubleOrNull()
-                            if (name != null && qty != null) {
+                            if (name != null && name.isNotEmpty() && qty != null) {
                                 productMap[name] = (productMap[name] ?: 0.0) + qty
                             }
                         }
@@ -102,10 +101,9 @@ class SummaryViewModel @Inject constructor(
                 } catch (_: Exception) {}
             }
 
-            // Vehicle counts
             val vehicleMap = mutableMapOf<String, Int>()
             todayEntries.forEach { e ->
-                val v = e.vehicleTypeName?.ifEmpty { "Unknown" } ?: "Unknown"
+                val v = e.vehicleTypeName?.ifEmpty { null } ?: "Unknown"
                 vehicleMap[v] = (vehicleMap[v] ?: 0) + 1
             }
 
@@ -134,61 +132,53 @@ class SummaryViewModel @Inject constructor(
     fun buildReportText(state: SummaryUiState): String {
         val sdf  = SimpleDateFormat("EEEE, dd MMM yyyy", Locale.getDefault())
         val date = sdf.format(Date())
-        val cal  = Calendar.getInstance()
-        val now  = SimpleDateFormat("hh:mm a", Locale.getDefault()).format(cal.time)
+        val now  = SimpleDateFormat("hh:mm a", Locale.getDefault()).format(Date())
+        val div  = "___________________________"
 
-        val reachDiff = state.todayReach - state.yesterdayReach
-        val litresDiff = state.todayLitres - state.yesterdayLitres
-        val commDiff  = state.todayCommission - state.yesterdayCommission
+        val products = if (state.productSales.isEmpty()) {
+            "  - No products sold"
+        } else {
+            state.productSales.entries.joinToString("\n") { "  - " + it.key + ": " + "%.1f".format(it.value) + "L" }
+        }
 
-        val reachArrow = if (reachDiff >= 0) "+$reachDiff" else "${reachDiff}"
-        val litresArrow = if (litresDiff >= 0) "+" + "%.1f".format(litresDiff) + "L" else "-" + "%.1f".format(-litresDiff) + "L"
-        val commArrow  = if (commDiff >= 0) "+" + "Rs " + pkrFmt.format(commDiff.toLong()) else "-" + "Rs " + pkrFmt.format((-commDiff).toLong())
+        val vehicles = if (state.vehicleCounts.isEmpty()) {
+            "None"
+        } else {
+            state.vehicleCounts.entries.joinToString(" | ") { it.key + ": " + it.value }
+        }
 
-        val products = state.productSales.entries.joinToString("\n") { "  - " + it.key + ": " + "%.1fL".format(it.value) }
-            .ifEmpty { "  - No products sold" }
-        val vehicles = state.vehicleCounts.entries.joinToString(" | ") { "${it.key}: ${it.value}" }
-            .ifEmpty { "None" }
-
-        val div = "___________________________"
-        return """
-*Daily Summary*
-_${state.baName} | ${state.stationName}_
-_${date} | Shift: 10:00 AM - ${now}_
-
-$div
-*Performance*
-$div
-*Reach:* _${state.todayReach}/${state.reachTarget.toInt()}_ $reachArrow
-*Litres:* _${"%.1f".format(state.todayLitres)}L/${state.litresTarget.toInt()}L_ $litresArrow
-*Commission:* _Rs ${pkrFmt.format(state.todayCommission.toLong())}_ $commArrow
-*Unpaid Balance:* _Rs ${pkrFmt.format(state.unpaidBalance.toLong())}_
-
-$div
-*Customer Breakdown*
-$div
-_Conquest: ${state.conquest} | Repeat: ${state.repeat}_
-_Existing: ${state.existing} | Prospect: ${state.prospect}_
-
-$div
-*By Vehicle*
-$div
-_${vehicles}_
-
-$div
-*Products Sold*
-$div
-$products
-
-$div
-*My Performance*
-$div
-*MTD:* _Rs ${pkrFmt.format(state.todayCommission.toLong())} | ${"%.1f".format(state.todayLitres)}L_
-*All Time:* _Rs ${pkrFmt.format(state.unpaidBalance.toLong() + state.todayCommission.toLong())} | ${"%.1f".format(state.todayLitres)}L_
-$div
-_*Prepared by Fintectual Pvt Ltd*_
-_*AutoExpert BA App v2.0*_
-        """.trimIndent()
+        val sb = StringBuilder()
+        sb.appendLine("*Daily Summary*")
+        sb.appendLine("_" + state.baName + " | " + state.stationName + "_")
+        sb.appendLine("_" + date + " | Shift: 10:00 AM - " + now + "_")
+        sb.appendLine()
+        sb.appendLine(div)
+        sb.appendLine("*Performance*")
+        sb.appendLine(div)
+        sb.appendLine("*Reach:* _" + state.todayReach + " customers_")
+        sb.appendLine("*Litres:* _" + "%.1f".format(state.todayLitres) + "L_")
+        sb.appendLine("*Commission:* _Rs " + pkrFmt.format(state.todayCommission.toLong()) + "_")
+        sb.appendLine("*Unpaid Balance:* _Rs " + pkrFmt.format(state.unpaidBalance.toLong()) + "_")
+        sb.appendLine()
+        sb.appendLine(div)
+        sb.appendLine("*Customer Breakdown*")
+        sb.appendLine(div)
+        sb.appendLine("_Conquest: " + state.conquest + " | Repeat: " + state.repeat + "_")
+        sb.appendLine("_Existing: " + state.existing + " | Prospect: " + state.prospect + "_")
+        sb.appendLine()
+        sb.appendLine(div)
+        sb.appendLine("*By Vehicle*")
+        sb.appendLine(div)
+        sb.appendLine("_" + vehicles + "_")
+        sb.appendLine()
+        sb.appendLine(div)
+        sb.appendLine("*Products Sold*")
+        sb.appendLine(div)
+        sb.appendLine(products)
+        sb.appendLine(div)
+        sb.appendLine("_*Prepared by Fintectual Pvt Ltd*_")
+        sb.appendLine("_*AutoExpert BA App v2.0*_")
+        return sb.toString().trimEnd()
     }
 }
 
@@ -213,7 +203,6 @@ fun SummaryScreen(
         containerColor = Color(0xFFF2F4F5)
     ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState())) {
-            // Header
             Box(Modifier.fillMaxWidth()
                 .background(Brush.verticalGradient(listOf(Color(0xFF003D2B), Color(0xFF005C40))))
                 .padding(16.dp, 18.dp)) {
@@ -231,32 +220,24 @@ fun SummaryScreen(
                     CircularProgressIndicator(color = PetronasGreen)
                 }
             } else {
-                val reachDiff = state.todayReach - state.yesterdayReach
-                val litresDiff = state.todayLitres - state.yesterdayLitres
-                val commDiff  = state.todayCommission - state.yesterdayCommission
-
-                // KPI Cards
                 Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
 
-                    // KPI Row
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        SummaryKpiCard("Reach", "${state.todayReach}/${state.reachTarget.toInt()}", reachDiff.toDouble(), Modifier.weight(1f))
-                        SummaryKpiCard("Litres", "%.1fL".format(state.todayLitres), litresDiff, Modifier.weight(1f))
-                        SummaryKpiCard("Commission", "Rs ${pkrFmt.format(state.todayCommission.toLong())}", commDiff, Modifier.weight(1f))
+                        SummaryKpiCard("Reach", state.todayReach.toString(), Modifier.weight(1f))
+                        SummaryKpiCard("Litres", "%.1f".format(state.todayLitres) + "L", Modifier.weight(1f))
+                        SummaryKpiCard("Commission", "Rs " + pkrFmt.format(state.todayCommission.toLong()), Modifier.weight(1f))
                     }
 
-                    // Unpaid Balance
                     Row(Modifier.fillMaxWidth()
                         .background(Color(0xFF007273), RoundedCornerShape(10.dp))
                         .padding(14.dp, 10.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically) {
                         Text("Unpaid Balance", fontSize = 12.sp, color = Color.White.copy(0.7f))
-                        Text("Rs ${pkrFmt.format(state.unpaidBalance.toLong())}",
+                        Text("Rs " + pkrFmt.format(state.unpaidBalance.toLong()),
                             fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFFFBBF24))
                     }
 
-                    // Breakdown
                     SummaryCard("Customer Breakdown") {
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
                             BreakdownItem("Conquest", state.conquest, PetronasGreen)
@@ -266,7 +247,6 @@ fun SummaryScreen(
                         }
                     }
 
-                    // Vehicles
                     if (state.vehicleCounts.isNotEmpty()) {
                         SummaryCard("By Vehicle") {
                             state.vehicleCounts.forEach { (name, count) ->
@@ -279,34 +259,23 @@ fun SummaryScreen(
                         }
                     }
 
-                    // Products
                     if (state.productSales.isNotEmpty()) {
                         SummaryCard("Products Sold") {
                             state.productSales.forEach { (name, qty) ->
                                 Row(Modifier.fillMaxWidth().padding(vertical = 2.dp),
                                     horizontalArrangement = Arrangement.SpaceBetween) {
-                                    Text(name, fontSize = 12.sp, color = TextPrimary,
-                                        modifier = Modifier.weight(1f))
-                                    Text("%.1fL".format(qty), fontSize = 12.sp,
+                                    Text(name, fontSize = 12.sp, color = TextPrimary, modifier = Modifier.weight(1f))
+                                    Text("%.1f".format(qty) + "L", fontSize = 12.sp,
                                         color = PetronasGreen, fontWeight = FontWeight.Bold)
                                 }
                             }
                         }
-                    }
-
-                    // Applicator
-                    if (state.applicatorCount > 0) {
-                        Row(Modifier.fillMaxWidth()
-                            .background(Color(0xFF8B5CF6).copy(0.08f), RoundedCornerShape(10.dp))
-                            .padding(14.dp, 10.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text("Applicator Customers", fontSize = 12.sp, color = TextPrimary)
-                            Text("${state.applicatorCount}", fontSize = 14.sp,
-                                fontWeight = FontWeight.Bold, color = Color(0xFF8B5CF6))
+                    } else {
+                        SummaryCard("Products Sold") {
+                            Text("No products sold", fontSize = 12.sp, color = TextSecondary)
                         }
                     }
 
-                    // Share Button
                     Button(
                         onClick = {
                             val report = vm.buildReportText(state)
@@ -331,21 +300,12 @@ fun SummaryScreen(
 }
 
 @Composable
-private fun SummaryKpiCard(label: String, value: String, diff: Double, modifier: Modifier = Modifier) {
-    val isUp = diff >= 0
+private fun SummaryKpiCard(label: String, value: String, modifier: Modifier = Modifier) {
     Column(modifier.background(Color.White, RoundedCornerShape(10.dp)).padding(12.dp),
         horizontalAlignment = Alignment.CenterHorizontally) {
         Text(label, fontSize = 9.sp, color = TextSecondary, fontWeight = FontWeight.Medium)
         Spacer(Modifier.height(4.dp))
         Text(value, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
-        Spacer(Modifier.height(2.dp))
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-            Icon(if (isUp) Icons.Filled.ArrowUpward else Icons.Filled.ArrowDownward,
-                null, tint = if (isUp) PetronasGreen else Color(0xFFEF4444),
-                modifier = Modifier.size(10.dp))
-            Text("%.1f".format(kotlin.math.abs(diff)), fontSize = 9.sp,
-                color = if (isUp) PetronasGreen else Color(0xFFEF4444))
-        }
     }
 }
 

@@ -177,7 +177,7 @@ fun ProfileScreen(
                 border = BorderStroke(1.dp, BorderColor), shadowElevation = 1.dp) {
                 Column(Modifier.fillMaxWidth().padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     SectionHeader("APP INFO", "ℹ️")
-                    InfoRow("Version", "v2.0 (Build 54)")
+                    InfoRow("Version", "v2.0 (Build 64)")
                     InfoRow("Powered by", "Fintectual Pvt Ltd")
                     InfoRow("Platform", "Petronas Auto Expert Centre")
                 }
