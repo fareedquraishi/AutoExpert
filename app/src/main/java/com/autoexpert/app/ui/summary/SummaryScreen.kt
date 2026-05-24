@@ -158,7 +158,6 @@ class SummaryViewModel @Inject constructor(
         sb.appendLine("*Reach:* _" + state.todayReach + " customers_")
         sb.appendLine("*Litres:* _" + "%.1f".format(state.todayLitres) + "L_")
         sb.appendLine("*Commission:* _Rs " + pkrFmt.format(state.todayCommission.toLong()) + "_")
-        sb.appendLine("*Unpaid Balance:* _Rs " + pkrFmt.format(state.unpaidBalance.toLong()) + "_")
         sb.appendLine()
         sb.appendLine(div)
         sb.appendLine("*Customer Breakdown*")
