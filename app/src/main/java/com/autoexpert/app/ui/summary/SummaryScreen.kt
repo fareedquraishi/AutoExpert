@@ -202,6 +202,9 @@ fun SummaryScreen(
     val state   = vm.state.collectAsState().value
     val context = LocalContext.current
 
+    // Reload every time screen is visited
+    LaunchedEffect(Unit) { vm.load() }
+
     Scaffold(
         bottomBar = {
             HomeBottomNavBar(selected = 3, unreadMessages = 0, onSelect = { i ->
