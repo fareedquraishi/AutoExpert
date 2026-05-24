@@ -46,6 +46,7 @@ data class SummaryUiState(
     val prospect: Int = 0,
     val vehicleCounts: Map<String, Int> = emptyMap(),
     val productSales: Map<String, Double> = emptyMap(),
+    val packSales: Map<String, Int> = emptyMap(),
     val applicatorCount: Int = 0,
     val yesterdayReach: Int = 0,
     val yesterdayLitres: Double = 0.0,
@@ -138,7 +139,11 @@ class SummaryViewModel @Inject constructor(
         val products = if (state.productSales.isEmpty()) {
             "  - No products sold"
         } else {
-            state.productSales.entries.joinToString("\n") { "  - " + it.key + ": " + "%.1f".format(it.value) + "L" }
+            state.productSales.entries.joinToString("\n") { entry ->
+                val packs = state.packSales[entry.key] ?: 0
+                val packsStr = if (packs < 10) "0$packs" else "$packs"
+                "  - $packsStr X " + entry.key + ": " + "%.1f".format(entry.value) + "L"
+            }
         }
 
         val vehicles = if (state.vehicleCounts.isEmpty()) {
@@ -264,7 +269,9 @@ fun SummaryScreen(
                                 Row(Modifier.fillMaxWidth().padding(vertical = 2.dp),
                                     horizontalArrangement = Arrangement.SpaceBetween) {
                                     Text(name, fontSize = 12.sp, color = TextPrimary, modifier = Modifier.weight(1f))
-                                    Text("%.1f".format(qty) + "L", fontSize = 12.sp,
+                                    val packs = state.packSales[name] ?: 0
+                                    val packsStr = if (packs < 10) "0$packs" else "$packs"
+                                    Text(packsStr + " X " + "%.1f".format(qty) + "L", fontSize = 12.sp,
                                         color = PetronasGreen, fontWeight = FontWeight.Bold)
                                 }
                             }
