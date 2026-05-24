@@ -141,8 +141,12 @@ class SummaryViewModel @Inject constructor(
         } else {
             state.productSales.entries.joinToString("\n") { entry ->
                 val packs = state.packSales[entry.key] ?: 0
-                val packsStr = if (packs < 10) "0$packs" else "$packs"
-                "  - $packsStr X " + entry.key + ": " + "%.1f".format(entry.value) + "L"
+                if (packs > 0) {
+                    val packsStr = if (packs < 10) "0$packs" else "$packs"
+                    "  - $packsStr X " + entry.key + ": " + "%.1f".format(entry.value) + "L"
+                } else {
+                    "  - " + entry.key + ": " + "%.1f".format(entry.value) + "L"
+                }
             }
         }
 
@@ -270,8 +274,11 @@ fun SummaryScreen(
                                     horizontalArrangement = Arrangement.SpaceBetween) {
                                     Text(name, fontSize = 12.sp, color = TextPrimary, modifier = Modifier.weight(1f))
                                     val packs = state.packSales[name] ?: 0
-                                    val packsStr = if (packs < 10) "0$packs" else "$packs"
-                                    Text(packsStr + " X " + "%.1f".format(qty) + "L", fontSize = 12.sp,
+                                    val qtyStr = if (packs > 0) {
+                                        val ps = if (packs < 10) "0$packs" else "$packs"
+                                        ps + " X " + "%.1f".format(qty) + "L"
+                                    } else { "%.1f".format(qty) + "L" }
+                                    Text(qtyStr, fontSize = 12.sp,
                                         color = PetronasGreen, fontWeight = FontWeight.Bold)
                                 }
                             }
