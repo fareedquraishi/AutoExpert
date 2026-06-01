@@ -101,6 +101,11 @@ class SummaryViewModel @Inject constructor(
                             val qty  = Regex("""qty":([0-9.]+)""").find(item)?.groupValues?.get(1)?.toDoubleOrNull()
                             if (name != null && name.isNotEmpty() && qty != null) {
                                 productMap[name] = (productMap[name] ?: 0.0) + qty
+                                val sku = skuList.find { it.name == name }
+                                val volL = if ((sku?.volumeMl ?: 0.0) > 0) (sku?.volumeMl ?: 1000.0) / 1000.0 else 1.0
+                                val packs = Math.round(qty / volL).toInt()
+                                packMap[name] = (packMap[name] ?: 0) + packs
+                                packSizeMap[name] = volL
                             }
                         }
                     }
@@ -126,6 +131,8 @@ class SummaryViewModel @Inject constructor(
                 prospect         = todayEntries.count { !it.isRepeat && it.totalLitres == 0.0 },
                 vehicleCounts    = vehicleMap,
                 productSales     = productMap,
+                packSales        = packMap,
+                packSizes        = packSizeMap,
                 applicatorCount  = todayEntries.count { it.isApplicator },
                 yesterdayReach   = yesterdayEntries.size,
                 yesterdayLitres  = yesterdayEntries.sumOf { it.totalLitres },
