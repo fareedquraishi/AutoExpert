@@ -47,6 +47,7 @@ data class SummaryUiState(
     val vehicleCounts: Map<String, Int> = emptyMap(),
     val productSales: Map<String, Double> = emptyMap(),
     val packSales: Map<String, Int> = emptyMap(),
+    val packSizes: Map<String, Double> = emptyMap(),
     val applicatorCount: Int = 0,
     val yesterdayReach: Int = 0,
     val yesterdayLitres: Double = 0.0,
@@ -59,6 +60,7 @@ class SummaryViewModel @Inject constructor(
     private val saleDao: SaleEntryQueueDao,
     private val payoutDao: PayoutDao,
     private val session: SessionManager,
+    private val skuDao: com.autoexpert.app.data.local.dao.SkuDao,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(SummaryUiState())
@@ -86,6 +88,9 @@ class SummaryViewModel @Inject constructor(
             val unpaid      = allEarned - totalPaid
 
             val productMap = mutableMapOf<String, Double>()
+            val packMap = mutableMapOf<String, Int>()
+            val packSizeMap = mutableMapOf<String, Double>()
+            val skuList = skuDao.getAllActiveOnce()
             todayEntries.forEach { e ->
                 try {
                     val json = e.itemsJson
@@ -141,9 +146,11 @@ class SummaryViewModel @Inject constructor(
         } else {
             state.productSales.entries.joinToString("\n") { entry ->
                 val packs = state.packSales[entry.key] ?: 0
+                val volL  = state.packSizes[entry.key] ?: 0.0
+                val volStr = if (volL > 0) " (" + "%.1f".format(volL) + "L)" else ""
                 if (packs > 0) {
                     val packsStr = if (packs < 10) "0$packs" else "$packs"
-                    "  - $packsStr X " + entry.key + ": " + "%.1f".format(entry.value) + "L"
+                    "  - $packsStr X " + entry.key + volStr
                 } else {
                     "  - " + entry.key + ": " + "%.1f".format(entry.value) + "L"
                 }
